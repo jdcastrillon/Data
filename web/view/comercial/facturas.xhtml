@@ -1,0 +1,374 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templet/template.xhtml">
+
+    <ui:define name="title">Dashboard</ui:define>
+
+    <ui:define name="head">
+        <script type="text/javascript">
+            //<![CDATA[
+            function skinChart() {
+                this.cfg.shadow = false;
+                this.cfg.title = '';
+                this.cfg.seriesColors = ['#FFC107', '#03A9F4'];
+                this.cfg.grid = {
+                    background: '#ffffff',
+                    borderColor: '#ffffff',
+                    gridLineColor: '#EEEEEE',
+                    shadow: false
+                };
+                this.cfg.axesDefaults = {
+                    rendererOptions: {
+                        textColor: '#212121'
+                    }
+                };
+                this.cfg.seriesDefaults = {
+                    shadow: false,
+                    lineWidth: 1,
+                    markerOptions: {
+                        shadow: false,
+                        size: 7,
+                        style: 'circle'
+                    }
+                }
+            }
+
+            //]]>  
+        </script>
+        <style type="text/css">
+            .main-content {
+                padding: 0;
+            }
+        </style>
+        <style type="text/css">
+            .knob-container {
+                display: inline-block;
+                padding: 10px;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card card-w-title">
+                    <p:panel id="panelFac" header="Venta" toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+                        <h:form id="formfact">
+                            <p:growl id="growl" showDetail="true" life="5000" />  
+
+
+                            <p:tabView id="TabFact">
+                                <p:tab title="General">
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-2 ui-md-2">
+                                                <h:outputText value="Cliente : "></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-10">                                                
+                                                <p:autoComplete id="cliente" value="#{facturasControlador.objCliente}" 
+                                                                completeMethod="#{facturasControlador.selclientes}" 
+                                                                var="cliente" itemLabel="#{cliente.doc_nombre}" 
+                                                                itemValue="#{cliente}" forceSelection="true"
+                                                                converter="converclientes"
+                                                                dropdown="true"
+                                                                disabled="#{facturasControlador.aceptar}" style="color: black">
+
+                                                    <p:ajax event="itemSelect" listener="#{facturasControlador.cargarCliente() }" update="cliente" />
+                                                </p:autoComplete>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-2">
+                                                <h:outputText value="Articulo"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-10">                                                
+                                                <p:autoComplete id="articulo" value="#{facturasControlador.objArticulo}" 
+                                                                completeMethod="#{facturasControlador.articulos}" 
+                                                                var="articulo" itemLabel="#{articulo.nom_articulo}" 
+                                                                itemValue="#{articulo}" forceSelection="true"
+                                                                converter="converarticulos"
+                                                                dropdown="true"
+                                                                disabled="#{facturasControlador.aceptar}" style="color: black">
+
+                                                    <p:ajax event="itemSelect" listener="#{facturasControlador.cargaArticulo()}" 
+                                                            update="listArti,articulo,formfact:TabFact:factNeto ,
+                                                            formfact:TabFact:factImpu ,
+                                                            formfact:TabFact:factTot" />
+                                                </p:autoComplete>
+                                            </div>
+
+                                        </div>
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText id="factNObs" value="Observacion :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:inputTextarea id="factObs" value="#{facturasControlador.objFacturas.observacion}" disabled="#{facturasControlador.aceptar}"> </p:inputTextarea>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <p:dataTable id="listArti" var="factura" value="#{facturasControlador.objFacturas.facturasDT}">
+
+                                        <p:columnGroup type="header">
+                                            <p:row>
+                                                <p:column colspan="3" headerText="Articulo" />
+                                                <p:column colspan="5" headerText="Importes" />
+                                            </p:row>
+                                            <p:row>
+                                                <p:column headerText="Codigo" />
+                                                <p:column headerText="Nombre" />
+                                                <p:column headerText="Inventario" />
+                                                <p:column headerText="Cantidad" />
+                                                <p:column headerText="Iva" />
+                                                <p:column headerText="Neto" />
+                                                <p:column headerText="Total" />
+                                                <p:column headerText="-" />
+                                            </p:row>
+                                        </p:columnGroup>
+                                        <p:column style="width: 10%">
+                                            <h:outputText value="#{factura.codigo}" />
+                                        </p:column>
+
+                                        <p:column style="width: 15%">
+                                            <h:outputText value="#{factura.nom_articulo}" />
+                                        </p:column>
+                                        <p:column headerText="Inventario" style="width: 5%">
+                                            <center>  <h:outputText value="#{factura.stock}" /></center>
+                                        </p:column>
+
+                                        <p:column id="Cant" headerText="Cantidad" style="width: 15%" >
+                                            <center> <h:inputText value="#{factura.cantidad}" style="width: 95px" disabled="#{facturasControlador.aceptar}">
+                                                    <p:ajax listener="#{facturasControlador.totalesGrilla(factura)}" update="listArti,
+                                                            formfact:TabFact:factNeto , 
+                                                            formfact:TabFact:factImpu , 
+                                                            formfact:TabFact:factTot"></p:ajax>                          
+                                                </h:inputText>
+                                            </center>
+                                        </p:column>
+
+                                        <p:column headerText="IVA" style="width: 5%" >
+                                            <center> <p:outputLabel id="IVA" value="#{factura.imp_neto}">
+                                                    <f:convertNumber type="currency" currencySymbol="$"></f:convertNumber></p:outputLabel> </center>
+                                        </p:column>
+
+                                        <p:column  headerText="Neto" style="width: 15%" >
+                                            <center> <p:outputLabel id="Neto" value="#{factura.imp_neto}">
+                                                    <f:convertNumber type="currency" currencySymbol="$"></f:convertNumber></p:outputLabel> </center>
+                                        </p:column>
+
+                                        <p:column headerText="Total" style="width: 15%" >
+                                            <center> <p:outputLabel id="Total" value="#{factura.imp_total}">
+                                                    <f:convertNumber type="currency" currencySymbol="$"></f:convertNumber></p:outputLabel> </center>
+
+                                        </p:column>
+
+                                        <p:column headerText="Operaciones" style="width: 10%">
+
+                                        </p:column>
+
+
+
+                                    </p:dataTable> 
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-3">
+                                            <div class="ui-g-2 ui-md-6">
+                                                <h:outputText id="factNNeto" value="SUB TOTAL :" style="font-weight: bold"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-6">
+                                                <h:outputText id="factNeto" value="#{facturasControlador.objFacturas.imp_neto}" style="font-weight: bold;font-size: larger">
+                                                    <f:convertNumber type="currency" currencySymbol="$" ></f:convertNumber></h:outputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-6">
+                                                <h:outputText id="factNImpu" value="IMPUESTO :" style="font-weight: bold"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-6">
+
+                                                <h:outputText id="factImpu" value="#{facturasControlador.objFacturas.imp_impuesto}" style="font-weight: bold;font-size: larger">
+                                                    <f:convertNumber type="currency" currencySymbol="$" ></f:convertNumber></h:outputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-6">
+                                                <h:outputText id="factNTot" value="TOTAL :" style="font-weight: bold"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-6">
+
+                                                <h:outputText id="factTot" value="#{facturasControlador.objFacturas.imp_total}" 
+                                                              style="font-weight: bold;font-size: larger">
+                                                    <f:convertNumber type="currency" currencySymbol="$" ></f:convertNumber></h:outputText>
+                                            </div>
+
+                                        </div>
+                                        <div class="ui-g-12 ui-md-3">
+                                            <div class="ui-g-2 ui-md-6">
+                                                <h:outputText id="factipoNPag" value="Tipo Pago :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-6">
+                                                <p:selectOneMenu id="factipoPag" value="#{facturasControlador.tipoPago}">
+                                                    <f:ajax listener="#{facturasControlador.valorPagar(2)}" render="factEfect"></f:ajax>   
+                                                    <f:selectItem itemLabel="Efectivo" itemValue="Efectivo"></f:selectItem>
+                                                    <f:selectItem itemLabel="Credito" itemValue="Credito"></f:selectItem>
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-6">
+                                                <h:outputText id="factNEfect" value="Valor :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-6">
+                                                <p:inputText id="factEfect" value="#{facturasControlador.valor}"
+                                                             disabled="#{facturasControlador.aceptar}">
+                                                    <p:ajax event="keyup" listener="#{facturasControlador.valorPagar(1)}" update="formfact:TabFact:FactPagos
+                                                            ,formfact:TabFact:factCambio"></p:ajax>      
+                                                </p:inputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-6">
+                                                <h:outputText id="factNCambio" value="Cambio :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-6">
+
+                                                <h:outputText id="factCambio" value="#{facturasControlador.totalCambio}" 
+                                                              style="font-weight: bold;font-size: larger">
+                                                    <f:convertNumber type="currency" currencySymbol="$" ></f:convertNumber></h:outputText>
+                                            </div>
+                                        </div>
+                                        <div class="ui-g-12 ui-md-1"></div>
+                                        <div class="ui-g-12 ui-md-3">
+                                            <p:dataTable id="FactPagos" var="pagos" value="#{facturasControlador.facturaPagos}">
+
+                                                <p:columnGroup type="header">
+                                                    <p:row>
+                                                        <p:column colspan="2" headerText="Pagos" />
+                                                    </p:row>
+                                                    <p:row>
+                                                        <p:column headerText="Concepto" />
+                                                        <p:column headerText="Valor" />
+                                                    </p:row>
+                                                </p:columnGroup>
+                                                <p:column headerText="Concepto" style="width: 20%">
+                                                    <h:outputText value="#{pagos.tipoPago}" />
+                                                </p:column>
+
+                                                <p:column headerText="Valor" style="width: 20%">
+                                                    <h:outputText value="#{pagos.importe}" />
+                                                </p:column>
+
+                                                <p:columnGroup id="FooterTot" type="footer">
+                                                    <p:row>
+                                                        <p:column colspan="1" style="text-align:right" footerText="" />
+                                                        <p:column colspan="1" style="text-align:right" footerText="#{facturasControlador.totalGrilla}" />
+                                                    </p:row>
+                                                </p:columnGroup>
+                                            </p:dataTable>  
+                                        </div>
+                                        <div class="ui-g-12 ui-md-2"></div>
+                                    </div>
+
+                                </p:tab>
+                                <p:tab title="Log">
+                                    <p:dataTable var="log" value="#{facturasControlador.objFacturas.logs}">
+                                        <p:column headerText="Proceso" style="width: 20%">
+                                            <h:outputText value="#{log.proceso}" />
+                                        </p:column>
+
+                                        <p:column headerText="Usuario" style="width: 20%">
+                                            <h:outputText value="#{log.usuario}" />
+                                        </p:column>
+                                        <p:column headerText="Operacion" style="width: 20%">
+                                            <h:outputText value="#{log.operacion}" />
+                                        </p:column>
+                                        <p:column headerText="Fecha" style="width: 20%">
+                                            <h:outputText value="#{log.fecha}" />
+                                        </p:column>
+
+
+                                    </p:dataTable>  
+                                </p:tab>
+                            </p:tabView>
+
+
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3">
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-add"
+                                                         action="#{facturasControlador.prepareNuevo() }" 
+                                                         ajax="true" update=":formfact :formlistFact"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{facturasControlador.nuevo}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-create"
+                                                         action="#{facturasControlador.prepareEdit() }" 
+                                                         ajax="true" update=":formfact :formlistFact"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{facturasControlador.editar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-clear"
+                                                         action="#{facturasControlador.prepareEliminar()}" 
+                                                         ajax="true" update=":formfact :formlistFact"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{facturasControlador.eliminar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-search"
+                                                         action="#{facturasControlador.prepareBuscar()}" 
+                                                         ajax="true" update=":formfact :formlistFact"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{facturasControlador.buscar}"></p:commandButton>
+                                    </div>
+
+                                </div>
+                                <div class="ui-g-12 ui-md-4"></div>
+                                <div class="ui-g-12 ui-md-5">
+                                    <div class="ui-g-0 ui-md-4"></div>
+
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Aceptar"  action="#{facturasControlador.transaccion()}" ajax="true" update=":formfact :formlistFact"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{facturasControlador.aceptar}"> </p:commandButton>
+                                    </div>
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Cancelar" action="#{facturasControlador.cancelarEventos()}" ajax="true" update=":formfact :formlistFact"
+                                                         style="background-color: #939393" > </p:commandButton>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:form>
+                    </p:panel>     
+                    <br/>
+                    <p:panel header="Lista" id="PanelDoc2" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">   
+                        <h:form id="formlistFact">
+                            <p:dataTable var="factura" value="#{facturasControlador.listFacturas}" 
+                                         rows="10"
+                                         paginator="true"
+                                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                         rowsPerPageTemplate="5,10,15">
+
+                                <p:column headerText="Factura" style="width: 10%">
+                                    <h:outputText value="#{factura.nro_docum}" />
+                                </p:column>
+
+
+                                <p:column headerText="Descripcion" style="width: 20%">
+                                    <center>
+                                        <p:commandButton icon="ui-icon-create"   style="background-color: #939393" 
+                                                         action="#{facturasControlador.prepareCrud(factura, 1)}" ajax="true" update=":formfact"> </p:commandButton>
+                                        <p:commandButton icon="ui-icon-clear" style="background-color: #939393" 
+                                                         action="#{facturasControlador.prepareCrud(factura, 2)}"  ajax="true" update=":formfact"> </p:commandButton>
+                                        <p:commandButton icon="ui-icon-remove-red-eye" style="background-color: #939393" 
+                                                         action="#{facturasControlador.prepareCrud(factura, 3)}"  ajax="true" update=":formfact"> </p:commandButton>
+                                    </center>
+                                </p:column>
+
+
+                            </p:dataTable>  
+                        </h:form>
+                    </p:panel>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+
+

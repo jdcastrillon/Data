@@ -1,0 +1,317 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templet/template.xhtml">
+
+    <ui:define name="title">Dashboard</ui:define>
+
+    <ui:define name="head">
+        <script type="text/javascript">
+            //<![CDATA[
+            function skinChart() {
+                this.cfg.shadow = false;
+                this.cfg.title = '';
+                this.cfg.seriesColors = ['#FFC107', '#03A9F4'];
+                this.cfg.grid = {
+                    background: '#ffffff',
+                    borderColor: '#ffffff',
+                    gridLineColor: '#EEEEEE',
+                    shadow: false
+                };
+                this.cfg.axesDefaults = {
+                    rendererOptions: {
+                        textColor: '#212121'
+                    }
+                };
+                this.cfg.seriesDefaults = {
+                    shadow: false,
+                    lineWidth: 1,
+                    markerOptions: {
+                        shadow: false,
+                        size: 7,
+                        style: 'circle'
+                    }
+                }
+            }
+
+            //]]>  
+        </script>
+        <style type="text/css">
+            .main-content {
+                padding: 0;
+            }
+
+        </style>
+        <style type="text/css">
+            .knob-container {
+                display: inline-block;
+                padding: 10px;
+            }
+        </style>
+
+        <script type="text/javascript">
+            function handleLoginRequest(xhr, status, args) {
+                PF('filtros').hide();
+            }
+
+
+        </script>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card card-w-title">
+                    <p:panel id="paneldoc" header="Articulos" toggleable="true" collapsed="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+                        <h:form id="formArt">
+                            <p:growl id="growl" showDetail="true" life="5000" />  
+
+
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3">
+                                    <div class="ui-g-4 ui-md-2">
+                                        <p:commandButton icon="ui-icon-add"
+                                                         action="#{articuloControlador.prepareNuevo()}" 
+                                                         ajax="true" update=":formArt :formlistArt"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{articuloControlador.nuevo}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-4 ui-md-2">
+                                        <p:commandButton icon="ui-icon-create"
+                                                         action="#{articuloControlador.prepareEditar()}" 
+                                                         ajax="true" update=":formArt :formlistArt"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{articuloControlador.editar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-4 ui-md-2">
+                                        <p:commandButton icon="ui-icon-clear"
+                                                         action="#{articuloControlador.prepareEliminar()}" 
+                                                         ajax="true" update=":formArt :formlistArt"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{articuloControlador.eliminar}"></p:commandButton>
+
+
+                                    </div>
+
+                                </div>
+                                
+                            </div>
+                            <p:tabView >
+                                <p:tab title="General" >
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-6">
+
+                                            <div class="ui-g-12 ui-md-4">
+                                                <h:outputText value="Categoria :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-8">                                                
+                                                <p:selectOneMenu value="#{articuloControlador.objArticulo.categoria}" disabled="#{articuloControlador.aceptar}">
+                                                    <p:ajax listener="#{articuloControlador.cargarSubCategorias()}" update="subcategoria" />
+                                                    <f:selectItem itemLabel="No Aplica" itemValue="0" />
+                                                    <f:selectItems value="#{articuloControlador.listCategoria}" var="cat" itemValue="#{cat.cod_categoria}" itemLabel="#{cat.nom_categoria}" ></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>                                           
+                                            <div class="ui-g-12 ui-md-4">
+                                                <h:outputText value="SubCategoria :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-8">                                                
+                                                <p:selectOneMenu id="subcategoria" value="#{articuloControlador.objArticulo.subcategoria}" disabled="#{articuloControlador.aceptar}">
+                                                    <f:selectItem itemLabel="No Aplica" itemValue="0" />
+                                                    <f:selectItems value="#{articuloControlador.objCategoria.listSubCategoria}" var="scat" itemValue="#{scat.cod_subcategoria}" itemLabel="#{scat.nom_subcategoria}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>   
+                                            <div class="ui-g-12 ui-md-4">
+                                                <h:outputText value="Generar Codigo:"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-8">
+                                                <p:inputSwitch value="#{articuloControlador.objArticulo.autogenerar}" disabled="#{articuloControlador.aceptar}" style="color: black">
+                                                    <p:ajax listener="#{articuloControlador.autoGenerarNum()}" update="CodArticulo" />
+                                                </p:inputSwitch>                                              
+                                            </div>
+                                            <div class="ui-g-12 ui-md-4">
+                                                <h:outputText value="Codigo :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-8">
+                                                <p:inputText id="CodArticulo" value="#{articuloControlador.objArticulo.codigo}" disabled="#{articuloControlador.aceptar}"> </p:inputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-4">
+                                                <h:outputText value="Activo :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-8">
+                                                <p:inputSwitch value="#{articuloControlador.objArticulo.activoStock}" disabled="#{articuloControlador.aceptar}" style="color: black"/>                                                
+                                            </div>
+                                            <div class="ui-g-12 ui-md-4">
+                                                <h:outputText value="Unidad :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-8">                                                
+                                                <p:selectOneMenu value="#{articuloControlador.objArticulo.cod_unidad}" disabled="#{articuloControlador.aceptar}">
+                                                    <f:selectItem itemLabel="No Aplica" itemValue="0" />
+                                                    <f:selectItems value="#{articuloControlador.listUnidad}" var="uni" itemValue="#{uni.cod_unidad}" itemLabel="#{uni.nom_unidad}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+
+                                        </div>
+                                        <div class="ui-g-12 ui-md-6">
+
+                                            <div class="ui-g-12 ui-md-4">
+                                                <h:outputText value="Nombre :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-8">
+                                                <p:inputText value="#{articuloControlador.objArticulo.nom_articulo}" disabled="#{articuloControlador.aceptar}"> </p:inputText>
+                                            </div>
+
+                                            <div class="ui-g-12 ui-md-4">
+                                                <h:outputText value="Stock Minimo :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-8">
+                                                <p:inputText value="#{articuloControlador.objArticulo.stock_min}" disabled="#{articuloControlador.aceptar}"> </p:inputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-4">
+                                                <h:outputText value="Stock Maximo :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-8">
+                                                <p:inputText value="#{articuloControlador.objArticulo.stock_max}" disabled="#{articuloControlador.aceptar}">  </p:inputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-4">
+                                                <h:outputText value="Activo Comercial :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-8">
+                                                <p:inputSwitch value="#{articuloControlador.objArticulo.activoComercial}" disabled="#{articuloControlador.aceptar}" style="color: black"/>                                                
+                                            </div>
+                                            <div class="ui-g-12 ui-md-4">
+                                                <h:outputText value="Impuesto (IVA) :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-8">                                                
+                                                <p:selectOneMenu value="#{articuloControlador.objArticulo.porc_imp}" disabled="#{articuloControlador.aceptar}">
+                                                    <f:selectItem itemLabel="0%" itemValue="0" />
+                                                    <f:selectItem itemLabel="5%" itemValue="5" />
+                                                    <f:selectItem itemLabel="10%" itemValue="10" />
+                                                    <f:selectItem itemLabel="19%" itemValue="19" />
+                                                </p:selectOneMenu>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </p:tab>
+                                <p:tab title="Log">
+                                    <p:dataTable var="log" value="#{articuloControlador.objArticulo.logs}"  reflow="true">
+                                        <p:column headerText="Proceso" class="ui-md-2 ui-md-12">
+                                            <h:outputText value="#{log.proceso}" />
+                                        </p:column>
+
+                                        <p:column headerText="Usuario" class="ui-md-1 ui-md-12">
+                                            <h:outputText value="#{log.usuario}" />
+                                        </p:column>
+                                        <p:column headerText="Operacion" class="ui-md-1 ui-md-12">
+                                            <h:outputText value="#{log.operacion}" />
+                                        </p:column>
+                                        <p:column headerText="Fecha" class="ui-md-1 ui-md-12">
+                                            <h:outputText value="#{log.fecha}" />
+                                        </p:column>
+                                    </p:dataTable>  
+                                </p:tab>
+                            </p:tabView>
+
+
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3"> </div>
+                                <div class="ui-g-12 ui-md-4"></div>
+                                <div class="ui-g-12 ui-md-5">
+                                    <div class="ui-g-12 ui-md-4"></div>
+
+                                    <div class="ui-g-6 ui-md-4">
+                                        <p:commandButton value="Aceptar"  action="#{articuloControlador.transaccion()}" ajax="true" update=":formArt :formlistArt"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{articuloControlador.aceptar}"> </p:commandButton>
+                                    </div>
+                                    <div class="ui-g-6 ui-md-4">
+                                        <p:commandButton value="Cancelar" action="#{articuloControlador.cancelarEventos()}" ajax="true" update=":formArt :formlistArt"
+                                                         style="background-color: #939393" > </p:commandButton>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:form>
+                    </p:panel>     
+                    <br/>
+                    <p:panel  id="toggleable" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">   
+                        <h:form id="formlistArt">
+
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-12">
+                                    <div class="ui-g-12 ui-md-12">
+                                        <div class="ui-g-12 ui-md-1">
+                                            Busqueda :
+                                        </div>
+                                        <div class="ui-g-12 ui-md-5">
+                                            <p:inputText value="#{articuloControlador.valorBusqueda}" >
+                                            </p:inputText>
+                                        </div>
+                                        <div class="ui-g-12 ui-md-2">
+                                            <p:commandButton icon="ui-icon-search"
+                                                             action="#{articuloControlador.busquedaDatos()}" 
+                                                             ajax="true" update=":formlistArt"
+                                                             style="background-color: #939393"></p:commandButton>
+
+                                            <p:commandButton  icon="ui-icon-clear"
+                                                              action="#{articuloControlador.limpiarDatos()}" 
+                                                              ajax="true" update=":formlistArt"
+                                                              style="background-color: #939393"></p:commandButton>
+
+                                        </div>
+
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12">
+                                        <p:dataTable id="Larticulo" var="articulo" value="#{articuloControlador.listArticulos}" 
+                                                     rows="10"
+                                                     paginator="true"
+                                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                                     rowsPerPageTemplate="5,10,15"
+                                                     reflow="true">
+                                            <f:facet name="header">
+                                                Lista de Articulos
+                                            </f:facet>
+                                            <p:column headerText="Codigo" sortBy="#{articulo.codigo}" class="ui-md-1 ui-md-1">
+                                                <h:outputText value="#{articulo.codigo}" />
+                                            </p:column>
+                                            <p:column headerText="Descripcion" sortBy="#{articulo.nom_articulo}" class="ui-md-1 ui-md-4">
+                                                <h:outputText value="#{articulo.nom_articulo}" />
+                                            </p:column>
+                                            <p:column headerText="Categoria" class="ui-md-1 ui-md-2">
+                                                <h:outputText value="#{articulo.nom_categoria}" />
+                                            </p:column>
+                                            <p:column headerText="Sub Categoria" class="ui-md-1 ui-md-2">
+                                                <h:outputText value="#{articulo.nom_categoria}" />
+                                            </p:column>
+                                            <p:column headerText="Unidad" class="ui-md-1 ui-md-1">
+                                                <h:outputText value="#{articulo.nom_unidad}" />
+                                            </p:column>
+                                            <p:column headerText="Operacion" class="ui-md-2 ui-md-1">
+                                                <center>
+                                                    <p:commandButton icon="ui-icon-create" styleClass="SubirPanel"  style="background-color: #939393" 
+                                                                     action="#{articuloControlador.prepareCrud(articulo, 1)}" ajax="true" update=":formArt"> </p:commandButton>
+                                                    <p:commandButton icon="ui-icon-clear" styleClass="SubirPanel" style="background-color: #939393" 
+                                                                     action="#{articuloControlador.prepareCrud(articulo, 2)}"  ajax="true" update=":formArt"> </p:commandButton>
+                                                    <p:commandButton icon="ui-icon-remove-red-eye" styleClass="SubirPanel" style="background-color: #939393" 
+                                                                     action="#{articuloControlador.prepareCrud(articulo, 3)}"  ajax="true" update=":formArt"> </p:commandButton>
+                                                </center>
+                                            </p:column>
+
+
+                                        </p:dataTable>  
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </h:form>
+                    </p:panel>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+
+

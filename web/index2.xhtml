@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <f:facet name="first">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+            <meta name="apple-mobile-web-app-capable" content="yes" />
+        </f:facet>
+        <title>DATA</title>
+        <h:outputScript name="js/ripple.js" library="ultima-layout" />
+        <h:outputScript name="js/layout.js" library="ultima-layout" />
+    </h:head>
+    <h:body styleClass="login-body" style="background-color: #cccccc">
+        <h:form>
+            <p:growl id="growl" sticky="true" showDetail="true" life="3000" />
+            <br/><br/> <br/><br/> <br/><br/> <br/><br/>
+            <div class="ui-g">
+                <div class="ui-g-12">
+                    <div class="card card-w-title">
+                        <div class="ui-g ui-fluid form-group">
+
+                            <div class="ui-g-12 ui-md-4"></div>
+                            <div class="ui-g-12 ui-md-4">
+                                <p:panel id="basic" footer="DATA" style="margin-bottom:20px">
+                                    <center>
+                                        <h:panelGrid columns="2" cellpadding="5">
+                                            <h:outputLabel for="username" value="Username:" />
+                                            <p:inputText id="username" value="#{sessionControlador.objUsuario.usuario}" required="true" label="username" />
+
+                                            <h:outputLabel for="password" value="Password:" />
+                                            <p:password id="password" value="#{sessionControlador.objUsuario.clave}" required="true" label="password" />
+
+                                            <h:outputLabel for="Cliente" value="Cliente" />
+                                            <p:selectOneMenu id="Cliente" value="#{sessionControlador.objUsuario.base}"> 
+                                                <f:selectItem itemLabel="Pruebas" itemValue="1"></f:selectItem>
+                                                <f:selectItem itemLabel="Produccion" itemValue="2"></f:selectItem>
+                                            </p:selectOneMenu>
+
+                                            <f:facet name="footer">
+                                                <p:commandButton value="Login" update="growl" action="#{sessionControlador.iniciarSesion()}"/>
+                                            </f:facet>  
+                                        </h:panelGrid>
+                                    </center>
+                                </p:panel>
+                            </div>
+                            <div class="ui-g-12 ui-md-4"></div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </h:form>
+    </h:body>
+</html>

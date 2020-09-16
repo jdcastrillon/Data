@@ -1,0 +1,110 @@
+<?xml version='1.0' encoding='UTF-8'?><!-- Published by JAX-WS RI (http://jax-ws.java.net). RI's version is Metro/2.3.2-b608 (trunk-7979; 2015-01-21T12:50:19+0000) JAXWS-RI/2.2.11-b150120.1832 JAXWS-API/2.2.12 JAXB-RI/2.2.12-b141219.1637 JAXB-API/2.2.13-b141020.1521 svn-revision#unknown. --><xs:schema xmlns:tns="http://Start/" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0" targetNamespace="http://Start/">
+
+<xs:element name="carga_datos_arbol" type="tns:carga_datos_arbol"/>
+
+<xs:element name="carga_datos_arbolResponse" type="tns:carga_datos_arbolResponse"/>
+
+<xs:element name="hello" type="tns:hello"/>
+
+<xs:element name="helloResponse" type="tns:helloResponse"/>
+
+<xs:element name="jsonTrans" type="tns:jsonTrans"/>
+
+<xs:element name="jsonTransResponse" type="tns:jsonTransResponse"/>
+
+<xs:element name="jsonquery" type="tns:jsonquery"/>
+
+<xs:element name="jsonqueryMulti" type="tns:jsonqueryMulti"/>
+
+<xs:element name="jsonqueryMultiResponse" type="tns:jsonqueryMultiResponse"/>
+
+<xs:element name="jsonqueryResponse" type="tns:jsonqueryResponse"/>
+
+<xs:element name="jsonreporte" type="tns:jsonreporte"/>
+
+<xs:element name="jsonreporteResponse" type="tns:jsonreporteResponse"/>
+
+<xs:element name="login" type="tns:login"/>
+
+<xs:element name="loginResponse" type="tns:loginResponse"/>
+
+<xs:complexType name="login">
+<xs:sequence>
+<xs:element name="json" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="loginResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="jsonTrans">
+<xs:sequence>
+<xs:element name="json" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="jsonTransResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="hello">
+<xs:sequence>
+<xs:element name="name" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="helloResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="jsonquery">
+<xs:sequence>
+<xs:element name="consulta" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="jsonqueryResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="carga_datos_arbol">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="carga_datos_arbolResponse">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="jsonqueryMulti">
+<xs:sequence>
+<xs:element name="consulta" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="jsonqueryMultiResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="jsonreporte">
+<xs:sequence>
+<xs:element name="consulta" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="jsonreporteResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+</xs:schema>

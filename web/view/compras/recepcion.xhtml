@@ -1,0 +1,386 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templet/template.xhtml">
+
+    <ui:define name="title">Dashboard</ui:define>
+
+    <ui:define name="head">
+        <style type="text/css">
+            .main-content {
+                padding: 0;
+            }
+        </style>
+        <style type="text/css">
+            .knob-container {
+                display: inline-block;
+                padding: 10px;
+            }
+        </style>
+        <script type="text/javascript">
+            function cierreCuentas(xhr, status, args) {
+                PF('ocompra').hide();
+            }
+        </script>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card card-w-title">
+                    <p:panel id="panleRecep" header="Recepcion" toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+                        <h:form id="formrecepD">
+                            <p:dialog header="" widgetVar="ocompra"  modal="true" width="600">
+
+                                <p:dataTable var="compra" value="#{recepcionControlador.listOcompras}"
+                                             selectionMode="single" selection="#{recepcionControlador.compraSelect}" rowKey="#{compra.nro_docum}">
+                                    <f:facet name="header">
+                                        Ordenes de Compra
+                                    </f:facet>
+                                    <p:column headerText="Fecha" style="width: 20%">
+                                        <h:outputText value="#{compra.fec_doc}" />
+                                    </p:column>
+
+                                    <p:column headerText="Proveedor" style="width: 20%">
+                                        <h:outputText value="#{compra.razon_social}" />
+                                    </p:column>
+
+                                    <p:column headerText="Orden de Compra" style="width: 20%">
+                                        <h:outputText value="#{compra.nro_docum}" />
+                                    </p:column>
+                                </p:dataTable> 
+
+                                <f:facet name="footer">
+                                    <p:commandButton value="Aceptar" oncomplete="cierreCuentas(xhr, status, args)" 
+                                                     action="#{recepcionControlador.cargarOrdenCompra()}" 
+                                                     ajax="true" update=":formrecep :formrecepD"/>
+                                </f:facet> 
+
+                            </p:dialog>
+                        </h:form>
+
+                        <h:form id="formrecep">
+                            <p:growl id="growl" showDetail="true" life="5000" />  
+
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3">
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-add"
+                                                         action="#{recepcionControlador.prepareNuevo() }" 
+                                                         ajax="true" update=":formrecep :formlistRecep :formrecepT :formrecepD"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{recepcionControlador.nuevo}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-create"
+                                                         action="#{recepcionControlador.prepareEdit() }" 
+                                                         ajax="true" update=":formrecep :formlistRecep"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{recepcionControlador.editar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-clear"
+                                                         action="#{recepcionControlador.prepareEliminar()}" 
+                                                         ajax="true" update=":formrecep :formlistRecep"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{recepcionControlador.eliminar}"></p:commandButton>
+                                    </div>
+                                </div>
+                            </div>
+                            <p:tabView id="RecepTap">
+                                <p:tab id="GenRecep" title="General">
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-12 ui-md-3">
+                                                <h:outputText value="Empresa :"></h:outputText>
+                                            </div>                                              
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:selectOneMenu value="#{recepcionControlador.objRecepcion.cod_emp}" disabled="#{recepcionControlador.aceptar}">
+                                                    <f:selectItems value="#{recepcionControlador.listEmpresas}" var="emp" itemValue="#{emp.cod_emp}" itemLabel="#{emp.nom_emp}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-3">
+                                                <h:outputText value="Proveedor :"></h:outputText>
+                                            </div>                                              
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:selectOneMenu value="#{recepcionControlador.objRecepcion.cod_provedor}" disabled="#{recepcionControlador.aceptar}">
+                                                    <f:selectItems value="#{recepcionControlador.listProveedor}" var="prov" itemValue="#{prov.cod_provedor}" itemLabel="#{prov.razon_social}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-3">
+                                                <h:outputText value="Pago :"></h:outputText>
+                                            </div>                                              
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:selectOneMenu value="#{recepcionControlador.objRecepcion.cod_fpago}" disabled="#{recepcionControlador.aceptar}">
+                                                    <f:selectItems value="#{recepcionControlador.listPagos}" var="pago" itemValue="#{pago.cod_pago}" itemLabel="#{pago.descripcion}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-3">
+                                                <h:outputText value="Bodega :"></h:outputText>
+                                            </div>                                              
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:selectOneMenu value="#{recepcionControlador.objRecepcion.cod_deposito}" disabled="#{recepcionControlador.aceptar}">
+                                                    <f:selectItems value="#{recepcionControlador.listDepositos}" var="depo" itemValue="#{depo.cod_deposito}" itemLabel="#{depo.nom_deposito}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+
+                                        </div>
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-2 ui-md-4">
+                                                <h:outputText value="Fecha :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-8">
+                                                <p:calendar id="button" value="#{recepcionControlador.objRecepcion.d_fec_doc}" showOn="button" disabled="#{recepcionControlador.aceptar}"
+                                                            locale="de" navigator="true" pattern="dd/MM/yyyy" />
+                                            </div>
+                                            <div class="ui-g-2 ui-md-4">
+                                                <h:outputText value="Orden Compra :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-6">
+                                                <p:inputText  value="#{recepcionControlador.objRecepcion.nro_doca}" disabled="true" style="color:  black"></p:inputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-2">
+                                                <center>
+                                                    <p:commandButton icon="ui-icon-dehaze"  
+                                                                     disabled="#{recepcionControlador.aceptar}" 
+                                                                     onclick="PF('ocompra').show();"> </p:commandButton>
+                                                </center>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-4">
+                                                <h:outputText value="Factura :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-8">
+                                                <p:inputText  value="#{recepcionControlador.objRecepcion.nro_docum}" disabled="#{recepcionControlador.aceptar}" style="color:  black"></p:inputText>
+                                            </div>
+
+                                            <div class="ui-g-2 ui-md-4">
+                                                <h:outputText value="Obsrvacion :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-8">
+                                                <p:inputTextarea value="#{recepcionControlador.objRecepcion.observaciones}" disabled="#{recepcionControlador.aceptar}"></p:inputTextarea>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-10">
+                                            <div class="ui-g-2 ui-md-1">
+                                                <h:outputText value="Articulo"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-8">                                                
+                                                <p:autoComplete id="articulo" value="#{recepcionControlador.objArticulo}" 
+                                                                completeMethod="#{recepcionControlador.articulos}" 
+                                                                var="articulo" itemLabel="#{articulo.nom_articulo}" 
+                                                                itemValue="#{articulo}" forceSelection="true"
+                                                                converter="converarticulos"
+                                                                dropdown="true"
+                                                                disabled="#{recepcionControlador.aceptar}" style="color: black">
+
+                                                    <p:ajax event="itemSelect" listener="#{recepcionControlador.cargaArticulo()}" update="listArtRecep,articulo" />
+                                                </p:autoComplete>
+                                            </div>
+                                        </div>
+                                        <div class="ui-g-12 ui-md-5"></div>
+                                    </div> 
+
+                                    <p:dataTable id="listArtRecep" var="articulos" value="#{recepcionControlador.objRecepcion.recepcionDT}">
+
+                                        <p:columnGroup type="header">
+                                            <p:row>
+                                                <p:column colspan="3" headerText="Articulo" />
+                                                <p:column colspan="6" headerText="Importes" />
+                                            </p:row>
+                                            <p:row>
+                                                <p:column headerText="Codigo" />
+                                                <p:column headerText="Codigo Nuevo" />
+                                                <p:column headerText="Nombre" />
+                                                <p:column headerText="Cantidad" />
+                                                <p:column headerText="Costo" />
+                                                <p:column headerText="Iva" />
+                                                <p:column headerText="Neto" />
+                                                <p:column headerText="Total" />
+                                                <p:column headerText="-" />
+                                            </p:row>
+                                        </p:columnGroup>
+                                        <p:column style="width: 10%">
+                                            <h:outputText value="#{articulos.codigo}" />
+                                        </p:column>
+
+                                        <p:column style="width: 10%">
+                                            <h:inputText value="#{articulos.codigonew}" style="width: 95px" disabled="#{recepcionControlador.aceptar}"></h:inputText>
+                                        </p:column>
+
+                                        <p:column style="width: 15%">
+                                            <h:outputText value="#{articulos.nom_articulo}" />
+                                        </p:column>
+
+                                        <p:column id="Cant" headerText="Cantidad" style="width: 15%" >
+                                            <center> <h:inputText value="#{articulos.cantidad}" style="width: 95px" disabled="#{recepcionControlador.aceptar}">
+                                                    <f:ajax event="blur" listener="#{recepcionControlador.totalesGrilla(articulos)}" execute="@this" render="listArtRecep" />
+                                                </h:inputText>
+                                            </center>
+                                        </p:column>
+
+                                        <p:column id="Costo" headerText="Costo" style="width: 15%" >
+                                            <center> <h:inputText value="#{articulos.imp_costo}"  style="width: 95px" disabled="#{recepcionControlador.aceptar}">
+                                                    <f:ajax event="blur" listener="#{recepcionControlador.totalesGrilla(articulos)}" execute="@this" render="listArtRecep" /></h:inputText>
+                                            </center>
+                                        </p:column>
+
+                                        <p:column id="IVA" headerText="IVA" style="width: 5%" >
+                                            <center> <h:inputText style="width: 95px" value="#{articulos.porc_imp}" disabled="#{recepcionControlador.aceptar}">
+                                                    <f:ajax event="blur" listener="#{recepcionControlador.totalesGrilla(articulos)}" execute="@this" render="listArtRecep" />
+                                                </h:inputText>
+                                            </center>
+                                        </p:column>
+
+                                        <p:column  headerText="Neto" style="width: 15%" >
+                                            <center> <p:outputLabel id="Neto" value="#{articulos.imp_neto}">
+                                                    <f:convertNumber type="currency" currencySymbol="$"></f:convertNumber></p:outputLabel> </center>
+                                        </p:column>
+
+                                        <p:column headerText="Total" style="width: 15%" >
+                                            <center> <p:outputLabel id="Total" value="#{articulos.imp_total}">
+                                                    <f:convertNumber type="currency" currencySymbol="$"></f:convertNumber></p:outputLabel> </center>
+
+                                        </p:column>
+
+                                        <p:column id="ReceOperacion" headerText="Operaciones" style="width: 10%">
+                                            <center>
+                                                <p:commandButton icon="ui-icon-clear" style="background-color: red" ajax="true" 
+                                                                 action="#{recepcionControlador.eliminarArticuloGrilla(articulos)}">
+
+
+                                                </p:commandButton>
+                                            </center>
+                                        </p:column>
+
+                                        <p:columnGroup id="FooterTot" type="footer">
+                                            <p:row>
+                                                <p:column colspan="3" style="text-align:right" footerText="Totales :" />
+                                                <p:column footerText="#{recepcionControlador.totales[1]}" ></p:column>
+                                                <p:column footerText="#{recepcionControlador.totales[2]}" ></p:column>
+                                                <p:column footerText="" ></p:column>
+                                                <p:column footerText="#{recepcionControlador.totales[3]}"></p:column>
+                                                <p:column footerText="#{recepcionControlador.totales[4]}" ></p:column>
+                                                <p:column footerText="" ></p:column>
+                                            </p:row>
+                                            <p:row>
+                                                <p:column colspan="9" style="text-align:right" footerText="" />
+                                            </p:row>
+                                            <p:row>
+                                                <p:column colspan="6" style="text-align:right" footerText="" />
+                                                <p:column footerText="SUB TOTAL " ></p:column>
+                                                <p:column footerText="#{recepcionControlador.totales[5]}" ></p:column>
+                                                <p:column footerText="" ></p:column>
+                                            </p:row>
+                                            <p:row>
+                                                <p:column colspan="6" style="text-align:right" footerText="" />
+                                                <p:column footerText="IMPUESTO " ></p:column>
+                                                <p:column footerText="#{recepcionControlador.totales[6]}" ></p:column>
+                                                <p:column footerText="" ></p:column>
+                                            </p:row>
+                                            <p:row>
+                                                <p:column colspan="6" style="text-align:right" footerText="" />
+                                                <p:column footerText="TOTAL " ></p:column>
+                                                <p:column footerText="#{recepcionControlador.totales[4]}" ></p:column>
+                                                <p:column footerText="" ></p:column>
+                                            </p:row>
+                                        </p:columnGroup>
+
+
+                                    </p:dataTable> 
+
+                                </p:tab>
+
+                                <p:tab title="Log">
+                                    <p:dataTable var="log" value="#{recepcionControlador.objRecepcion.logs}">
+                                        <p:column headerText="Proceso" style="width: 20%">
+                                            <h:outputText value="#{log.proceso}" />
+                                        </p:column>
+
+                                        <p:column headerText="Usuario" style="width: 20%">
+                                            <h:outputText value="#{log.usuario}" />
+                                        </p:column>
+                                        <p:column headerText="Operacion" style="width: 20%">
+                                            <h:outputText value="#{log.operacion}" />
+                                        </p:column>
+                                        <p:column headerText="Fecha" style="width: 20%">
+                                            <h:outputText value="#{log.fecha}" />
+                                        </p:column>
+
+
+                                    </p:dataTable>  
+                                </p:tab>
+                            </p:tabView>
+                        </h:form>
+                        <h:form id="formrecepT">
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3"></div>
+                                <div class="ui-g-12 ui-md-4"></div>
+                                <div class="ui-g-12 ui-md-5">
+                                    <div class="ui-g-0 ui-md-4"></div>
+
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Aceptar"  action="#{recepcionControlador.transaccion()}" 
+                                                         ajax="true" update=":formrecep :formlistRecep"
+                                                         style="background-color: #939393"> </p:commandButton>
+                                    </div>
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Cancelar" action="#{recepcionControlador.cancelarEventos()}" ajax="true" update=":formrecep :formlistRecep"
+                                                         style="background-color: #939393" > </p:commandButton>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:form>
+                    </p:panel>     
+                    <br/>
+                    <p:panel header="Lista" id="PanelDoc2" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">   
+                        <h:form id="formlistRecep">
+                            <p:dataTable var="ocompra" value="#{recepcionControlador.listRecepcion}" 
+                                         rows="10"
+                                         paginator="true"
+                                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                         rowsPerPageTemplate="5,10,15">
+
+                               
+                                <p:column headerText="Trans" style="width: 10%">
+                                    <h:outputText value="#{ocompra.trans}" />
+                                </p:column>
+                                <p:column headerText="Orden Compra" style="width: 10%">
+                                    <h:outputText value="#{ocompra.nro_docum}" />
+                                </p:column>
+
+                                <p:column headerText="Fecha" style="width: 10%">
+                                    <h:outputText value="#{ocompra.fec_doc}" />
+                                </p:column>
+
+                                <p:column headerText="proveedor" style="width: 60%">
+                                    <h:outputText value="#{ocompra.cod_provedor}" />
+                                </p:column>
+                                <p:column headerText="Descripcion" style="width: 20%">
+                                    <center>
+                                        <p:commandButton icon="ui-icon-create"   style="background-color: #939393" 
+                                                         action="#{recepcionControlador.prepareCrud(ocompra, 1)}" ajax="true" update=":formrecep"> </p:commandButton>
+                                        <p:commandButton icon="ui-icon-clear" style="background-color: #939393" 
+                                                         action="#{recepcionControlador.prepareCrud(ocompra, 2)}"  ajax="true" update=":formrecep"> </p:commandButton>
+                                        <p:commandButton icon="ui-icon-remove-red-eye" style="background-color: #939393" 
+                                                         action="#{recepcionControlador.prepareCrud(ocompra, 3)}"  ajax="true" update=":formrecep"> </p:commandButton>
+                                    </center>
+                                </p:column>
+
+
+                            </p:dataTable>  
+                        </h:form>
+                    </p:panel>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+
+

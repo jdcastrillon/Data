@@ -1,0 +1,220 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templet/template.xhtml">
+
+    <ui:define name="title">Dashboard</ui:define>
+
+    <ui:define name="head">
+        <script type="text/javascript">
+            //<![CDATA[
+            function skinChart() {
+                this.cfg.shadow = false;
+                this.cfg.title = '';
+                this.cfg.seriesColors = ['#FFC107', '#03A9F4'];
+                this.cfg.grid = {
+                    background: '#ffffff',
+                    borderColor: '#ffffff',
+                    gridLineColor: '#EEEEEE',
+                    shadow: false
+                };
+                this.cfg.axesDefaults = {
+                    rendererOptions: {
+                        textColor: '#212121'
+                    }
+                };
+                this.cfg.seriesDefaults = {
+                    shadow: false,
+                    lineWidth: 1,
+                    markerOptions: {
+                        shadow: false,
+                        size: 7,
+                        style: 'circle'
+                    }
+                }
+            }
+
+            //]]>  
+        </script>
+        <style type="text/css">
+            .main-content {
+                padding: 0;
+            }
+        </style>
+        <style type="text/css">
+            .knob-container {
+                display: inline-block;
+                padding: 10px;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card card-w-title">
+                    <p:panel id="paneldoc" header="Tipo de Documentos" toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+                        <h:form id="formDoc">
+                            <p:growl id="growl" showDetail="true" life="5000" />  
+                            <p:tabView >
+                                <p:tab title="General">
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-12 ui-md-2">
+                                                <h:outputText value="Codigo* :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-10">                                                
+                                                <p:inputText id="inputId" value="#{documentoControlador.objDoc.cod_tipodoc}" 
+                                                             disabled="#{documentoControlador.aceptar}" >     
+                                                </p:inputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-2">
+                                                <h:outputText value="Nombre :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-10">
+                                                <p:inputText value="#{documentoControlador.objDoc.nombredocumento}" disabled="#{documentoControlador.aceptar}"> </p:inputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-2">
+                                                <h:outputText value="Estado :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-10">
+
+                                                <p:selectOneMenu value="#{documentoControlador.objDoc.activo}" disabled="#{documentoControlador.aceptar}">
+                                                    <f:selectItem itemLabel="Activo" itemValue="A" />
+                                                    <f:selectItem itemLabel="Inactivo" itemValue="I" />
+                                                </p:selectOneMenu>
+
+                                            </div>
+
+                                        </div>
+                                        <div class="ui-g-12 ui-md-6"> </div>
+                                    </div>
+                                </p:tab>
+                                <p:tab title="Log">
+                                    <p:dataTable var="log" value="#{documentoControlador.objDoc.logs}">
+                                        <p:column headerText="Proceso" style="width: 20%">
+                                            <h:outputText value="#{log.proceso}" />
+                                        </p:column>
+
+                                        <p:column headerText="Usuario" style="width: 20%">
+                                            <h:outputText value="#{log.usuario}" />
+                                        </p:column>
+                                        <p:column headerText="Operacion" style="width: 20%">
+                                            <h:outputText value="#{log.operacion}" />
+                                        </p:column>
+                                        <p:column headerText="Fecha" style="width: 20%">
+                                            <h:outputText value="#{log.fecha}" />
+                                        </p:column>
+
+
+                                    </p:dataTable>  
+                                </p:tab>
+                            </p:tabView>
+
+
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3">
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-add"
+                                                         action="#{documentoControlador.prepareNuevoDocumento()}" 
+                                                         ajax="true" update=":formDoc :formlistDoc"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{documentoControlador.nuevo}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-create"
+                                                         action="#{documentoControlador.prepareEditDocumento()}" 
+                                                         ajax="true" update=":formDoc :formlistDoc"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{documentoControlador.editar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-clear"
+                                                         action="#{documentoControlador.prepareEliminarDoc()}" 
+                                                         ajax="true" update=":formDoc :formlistDoc"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{documentoControlador.eliminar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-search"
+                                                         action="#{documentoControlador.prepareBuscarDoc()}" 
+                                                         ajax="true" update=":formDoc :formlistDoc"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{documentoControlador.buscar}"></p:commandButton>
+                                    </div>
+
+                                </div>
+                                <div class="ui-g-12 ui-md-4"></div>
+                                <div class="ui-g-12 ui-md-5">
+                                    <div class="ui-g-0 ui-md-4"></div>
+
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Aceptar"  action="#{documentoControlador.transaccion()}" ajax="true" update=":formDoc :formlistDoc"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{documentoControlador.aceptar}"> </p:commandButton>
+                                    </div>
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Cancelar" action="#{documentoControlador.cancelarEventos()}" ajax="true" update=":formDoc :formlistDoc"
+                                                         style="background-color: #939393" > </p:commandButton>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:form>
+                    </p:panel>     
+                    <br/>
+                    <p:panel header="Lista" id="toggleable" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">   
+                        <h:form id="formlistDoc">
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-6">
+                                    <div class="ui-g-2 ui-md-3">
+                                        <h:outputText value="Buscar :"></h:outputText>
+                                    </div>
+                                    <div class="ui-g-10 ui-md-9">                                                
+                                        <p:autoComplete id="EmpCiudad" value="#{sucursalesControlador.objCiudad}" 
+                                                        completeMethod="#{sucursalesControlador.ciudades}" 
+                                                        var="ciudad" itemLabel="#{ciudad.ciudadDpto}" 
+                                                        itemValue="#{ciudad}" forceSelection="true"
+                                                        converter="converciudad"
+                                                        dropdown="true"
+                                                        disabled="#{documentoControlador.buscar}" style="color: black"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <p:dataTable var="doc" value="#{documentoControlador.listDoc}" 
+                                         rows="10"
+                                         paginator="true"
+                                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                         rowsPerPageTemplate="5,10,15">
+
+                                <p:column headerText="Codigo" style="width: 10%">
+                                    <h:outputText value="#{doc.cod_tipodoc}" />
+                                </p:column>
+
+                                <p:column headerText="Descripcion" style="width: 60%">
+                                    <h:outputText value="#{doc.nombredocumento}" />
+                                </p:column>
+                                <p:column headerText="Descripcion" style="width: 20%">
+                                    <center>
+                                        <p:commandButton icon="ui-icon-create"   style="background-color: #939393" 
+                                                         action="#{documentoControlador.prepareCrud(doc, 1)}" ajax="true" update=":formDoc"> </p:commandButton>
+                                        <p:commandButton icon="ui-icon-clear" style="background-color: #939393" 
+                                                         action="#{documentoControlador.prepareCrud(doc, 2)}"  ajax="true" update=":formDoc"> </p:commandButton>
+                                        <p:commandButton icon="ui-icon-remove-red-eye" style="background-color: #939393" 
+                                                         action="#{documentoControlador.prepareCrud(doc, 3)}"  ajax="true" update=":formDoc"> </p:commandButton>
+                                    </center>
+                                </p:column>
+
+
+                            </p:dataTable>  
+                        </h:form>
+                    </p:panel>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+
+

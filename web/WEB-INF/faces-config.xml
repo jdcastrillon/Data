@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<faces-config version="2.0" xmlns="http://java.sun.com/xml/ns/javaee"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd">
+    
+    <name>Data</name>
+    
+    <component>
+        <component-type>org.primefaces.component.UltimaMenu</component-type>
+        <component-class>org.primefaces.ultima.component.menu.UltimaMenu</component-class>
+    </component>
+    
+    <render-kit>
+        <renderer>
+            <component-family>org.primefaces.component</component-family>
+            <renderer-type>org.primefaces.component.UltimaMenuRenderer</renderer-type>
+            <renderer-class>org.primefaces.ultima.component.menu.UltimaMenuRenderer</renderer-class>
+        </renderer>
+    </render-kit>
+    
+    <navigation-rule>
+        <from-view-id>/index2.xhtml</from-view-id>
+        <navigation-case>
+            <from-outcome>true</from-outcome>
+            <to-view-id>/view/menuprincipal.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>false</from-outcome>
+            <to-view-id>index2.xhtml</to-view-id>
+        </navigation-case>
+    </navigation-rule>   
+    
+    <navigation-rule>
+        <from-view-id>/view/menuprincipal.xhtml</from-view-id>
+        <navigation-case>
+            <from-outcome>/view/sistema/Documentos</from-outcome>
+            <to-view-id>/view/sistema/Documentos.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/sistema/Usuarios</from-outcome>
+            <to-view-id>/view/sistema/Usuarios.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/sistema/Empresa</from-outcome>
+            <to-view-id>/view/sistema/Empresa.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/sistema/Sucursales</from-outcome>
+            <to-view-id>/view/sistema/Sucursales.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/sistema/Negocios</from-outcome>
+            <to-view-id>/view/sistema/Negocios.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/sistema/Articulos</from-outcome>
+            <to-view-id>/view/sistema/Articulos.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/sistema/Categoria</from-outcome>
+            <to-view-id>/view/sistema/Categoria.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/stock/Depositos</from-outcome>
+            <to-view-id>/view/stock/Depositos.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/stock/Estados</from-outcome>
+            <to-view-id>/view/stock/Estados.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/stock/Ubicaciones</from-outcome>
+            <to-view-id>/view/stock/Ubicaciones.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/stock/CalculoStock</from-outcome>
+            <to-view-id>/view/stock/CalculoStock.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/stock/AjusteStock</from-outcome>
+            <to-view-id>/view/stock/AjusteStock.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/stock/dashboard_stock</from-outcome>
+            <to-view-id>/view/stock/dashboard_stock.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/compras/Proveedores</from-outcome>
+            <to-view-id>/view/compras/Proveedores.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/compras/Bancos</from-outcome>
+            <to-view-id>/view/compras/Bancos.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/compras/Pagos</from-outcome>
+            <to-view-id>/view/compras/Pagos.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/compras/recepcion</from-outcome>
+            <to-view-id>/view/compras/recepcion.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/comercial/Clientes</from-outcome>
+            <to-view-id>/view/comercial/Clientes.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/comercial/Cajas</from-outcome>
+            <to-view-id>/view/comercial/Cajas.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/comercial/facturas</from-outcome>
+            <to-view-id>/view/comercial/facturas.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>view/stock/TrasladoBodega</from-outcome>
+            <to-view-id>view/stock/TrasladoBodega.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/stock/Reporte_StockDipo</from-outcome>
+            <to-view-id>/view/stock/Reporte_StockDipo.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/stock/RecepcionTraslado</from-outcome>
+            <to-view-id>/view/stock/RecepcionTraslado.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/stock/Inventario</from-outcome>
+            <to-view-id>/view/stock/Inventario.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/stock/Conteo</from-outcome>
+            <to-view-id>/view/stock/Conteo.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/stock/ProcesoDatos</from-outcome>
+            <to-view-id>/view/stock/ProcesoDatos.xhtml</to-view-id>
+        </navigation-case>
+        
+        
+        
+    </navigation-rule>   
+    
+</faces-config>

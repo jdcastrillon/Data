@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
+    <system systemId="http://localhost:8084/JBServices/JBStart?wsdl" uri="src/conf/xml-resources/web-service-references/JBStart/wsdl/localhost_8084/JBServices/JBStart.wsdl"/>
+    <system systemId="http://localhost:8084/JBServices/JBStart?xsd=1" uri="src/conf/xml-resources/web-service-references/JBStart/wsdl/localhost_8084/JBServices/JBStart.xsd_1.xsd"/>
+    <system systemId="http://localhost:9744/JBServices/Start?wsdl" uri="src/conf/xml-resources/web-service-references/Start/wsdl/localhost_9744/JBServices/Start.wsdl"/>
+    <system systemId="http://localhost:9744/JBServices/Start?xsd=1" uri="src/conf/xml-resources/web-service-references/Start/wsdl/localhost_9744/JBServices/Start.xsd_1.xsd"/>
+    <system systemId="http://localhost:9744/DataService/Start?wsdl" uri="src/conf/xml-resources/web-service-references/Start/wsdl/localhost_9744/DataService/Start.wsdl"/>
+    <system systemId="http://localhost:9744/DataService/Start?xsd=1" uri="src/conf/xml-resources/web-service-references/Start/wsdl/localhost_9744/DataService/Start.xsd_1.xsd"/>
+</catalog>

@@ -1,0 +1,77 @@
+<ui:composition 
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:pu="http://primefaces.org/ultima">
+
+    <h:form id="menuform"> 
+        <div class="layout-menu #{guestPreferences.menuClass}">
+            <div class="nano">
+                <div class="nano-content menu-scroll-content">
+                    <pu:menu widgetVar="me" >
+                        <p:submenu id="um_customization" label="Bodega" icon="inbox" class="active-menuitem"> 
+                            <p:submenu id="BodMant" label="Mantemiento" icon="folder">
+                                <p:menuitem id="articulo" value="Articulos"  outcome="/view/sistema/Articulos"/>
+                                <p:menuitem id="categoria" value="Categoria"  outcome="/view/sistema/Categoria"/>
+                                <p:menuitem id="depositos" value="Bodegas"  outcome="/view/stock/Depositos"/>
+                                <p:menuitem id="estados" value="Estados"  outcome="/view/stock/Estados"/>
+                                <p:menuitem id="ubicacion" value="Ubicaciones"  outcome="/view/stock/Ubicaciones"/>
+                                <p:menuitem id="calculo" value="Calculo"  outcome="/view/stock/CalculoStock"/>
+
+                            </p:submenu>
+                            <p:submenu id="BodTrans" label="Transaccion" icon="folder">
+                                <p:menuitem id="ajustStock" value="Ajuste Stock"  outcome="/view/stock/AjusteStock"/>
+                                <p:menuitem id="trasladoBod" value="1.Traslado Bodega"  outcome="/view/stock/TrasladoBodega"/>
+                                <p:menuitem id="recepBod" value="2.Recepcion Bodega"  outcome="/view/stock/RecepcionTraslado"/>
+                            </p:submenu>
+                            <p:submenu id="BodInve" label="Inventario" icon="folder">
+                                <p:menuitem id="inventario" value="1. Inventario"  outcome="/view/stock/Inventario"/>
+                                <p:menuitem id="conteo" value="2. Conteo"  outcome="/view/stock/Conteo"/>
+                                <p:menuitem id="proceso" value="3. Proceso Datos"  outcome="/view/stock/ProcesoDatos"/>
+                            </p:submenu>
+                            <p:submenu id="Bodrep" label="Reportes" icon="folder">
+                                <p:menuitem id="RepDispo" value="Reporte Disponible"  outcome="/view/stock/Reporte_StockDipo"/>
+                                <p:menuitem id="BDStock" value="DashBoard"  outcome="/view/stock/dashboard_stock"/>
+                            </p:submenu>
+                        </p:submenu>
+
+                        <p:submenu id="Compras" label="Compras" icon="dvr" class="active-menuitem">
+                            <p:submenu id="ComMant" label="Mantemiento" icon="folder">
+                                <p:menuitem id="proveedor" value="Proveedores"  outcome="/view/compras/Proveedores"/>
+                                <p:menuitem id="bancos" value="Bancos"  outcome="/view/compras/Bancos"/>
+                                <p:menuitem id="pagos" value="Pagos"  outcome="/view/compras/Pagos"/>
+                            </p:submenu>
+                            <p:submenu id="Comtrans" label="Transaccion" icon="folder">
+                                <p:menuitem id="oCompra" value="Orden de Compra"  outcome="/view/compras/compras"/>
+                                <p:menuitem id="Recepcion" value="Recepcion"  outcome="/view/compras/recepcion"/>
+                            </p:submenu>
+                        </p:submenu>
+                        <p:submenu id="comercial" label="Comercial" icon="dvr" class="active-menuitem">
+                            <p:submenu id="ComeMant" label="Mantemiento" icon="folder">
+                                <p:menuitem id="clientes" value="Clientes"  outcome="/view/comercial/Clientes"/>
+                                <p:menuitem id="caja" value="Caja"  outcome="/view/comercial/Cajas"/>
+                            </p:submenu>
+                            <p:submenu id="cometrans" label="Transaccion" icon="folder">
+                                <p:menuitem id="factura" value="Venta"  outcome="/view/comercial/facturas"/>
+                            </p:submenu>
+                        </p:submenu>
+                        <p:submenu id="herramientas" label="Configuracion" icon="build">
+                            <p:submenu id="submenu1" label="Empresa" icon="folder">
+                                <p:menuitem id="theme6" value="Empresa"  outcome="/view/sistema/Empresa"/>
+                                <p:menuitem id="Neg" value="Negocios"  outcome="/view/sistema/Negocios"/>
+                                <p:menuitem id="paises" value="Sucursales"  outcome="/view/sistema/Sucursales"/>
+                            </p:submenu>
+                            <p:submenu id="submenu2" label="Usuarios" icon="folder">
+                                <p:menuitem id="theme7" value="Tipos Documentos" outcome="/view/sistema/Documentos" />
+                                <p:menuitem id="theme8" value="Usuarios" outcome="/view/sistema/Usuarios"/>     
+                            </p:submenu>
+                        </p:submenu>
+                        <p:submenu id="Tareas" label="Tareas" icon="check-box"></p:submenu>
+                    </pu:menu>
+                </div>
+            </div>
+        </div>
+    </h:form>
+</ui:composition>

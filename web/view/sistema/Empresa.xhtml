@@ -1,0 +1,246 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templet/template.xhtml">
+
+    <ui:define name="title">Dashboard</ui:define>
+
+    <ui:define name="head">
+        <script type="text/javascript">
+            //<![CDATA[
+            function skinChart() {
+                this.cfg.shadow = false;
+                this.cfg.title = '';
+                this.cfg.seriesColors = ['#FFC107', '#03A9F4'];
+                this.cfg.grid = {
+                    background: '#ffffff',
+                    borderColor: '#ffffff',
+                    gridLineColor: '#EEEEEE',
+                    shadow: false
+                };
+                this.cfg.axesDefaults = {
+                    rendererOptions: {
+                        textColor: '#212121'
+                    }
+                };
+                this.cfg.seriesDefaults = {
+                    shadow: false,
+                    lineWidth: 1,
+                    markerOptions: {
+                        shadow: false,
+                        size: 7,
+                        style: 'circle'
+                    }
+                }
+            }
+
+            //]]>  
+        </script>
+        <style type="text/css">
+            .main-content {
+                padding: 0;
+            }
+        </style>
+        <style type="text/css">
+            .knob-container {
+                display: inline-block;
+                padding: 10px;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card card-w-title">
+                    <p:panel id="paneldoc" header="Maestro Empresa" toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+                        <h:form id="formEmp">
+                            <p:growl id="growl" showDetail="true" life="5000" />  
+                            <p:tabView >
+                                <p:tab title="General">
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Codigo :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:inputText id="codEmp" value="#{empresaControlador.objEmpresa.cod_emp}" 
+                                                             disabled="#{empresaControlador.aceptar}" style="color: black">     
+                                                </p:inputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Nombre :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:inputText value="#{empresaControlador.objEmpresa.nom_emp}" 
+                                                             disabled="#{empresaControlador.aceptar}" style="color: black"> </p:inputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Direccion :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:inputText value="#{empresaControlador.objEmpresa.direccion}" 
+                                                             disabled="#{empresaControlador.aceptar}" style="color: black"> </p:inputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Ciudad:"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:autoComplete id="EmpCiudad" value="#{empresaControlador.objCiudad}" 
+                                                                completeMethod="#{empresaControlador.ciudades}" 
+                                                                var="ciudad" itemLabel="#{ciudad.ciudadDpto}" 
+                                                                itemValue="#{ciudad}" forceSelection="true"
+                                                                converter="converciudad"
+                                                                dropdown="true"
+                                                                disabled="#{empresaControlador.aceptar}" style="color: black"/>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Correo :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:inputText value="#{empresaControlador.objEmpresa.correo}" 
+                                                             disabled="#{empresaControlador.aceptar}" style="color: black"> </p:inputText>
+                                            </div>
+                                        </div>
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Razon Social :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:inputText id="RZ" value="#{empresaControlador.objEmpresa.razon_social}" 
+                                                             disabled="#{empresaControlador.aceptar}" style="color: black" >     
+                                                </p:inputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Documento :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:selectOneMenu id="UserDocumento" value="#{empresaControlador.objEmpresa.cod_doc}" 
+                                                                 disabled="#{empresaControlador.aceptar}" style="color: black">
+                                                    <f:selectItem itemLabel="Seleccion" itemValue="A" />
+                                                    <f:selectItems value="#{empresaControlador.listDoc}" var="doc" itemValue="#{doc.cod_tipodoc}" itemLabel="#{doc.nombredocumento}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Nit :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:inputText value="#{empresaControlador.objEmpresa.nit}"
+                                                             disabled="#{empresaControlador.aceptar}" style="color: black"> </p:inputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Telefono :"></h:outputText>                                                
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:inputText value="#{empresaControlador.objEmpresa.telefono}" 
+                                                             disabled="#{empresaControlador.aceptar}" style="color: black"> </p:inputText>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </p:tab>
+                                <p:tab title="Log">
+                                    <p:dataTable var="log" value="#{empresaControlador.objEmpresa.logs}">
+
+                                        <p:column headerText="Proceso" style="width: 20%">
+                                            <h:outputText value="#{log.proceso}" />
+                                        </p:column>
+
+                                        <p:column headerText="Usuario" style="width: 20%">
+                                            <h:outputText value="#{log.usuario}" />
+                                        </p:column>
+                                        <p:column headerText="Operacion" style="width: 20%">
+                                            <h:outputText value="#{log.operacion}" />
+                                        </p:column>
+                                        <p:column headerText="Fecha" style="width: 20%">
+                                            <h:outputText value="#{log.fecha}" />
+                                        </p:column>
+
+
+                                    </p:dataTable>  
+                                </p:tab>
+                            </p:tabView>
+
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3">
+                                    <div class="ui-g-6 ui-md-2">
+                                        <p:commandButton icon="ui-icon-add"
+                                                         action="#{empresaControlador.prepareNuevoEmpresa()}" 
+                                                         ajax="true" update=":formEmp :formlistEmp"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{empresaControlador.nuevo}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-6 ui-md-2">
+                                        <p:commandButton icon="ui-icon-create"
+                                                         action="#{empresaControlador.prepareEditEmpresa()}" 
+                                                         ajax="true" update=":formEmp :formlistEmp"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{empresaControlador.editar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-6 ui-md-2">
+                                        <p:commandButton icon="ui-icon-clear"
+                                                         action="#{empresaControlador.prepareEliminarEmpresa()}" 
+                                                         ajax="true" update=":formEmp :formlistEmp"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{empresaControlador.eliminar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-6 ui-md-2">
+                                        <p:commandButton icon="ui-icon-search"
+                                                         action="#{empresaControlador.prepareBuscarEmpresa()}" 
+                                                         ajax="true" update=":formEmp :formlistEmp"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{empresaControlador.buscar}"></p:commandButton>
+                                    </div>
+
+                                </div>
+                                <div class="ui-g-12 ui-md-4"></div>
+                                <div class="ui-g-12 ui-md-5">
+                                    <div class="ui-g-4 ui-md-4"></div>
+
+                                    <div class="ui-g-6 ui-md-4">
+                                        <p:commandButton value="Aceptar"  action="#{empresaControlador.transaccion()}" ajax="true" update=":formEmp :formlistEmp"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{empresaControlador.aceptar}"> </p:commandButton>
+                                    </div>
+                                    <div class="ui-g-6 ui-md-4">
+                                        <p:commandButton value="Cancelar" action="#{empresaControlador.cancelarEventos()}" ajax="true" update=":formEmp :formlistEmp"
+                                                         style="background-color: #939393" > </p:commandButton>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:form>
+                    </p:panel>     
+                    <br/>
+                    <p:panel header="Lista" id="toggleable" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">   
+                        <h:form id="formlistEmp">
+                            <p:dataTable var="emp" value="#{empresaControlador.listaEmpresa}">
+
+                                <p:column headerText="Codigo" style="width: 10%">
+                                    <h:outputText value="#{emp.cod_emp}" />
+                                </p:column>
+
+                                <p:column headerText="Descripcion" style="width: 60%">
+                                    <h:outputText value="#{emp.nom_emp}" />
+                                </p:column>
+                                <p:column headerText="Descripcion" style="width: 20%">
+                                    <center>
+                                        <p:commandButton icon="ui-icon-create"   style="background-color: #939393" 
+                                                         action="#{empresaControlador.prepareCrud(emp, 1)}" ajax="true" update=":formEmp"> </p:commandButton>
+                                        <p:commandButton icon="ui-icon-clear" style="background-color: #939393" 
+                                                         action="#{empresaControlador.prepareCrud(emp, 2)}"  ajax="true" update=":formEmp"> </p:commandButton>
+                                        <p:commandButton icon="ui-icon-remove-red-eye" style="background-color: #939393" 
+                                                         action="#{empresaControlador.prepareCrud(emp, 3)}"  ajax="true" update=":formEmp"> </p:commandButton>
+                                    </center>
+                                </p:column>
+                            </p:dataTable>  
+                        </h:form>
+                    </p:panel>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+
+

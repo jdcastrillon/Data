@@ -1,0 +1,408 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templet/template.xhtml">
+
+    <ui:define name="title">Dashboard</ui:define>
+
+    <ui:define name="head">
+        <script type="text/javascript">
+            //<![CDATA[
+            function skinChart() {
+                this.cfg.shadow = false;
+                this.cfg.title = '';
+                this.cfg.seriesColors = ['#FFC107', '#03A9F4'];
+                this.cfg.grid = {
+                    background: '#ffffff',
+                    borderColor: '#ffffff',
+                    gridLineColor: '#EEEEEE',
+                    shadow: false
+                };
+                this.cfg.axesDefaults = {
+                    rendererOptions: {
+                        textColor: '#212121'
+                    }
+                };
+                this.cfg.seriesDefaults = {
+                    shadow: false,
+                    lineWidth: 1,
+                    markerOptions: {
+                        shadow: false,
+                        size: 7,
+                        style: 'circle'
+                    }
+                }
+            }
+
+            //]]>  
+        </script>
+        <style type="text/css">
+            .main-content {
+                padding: 0;
+            }
+        </style>
+        <style type="text/css">
+            .knob-container {
+                display: inline-block;
+                padding: 10px;
+            }
+        </style>
+        <script type="text/javascript">
+            function handleLoginRequest(xhr, status, args) {
+                PF('vendedor').hide();
+            }
+
+            function cierreCuentas(xhr, status, args) {
+                PF('cuentas').hide();
+            }
+        </script>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card card-w-title">
+                    <p:panel id="panelProv" header="Proveedores" toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+                        <h:form id="formProv">
+                            <p:growl id="growl" showDetail="true" life="5000" />  
+
+                            <p:dialog header="Agregar Vendedor" widgetVar="vendedor"  modal="true">
+
+                                <h:panelGrid columns="2" cellpadding="5">
+
+                                    <h:outputLabel for="Tipo" value="Tipo Documento : " />
+                                    <p:selectOneMenu id="Tipo" value="#{proveedorControlador.objVendedor.cod_tipodoc}">
+                                        <f:selectItems value="#{proveedorControlador.listDoc}" var="doc"
+                                                       itemLabel="#{doc.nombredocumento}" itemValue="#{doc.cod_tipodoc}"></f:selectItems>
+                                    </p:selectOneMenu>
+                                    <h:outputLabel for="docu" value="Nro. Documento: " />
+                                    <p:inputText id="docu"  value="#{proveedorControlador.objVendedor.cod_documento}" />
+
+                                    <h:outputLabel for="nombreV" value="Nombre : " />
+                                    <p:inputText id="nombreV"  value="#{proveedorControlador.objVendedor.nombre}" />
+
+                                    <h:outputLabel for="teleV" value="Telefono : " />
+                                    <p:inputText id="teleV"  value="#{proveedorControlador.objVendedor.telefono}" />
+
+                                    <f:facet name="footer">
+                                        <p:commandButton value="Agregar" oncomplete="cierreCuentas(xhr, status, args)" 
+                                                         action="#{proveedorControlador.agregarVenedor()}" 
+                                                         ajax="true" update=":formProv"/>
+                                    </f:facet> 
+                                </h:panelGrid>
+
+                            </p:dialog>   
+
+
+                            <!--  Modal (Agregar Cuentas bancarias)-->
+                            <p:dialog header="Agregar Cuenta" widgetVar="cuentas"  modal="true">
+
+                                <h:panelGrid columns="2" cellpadding="5">
+
+                                    <h:outputLabel for="Banco" value="Banco : " />
+                                    <p:selectOneMenu id="Banco" value="#{proveedorControlador.objCuentas.cod_banco}">
+                                        <f:selectItems value="#{proveedorControlador.listBancos}" var="banco"
+                                                       itemLabel="#{banco.descripcion}" itemValue="#{banco.cod_banco}"></f:selectItems>
+                                    </p:selectOneMenu>
+                                    <h:outputLabel for="TipoC" value="Tipo de Cuenta : " />
+                                    <p:selectOneMenu id="TipoC" value="#{proveedorControlador.objCuentas.tipo_cta}">
+                                        <f:selectItem itemLabel="Ahorros" itemValue="Ahorros" />
+                                        <f:selectItem itemLabel="Corriente" itemValue="Corriente" />
+                                        <f:selectItem itemLabel="Convenio" itemValue="Convenio" />
+                                    </p:selectOneMenu>
+
+                                    <h:outputLabel for="TipoC" value="Cuenta : " />
+                                    <p:inputText id="Cuenta"  value="#{proveedorControlador.objCuentas.cod_cta}" />
+
+                                    <f:facet name="footer">
+                                        <p:commandButton value="Agregar" oncomplete="cierreCuentas(xhr, status, args)" 
+                                                         action="#{proveedorControlador.agregarCuentas()}" ajax="true" update=":formProv"/>
+                                    </f:facet> 
+                                </h:panelGrid>
+
+                            </p:dialog>   
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3">
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-add"
+                                                         action="#{proveedorControlador.prepareNuevo() }" 
+                                                         ajax="true" update=":formProv :formlistProv"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{proveedorControlador.nuevo}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-create"
+                                                         action="#{proveedorControlador.prepareEdit() }" 
+                                                         ajax="true" update=":formProv :formlistProv"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{proveedorControlador.editar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-clear"
+                                                         action="#{proveedorControlador.prepareEliminar()}" 
+                                                         ajax="true" update=":formProv :formlistProv"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{proveedorControlador.eliminar}"></p:commandButton>
+                                    </div>
+                                </div>
+                            </div>
+                            <p:tabView >
+                                <p:tab title="General">
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-12 ui-md-3">
+                                                <h:outputText value="Tipo Documento :"></h:outputText>
+                                            </div>                                              
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:selectOneMenu value="#{proveedorControlador.objProveedor.cod_tipodoc}" disabled="#{proveedorControlador.aceptar}">
+                                                    <f:selectItem itemLabel="No Aplica" itemValue="0" />
+                                                    <f:selectItems value="#{proveedorControlador.listDoc}" var="doc" itemValue="#{doc.cod_tipodoc}" itemLabel="#{doc.nombredocumento}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-3">
+                                                <h:outputText value="Nro. Documento :"></h:outputText>
+                                            </div>                                              
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:inputText value="#{proveedorControlador.objProveedor.cod_documento}" disabled="#{proveedorControlador.aceptar}"> </p:inputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText id="razonS" value="Razon Social"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:inputText value="#{proveedorControlador.objProveedor.razon_social}" disabled="#{proveedorControlador.aceptar}"> </p:inputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-3">
+                                                <h:outputText value="Tipo Pago :"></h:outputText>
+                                            </div>                                              
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:selectOneMenu value="#{proveedorControlador.objProveedor.cod_fpago}" disabled="#{proveedorControlador.aceptar}">
+                                                    <f:selectItems value="#{proveedorControlador.listPagos}" var="pagos" itemValue="#{pagos.cod_pago}" 
+                                                                   itemLabel="#{pagos.descripcion}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Direccion"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:inputText value="#{proveedorControlador.objProveedor.direccion}" disabled="#{proveedorControlador.aceptar}"> </p:inputText>
+                                            </div>
+
+                                        </div>
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Correo"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:inputText value="#{proveedorControlador.objProveedor.email}" disabled="#{proveedorControlador.aceptar}"> </p:inputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Ciudad:"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:autoComplete id="ProCiudad" value="#{proveedorControlador.objCiudad}" 
+                                                                completeMethod="#{proveedorControlador.ciudades}" 
+                                                                var="ciudad" itemLabel="#{ciudad.ciudadDpto}" 
+                                                                itemValue="#{ciudad}" forceSelection="true"
+                                                                converter="converciudad"
+                                                                dropdown="true"
+                                                                disabled="#{proveedorControlador.aceptar}" style="color: black"/>
+                                            </div>
+
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Telefono"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:inputText value="#{proveedorControlador.objProveedor.telefono}" disabled="#{proveedorControlador.aceptar}"> </p:inputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Estado :"></h:outputText>                                                
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:inputSwitch value="#{proveedorControlador.objProveedor.activoB}" disabled="#{proveedorControlador.aceptar}" style="color: black"/>                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </p:tab>
+                                <p:tab title="Vendedores" id="userDatos">
+                                    <!--Telefonos-->
+                                    <br></br>
+                                    <h:outputText value="Lista Vendedores " style="font-weight : bold" />
+                                    <p:dataTable var="vend" value="#{proveedorControlador.objProveedor.list_vend}">
+
+                                        <p:column headerText="Nro. Documento" style="width: 60%">
+                                            <h:outputText value="#{vend.cod_documento}" />
+                                        </p:column>
+
+                                        <p:column headerText="Nombre" style="width: 60%">
+                                            <h:outputText value="#{vend.nombre}" />
+                                        </p:column>
+
+                                        <p:column headerText="Telefono" style="width: 60%">
+                                            <h:outputText value="#{vend.telefono}" />
+                                        </p:column>
+
+                                        <p:column headerText="Opcion" style="width: 20%">
+                                            <center>
+                                                <p:commandButton icon="ui-icon-clear" style="background-color: #939393"  disabled="#{proveedorControlador.aceptar}"
+                                                                 action="#{proveedorControlador.quitarVendedor(vend)}"  ajax="true" update=":formProv"> </p:commandButton>
+                                            </center>
+                                        </p:column>
+                                    </p:dataTable>  
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-11"></div>
+                                        <div class="ui-g-12 ui-md-1">
+                                            <p:commandButton icon="ui-icon-add-circle-outline"   disabled="#{proveedorControlador.aceptar}" 
+                                                             onclick="PF('vendedor').show();"> </p:commandButton>
+                                        </div>
+                                    </div>   
+                                </p:tab>
+                                <p:tab title="Bancos">
+                                    <br></br>
+                                    <h:outputText value="Lista de Cuentas Bancarias " style="font-weight : bold" />
+
+                                    <p:dataTable var="bancos" value="#{proveedorControlador.objProveedor.list_Bancos}">
+
+                                        <p:column headerText="Banco" style="width: 60%">
+                                            <h:outputText value="#{bancos.nom_banco}" />
+                                        </p:column>
+
+                                        <p:column headerText="Tipo Cuenta" style="width: 60%">
+                                            <h:outputText value="#{bancos.tipo_cta}" />
+                                        </p:column>
+
+                                        <p:column headerText="Cuenta" style="width: 60%">
+                                            <h:outputText value="#{bancos.cod_cta}" />
+                                        </p:column>
+                                        <p:column headerText="Opcion" style="width: 20%">
+                                            <center>
+                                                <p:commandButton icon="ui-icon-clear" style="background-color: #939393"  disabled="#{proveedorControlador.aceptar}"
+                                                                 action="#{proveedorControlador.quitarCuenta(bancos)}"  ajax="true" update=":formProv"> </p:commandButton>
+                                            </center>
+                                        </p:column>
+
+                                    </p:dataTable>  
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-11"></div>
+                                        <div class="ui-g-12 ui-md-1">
+                                            <p:commandButton icon="ui-icon-add-circle-outline"  disabled="#{proveedorControlador.aceptar}"
+                                                             onclick="PF('cuentas').show();" 
+                                                             > </p:commandButton>
+                                        </div>
+                                    </div>   
+                                </p:tab>
+                                <p:tab title="Log">
+                                    <p:dataTable var="log" value="#{proveedorControlador.objProveedor.logs}">
+                                        <p:column headerText="Proceso" style="width: 20%">
+                                            <h:outputText value="#{log.proceso}" />
+                                        </p:column>
+
+                                        <p:column headerText="Usuario" style="width: 20%">
+                                            <h:outputText value="#{log.usuario}" />
+                                        </p:column>
+                                        <p:column headerText="Operacion" style="width: 20%">
+                                            <h:outputText value="#{log.operacion}" />
+                                        </p:column>
+                                        <p:column headerText="Fecha" style="width: 20%">
+                                            <h:outputText value="#{log.fecha}" />
+                                        </p:column>
+
+
+                                    </p:dataTable>  
+                                </p:tab>
+                            </p:tabView>
+
+
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3"></div>
+                                <div class="ui-g-12 ui-md-4"></div>
+                                <div class="ui-g-12 ui-md-5">
+                                    <div class="ui-g-0 ui-md-4"></div>
+
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Aceptar"  action="#{proveedorControlador.transaccion()}" ajax="true" update=":formProv :formlistProv"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{proveedorControlador.aceptar}"> </p:commandButton>
+                                    </div>
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Cancelar" action="#{proveedorControlador.cancelarEventos()}" ajax="true" update=":formProv :formlistProv"
+                                                         style="background-color: #939393" > </p:commandButton>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:form>
+                    </p:panel>     
+                    <br/>
+                    <p:panel id="PanelDoc2" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">   
+                        <h:form id="formlistProv">
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-12">
+                                    <div class="ui-g-12 ui-md-12">
+                                        <div class="ui-g-12 ui-md-1">
+                                            Busqueda :
+                                        </div>
+                                        <div class="ui-g-12 ui-md-5">
+                                            <p:inputText value="#{proveedorControlador.valorBusqueda}" >
+                                            </p:inputText>
+                                        </div>
+                                        <div class="ui-g-12 ui-md-2">
+                                            <p:commandButton icon="ui-icon-search"
+                                                             action="#{proveedorControlador.busquedaDatos()}" 
+                                                             ajax="true" update=":formlistProv"
+                                                             style="background-color: #939393"></p:commandButton>
+
+                                            <p:commandButton  icon="ui-icon-clear"
+                                                              action="#{proveedorControlador.limpiarDatos()}" 
+                                                              ajax="true" update=":formlistProv"
+                                                              style="background-color: #939393"></p:commandButton>
+
+                                        </div>
+
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12">
+                                        <p:dataTable var="pro" value="#{proveedorControlador.listaProveedor}" 
+                                                     rows="10"
+                                                     paginator="true"
+                                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                                     rowsPerPageTemplate="5,10,15">
+                                            <f:facet name="header">
+                                                Lista de Proveedores
+                                            </f:facet>
+                                            <p:column headerText="Tipo" style="width: 10%">
+                                                <h:outputText value="#{pro.cod_tipodoc}" />
+                                            </p:column>
+
+                                            <p:column headerText="Codigo" style="width: 10%">
+                                                <h:outputText value="#{pro.cod_documento}" />
+                                            </p:column>
+
+                                            <p:column headerText="Descripcion" style="width: 60%">
+                                                <h:outputText value="#{pro.razon_social}" />
+                                            </p:column>
+                                            <p:column headerText="Descripcion" style="width: 20%">
+                                                <center>
+                                                    <p:commandButton icon="ui-icon-create"   style="background-color: #939393" 
+                                                                     action="#{proveedorControlador.prepareCrud(pro, 1)}" ajax="true" update=":formProv"> </p:commandButton>
+                                                    <p:commandButton icon="ui-icon-clear" style="background-color: #939393" 
+                                                                     action="#{proveedorControlador.prepareCrud(pro, 2)}"  ajax="true" update=":formProv"> </p:commandButton>
+                                                    <p:commandButton icon="ui-icon-remove-red-eye" style="background-color: #939393" 
+                                                                     action="#{proveedorControlador.prepareCrud(pro, 3)}"  ajax="true" update=":formProv"> </p:commandButton>
+                                                </center>
+                                            </p:column>
+
+
+                                        </p:dataTable>  
+                                    </div>
+                                </div> 
+                            </div>
+                        </h:form>
+                    </p:panel>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+
+

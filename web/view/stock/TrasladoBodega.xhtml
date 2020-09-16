@@ -1,0 +1,332 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templet/template.xhtml">
+
+    <ui:define name="title">Dashboard</ui:define>
+
+    <ui:define name="head">
+        <script type="text/javascript">
+            //<![CDATA[
+            function skinChart() {
+                this.cfg.shadow = false;
+                this.cfg.title = '';
+                this.cfg.seriesColors = ['#FFC107', '#03A9F4'];
+                this.cfg.grid = {
+                    background: '#ffffff',
+                    borderColor: '#ffffff',
+                    gridLineColor: '#EEEEEE',
+                    shadow: false
+                };
+                this.cfg.axesDefaults = {
+                    rendererOptions: {
+                        textColor: '#212121'
+                    }
+                };
+                this.cfg.seriesDefaults = {
+                    shadow: false,
+                    lineWidth: 1,
+                    markerOptions: {
+                        shadow: false,
+                        size: 7,
+                        style: 'circle'
+                    }
+                }
+            }
+
+            //]]>  
+        </script>
+        <style type="text/css">
+            .main-content {
+                padding: 0;
+            }
+        </style>
+        <style type="text/css">
+            .knob-container {
+                display: inline-block;
+                padding: 10px;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card card-w-title">
+                    <p:panel id="paneldoc" header="Envio Traslado Entre Bodega"  collapsed="true"  toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+                        <h:form id="formTrasl" onkeypress="if (event.keyCode == 13) {
+                                    return false;
+                                }">
+                            <p:growl id="growl" showDetail="true" life="5000" />  
+
+
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3">
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-add"
+                                                         action="#{trasladoBodegaControlador.prepareNuevo() }" 
+                                                         ajax="true" update=":formTrasl :formlistTrasl"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{trasladoBodegaControlador.nuevo}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-create"
+                                                         action="#{trasladoBodegaControlador.prepareEdit() }" 
+                                                         ajax="true" update=":formTrasl :formlistTrasl"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{trasladoBodegaControlador.editar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-clear"
+                                                         action="#{trasladoBodegaControlador.prepareEliminar()}" 
+                                                         ajax="true" update=":formTrasl :formlistTrasl"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{trasladoBodegaControlador.eliminar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-search"
+                                                         action="#{trasladoBodegaControlador.prepareReporte()}" 
+                                                         ajax="true" update=":formTrasl :formlistTrasl"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{trasladoBodegaControlador.nuevo}"></p:commandButton>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <p:tabView >
+                                <p:tab title="General">
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Empresa :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:selectOneMenu value="#{trasladoBodegaControlador.objTraldoBodega.cod_emp}" disabled="#{trasladoBodegaControlador.aceptar}" > 
+                                                    <p:ajax listener="#{trasladoBodegaControlador.cargarDepositos()}" update="Depositos" />
+                                                    <f:selectItems value="#{trasladoBodegaControlador.listEmpresas}" var="emp" itemValue="#{emp.cod_emp}" itemLabel="#{emp.nom_emp}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Bodega Origen :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:selectOneMenu id="Depositos" value="#{trasladoBodegaControlador.objTraldoBodega.cod_deposito}" disabled="#{trasladoBodegaControlador.aceptar}">                                                   
+                                                    <p:ajax listener="#{trasladoBodegaControlador.cargarUbicaciones()}" update="listArti" />
+                                                    <f:selectItem itemLabel="No Aplica" itemValue="0" />
+                                                    <f:selectItems value="#{trasladoBodegaControlador.listDepositos}" var="depo" itemValue="#{depo.cod_deposito}" itemLabel="#{depo.nom_deposito}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Estado :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:inputText id="codEstado" value="#{trasladoBodegaControlador.objTraldoBodega.cod_estado}" 
+                                                             disabled="true"> </p:inputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Observacion :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:inputTextarea value="#{trasladoBodegaControlador.objTraldoBodega.observacion}" disabled="#{trasladoBodegaControlador.aceptar}"></p:inputTextarea>
+                                            </div>
+                                        </div>
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Fecha :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:calendar id="button" value="#{trasladoBodegaControlador.objTraldoBodega.fecha}" showOn="button" disabled="#{stockAjusteControlador.aceptar}"
+                                                            locale="de" navigator="true" pattern="dd/MM/yyyy" />
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Bodega Destino :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:selectOneMenu id="Depositos2" value="#{trasladoBodegaControlador.objTraldoBodega.cod_deposito2}" disabled="#{trasladoBodegaControlador.aceptar}">                                                   
+                                                    <p:ajax listener="#{trasladoBodegaControlador.cargarUbicaciones()}" update="listArti" />
+                                                    <f:selectItem itemLabel="No Aplica" itemValue="0" />
+                                                    <f:selectItems value="#{trasladoBodegaControlador.listDepositos}" var="depo" itemValue="#{depo.cod_deposito}" itemLabel="#{depo.nom_deposito}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Estado :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:inputText id="codEstado2" value="#{trasladoBodegaControlador.objTraldoBodega.cod_estado2}" 
+                                                             disabled="true"> </p:inputText>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-10">
+                                            <div class="ui-g-2 ui-md-1">
+                                                <h:outputText value="Articulo"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-8">                                                
+                                                <p:autoComplete id="articulo" value="#{trasladoBodegaControlador.objArticulo}" 
+                                                                completeMethod="#{trasladoBodegaControlador.articulos}" 
+                                                                var="articulo" itemLabel="#{articulo.nom_articulo}" 
+                                                                itemValue="#{articulo}" forceSelection="true"
+                                                                converter="converarticulos"
+                                                                dropdown="true"
+                                                                disabled="#{trasladoBodegaControlador.aceptar}" style="color: black">
+                                                    <p:ajax event="itemSelect" listener="#{trasladoBodegaControlador.cargaArticulo()}" update="listArti,articulo" />
+                                                </p:autoComplete>
+                                            </div>
+                                        </div>
+                                        <div class="ui-g-12 ui-md-5"></div>
+                                    </div>  
+                                    <p:dataTable id="listArti" var="articulos" value="#{trasladoBodegaControlador.objTraldoBodega.detalleArt}">
+
+                                        <p:column headerText="Codigo" style="width: 15%">
+                                            <h:outputText value="#{articulos.codigo}" />
+                                        </p:column>
+
+                                        <p:column headerText="Nombre" style="width: 35%">
+                                            <h:outputText value="#{articulos.nom_articulo}" />
+                                        </p:column>
+
+                                        <p:column headerText="Inventario" style="width: 35%">
+                                            <h:outputText value="#{articulos.stock}" />
+                                        </p:column>
+
+                                        <p:column headerText="Cantidad" style="width: 20%" >
+                                            <h:inputText value="#{articulos.cantidad}" disabled="#{trasladoBodegaControlador.aceptar}">
+                                                <p:ajax event="blur" update="listArti" />
+                                            </h:inputText>
+                                        </p:column>
+                                        <p:column headerText="Operaciones" style="width: 10%">
+                                            <center>
+                                                <p:commandButton icon="ui-icon-clear" style="background-color: red" 
+                                                                 action="#{trasladoBodegaControlador.eliminarArticuloGrilla(articulos)}"  ajax="true" update="listArti"> </p:commandButton>
+                                            </center>
+                                        </p:column>
+
+
+                                    </p:dataTable> 
+                                </p:tab>
+                                <p:tab title="Log">
+                                    <p:dataTable var="log" value="#{trasladoBodegaControlador.objTraldoBodega.logs}">
+                                        <p:column headerText="Proceso" style="width: 20%">
+                                            <h:outputText value="#{log.proceso}" />
+                                        </p:column>
+
+                                        <p:column headerText="Usuario" style="width: 20%">
+                                            <h:outputText value="#{log.usuario}" />
+                                        </p:column>
+                                        <p:column headerText="Operacion" style="width: 20%">
+                                            <h:outputText value="#{log.operacion}" />
+                                        </p:column>
+                                        <p:column headerText="Fecha" style="width: 20%">
+                                            <h:outputText value="#{log.fecha}" />
+                                        </p:column>
+
+
+                                    </p:dataTable>  
+                                </p:tab>
+                            </p:tabView>
+
+
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3"></div>
+                                <div class="ui-g-12 ui-md-4"></div>
+                                <div class="ui-g-12 ui-md-5">
+                                    <div class="ui-g-0 ui-md-4"></div>
+
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Aceptar"  action="#{trasladoBodegaControlador.transaccion()}" ajax="true" update=":formTrasl :formlistTrasl"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{trasladoBodegaControlador.aceptar}"> </p:commandButton>
+                                    </div>
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Cancelar" action="#{trasladoBodegaControlador.cancelarEventos()}" ajax="true" update=":formTrasl :formlistTrasl"
+                                                         style="background-color: #939393" > </p:commandButton>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                        </h:form>
+                    </p:panel>     
+                    <br/>
+                    <p:panel id="toggleable" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">   
+                        <h:form id="formlistTrasl">
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-12">
+                                    <div class="ui-g-12 ui-md-12">
+                                        <div class="ui-g-12 ui-md-1">
+                                            Busqueda :
+                                        </div>
+                                        <div class="ui-g-12 ui-md-5">
+                                            <p:inputText value="#{trasladoBodegaControlador.valorBusqueda}" >
+                                            </p:inputText>
+                                        </div>
+                                        <div class="ui-g-12 ui-md-2">
+                                            <p:commandButton icon="ui-icon-search"
+                                                             action="#{trasladoBodegaControlador.busquedaDatos()}" 
+                                                             ajax="true" update=":formlistTrasl"
+                                                             style="background-color: #939393"></p:commandButton>
+
+                                            <p:commandButton  icon="ui-icon-clear"
+                                                              action="#{trasladoBodegaControlador.limpiarDatos()}" 
+                                                              ajax="true" update=":formlistTrasl"
+                                                              style="background-color: #939393"></p:commandButton>
+
+                                        </div>
+
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12">
+                                        <p:dataTable var="traslado" value="#{trasladoBodegaControlador.listTranslado}" 
+                                                     rows="10"
+                                                     paginator="true"
+                                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                                     rowsPerPageTemplate="5,10,15">
+                                            <f:facet name="header">
+                                                Lista de Traslados
+                                            </f:facet>
+                                            <p:column headerText="Cod. Traslado" style="width: 10%">
+                                                <h:outputText value="#{traslado.nro_docum}" />
+                                            </p:column>
+
+                                            <p:column headerText="Empresa" style="width:10%">
+                                                <h:outputText value="#{traslado.cod_emp}" />
+                                            </p:column>
+                                            <p:column headerText="Fecha" style="width: 10%">
+                                                <h:outputText value="#{traslado.fec_doc}" />
+                                            </p:column>
+                                            <p:column headerText="Bodega Origen" style="width: 15%">
+                                                <h:outputText value="#{traslado.nom_deposito}" />
+                                            </p:column>
+                                            <p:column headerText="Bodega Destino" style="width: 15%">
+                                                <h:outputText value="#{traslado.nom_deposito2}" />
+                                            </p:column>
+                                            <p:column headerText="Operaciones" style="width: 10%">
+                                                <center>
+                                                    <p:commandButton icon="ui-icon-create" styleClass="SubirPanel"  style="background-color: #939393" 
+                                                                     action="#{trasladoBodegaControlador.prepareCrud(traslado, 1)}" ajax="true" update=":formTrasl"> </p:commandButton>
+                                                    <p:commandButton icon="ui-icon-clear" styleClass="SubirPanel" style="background-color: #939393" 
+                                                                     action="#{trasladoBodegaControlador.prepareCrud(traslado, 2)}"  ajax="true" update=":formTrasl"> </p:commandButton>
+                                                    <p:commandButton icon="ui-icon-remove-red-eye" styleClass="SubirPanel" style="background-color: #939393" 
+                                                                     action="#{trasladoBodegaControlador.prepareCrud(traslado, 3)}"  ajax="true" update=":formTrasl"> </p:commandButton>
+                                                </center>
+                                            </p:column>
+
+
+                                        </p:dataTable>  
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </h:form>
+                    </p:panel>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+
+

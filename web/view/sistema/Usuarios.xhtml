@@ -1,0 +1,366 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templet/template.xhtml">
+
+    <ui:define name="title">Dashboard</ui:define>
+
+    <ui:define name="head">
+        <script type="text/javascript">
+            //<![CDATA[
+            function skinChart() {
+                this.cfg.shadow = false;
+                this.cfg.title = '';
+                this.cfg.seriesColors = ['#FFC107', '#03A9F4'];
+                this.cfg.grid = {
+                    background: '#ffffff',
+                    borderColor: '#ffffff',
+                    gridLineColor: '#EEEEEE',
+                    shadow: false
+                };
+                this.cfg.axesDefaults = {
+                    rendererOptions: {
+                        textColor: '#212121'
+                    }
+                };
+                this.cfg.seriesDefaults = {
+                    shadow: false,
+                    lineWidth: 1,
+                    markerOptions: {
+                        shadow: false,
+                        size: 7,
+                        style: 'circle'
+                    }
+                }
+            }
+
+            //]]>  
+        </script>
+        <script type="text/javascript">
+            function handleLoginRequest(xhr, status, args) {
+                PF('telefonos').hide();
+                PF('Email').hide();
+            }
+        </script>
+        <style type="text/css">
+            .main-content {
+                padding: 0;
+            }
+        </style>
+        <style type="text/css">
+            .knob-container {
+                display: inline-block;
+                padding: 10px;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g dashboard">
+            <div class="ui-g-12">
+                <div class="card card-w-title">
+                    <h:form id="formUser">
+                        <!--  Modal (Agregar Telefonos)-->
+                        <p:dialog header="Agregar Telefono" widgetVar="telefonos"  modal="true">
+
+                            <h:panelGrid columns="2" cellpadding="8">
+                                <h:outputLabel for="tipo" value="Tipo : " />
+
+                                <p:selectOneMenu value="#{personaControlador.objTelefono.tipo}" autoWidth="false">
+                                    <f:selectItem itemLabel="Movil" itemValue="Movil" />
+                                    <f:selectItem itemLabel="Fijo" itemValue="Fijo" />
+                                </p:selectOneMenu>
+
+
+                                <h:outputLabel for="num" value="Numero :" />
+                                <p:inputText id="num"  value="#{personaControlador.objTelefono.numero}" />
+
+                                <f:facet name="footer">
+                                    <p:commandButton value="Agregar" oncomplete="handleLoginRequest(xhr, status, args)" 
+                                                     action="#{personaControlador.agregarTelefono()}" ajax="true" update=":formUser"/>
+                                </f:facet> 
+                            </h:panelGrid>
+
+                        </p:dialog>    
+
+                        <!--  Modal (Agregar Emails)-->
+                        <p:dialog header="Agregar Email" widgetVar="Email"  modal="true">
+
+                            <h:panelGrid columns="2" cellpadding="5">
+
+                                <h:outputLabel for="tipo" value="Tipo : " />
+
+                                <p:selectOneMenu value="#{personaControlador.objCorreos.tipo}">
+                                    <f:selectItem itemLabel="Personal" itemValue="Personal" />
+                                    <f:selectItem itemLabel="Trabajo" itemValue="Trabajo" />
+                                </p:selectOneMenu>
+
+
+                                <h:outputLabel for="correo" value="Correo :" />
+                                <p:inputText id="correo"  value="#{personaControlador.objCorreos.correo}" />
+
+                                <f:facet name="footer">
+                                    <p:commandButton value="Agregar" oncomplete="handleLoginRequest(xhr, status, args)" 
+                                                     action="#{personaControlador.agregarCorreo()}" ajax="true" update=":formUser"/>
+                                </f:facet> 
+                            </h:panelGrid>
+
+                        </p:dialog>    
+
+                        <p:panel id="paneldoc" header="Maestro Usuarios" toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+
+                            <p:growl id="growlUser" showDetail="true" life="5000" />  
+                            <p:tabView id="userTab">
+                                <p:tab title="General" >
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-12 ui-md-4">
+                                                <h:outputText value="Tipo Documento :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-8">                                                
+                                                <p:selectOneMenu id="UserDocumento" value="#{personaControlador.objPersona.cod_tipodoc}" disabled="#{personaControlador.aceptar}">
+                                                    <f:selectItem itemLabel="Seleccion" itemValue="A" />
+                                                    <f:selectItems value="#{personaControlador.listDoc}" var="doc" itemValue="#{doc.cod_tipodoc}" itemLabel="#{doc.nombredocumento}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-4">
+                                                <h:outputText value="Documento :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-8">
+                                                <p:inputText value="#{personaControlador.objPersona.cod_documento}" disabled="#{personaControlador.aceptar}"> </p:inputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-4">
+                                                <h:outputText value="Primer Nombre :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-8">
+                                                <p:inputText value="#{personaControlador.objPersona.primernombre}" disabled="#{personaControlador.aceptar}"> </p:inputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-4">
+                                                <h:outputText value="Segundo Nombre :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-8">
+                                                <p:inputText value="#{personaControlador.objPersona.segundonombre}" disabled="#{personaControlador.aceptar}"> </p:inputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-4">
+                                                <h:outputText value="Primer Apellido :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-8">
+                                                <p:inputText value="#{personaControlador.objPersona.primerapellido}" disabled="#{personaControlador.aceptar}"> </p:inputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-4">
+                                                <h:outputText value="Segundo Apellido :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-8">
+                                                <p:inputText value="#{personaControlador.objPersona.segundoapellido}" disabled="#{personaControlador.aceptar}">  </p:inputText>
+                                            </div>
+                                        </div>
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-12 ui-md-4">
+                                                <h:outputText value="Sexo :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-8">                                                
+                                                <p:selectOneMenu value="#{personaControlador.objPersona.sexo}" disabled="#{personaControlador.aceptar}">
+                                                    <f:selectItem itemLabel="Hombre" itemValue="H" />
+                                                    <f:selectItem itemLabel="Mujer" itemValue="M" />
+                                                </p:selectOneMenu>
+
+                                            </div>
+                                            <div class="ui-g-12 ui-md-4">
+                                                <h:outputText value="Fecha Nacimiento :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-8">                                                
+                                                <h:panelGroup styleClass="md-inputfield" > 
+                                                    <p:calendar id="button" value="#{personaControlador.objPersona.t_fec_nacimiento}" showOn="button" disabled="#{personaControlador.aceptar}"
+                                                                locale="de" navigator="true" pattern="yyyy-MMM-dd" />
+                                                </h:panelGroup>
+                                            </div>                                            
+                                            <div class="ui-g-12 ui-md-4">
+                                                <h:outputText value="Usuario :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-8">                                                
+                                                <h:panelGroup styleClass="md-inputfield" > 
+                                                    <p:inputText id="usuario" value="#{personaControlador.objUser.usuario}" disabled="#{personaControlador.aceptar}"/>
+                                                </h:panelGroup>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-4">
+                                                <h:outputText value="Clave :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-8">                                                
+                                                <h:panelGroup styleClass="md-inputfield" > 
+                                                    <p:password id="clave" value="#{personaControlador.objUser.passowrd}" disabled="#{personaControlador.aceptar}"/>
+                                                </h:panelGroup>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </p:tab>
+                                <p:tab title="Datos" id="userDatos">
+                                    <!--Telefonos-->
+                                    <h:outputText value="Lista Telefonos " />
+                                    <p:dataTable var="tele" value="#{personaControlador.objPersona.listTele}">
+
+                                        <p:column headerText="tipo" style="width: 60%">
+                                            <h:outputText value="#{tele.tipo}" />
+                                        </p:column>
+
+                                        <p:column headerText="Codigo" style="width: 60%">
+                                            <h:outputText value="#{tele.numero}" />
+                                        </p:column>
+
+                                        <p:column headerText="Descripcion" style="width: 20%">
+                                            <center>
+                                                <p:commandButton icon="ui-icon-clear" style="background-color: #939393"  disabled="#{personaControlador.aceptar}"
+                                                                 action="#{personaControlador.quitarTelefono(tele)}"  ajax="true" update=":formUser"> </p:commandButton>
+                                            </center>
+                                        </p:column>
+                                    </p:dataTable>  
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-11"></div>
+                                        <div class="ui-g-12 ui-md-1">
+                                            <p:commandButton icon="ui-icon-add-circle-outline"   disabled="#{personaControlador.aceptar}" 
+                                                             onclick="PF('telefonos').show();"> </p:commandButton>
+                                        </div>
+                                    </div>   
+                                    <!--Correos-->
+                                    <h:outputText value="Lista de Correos " />
+                                    <p:dataTable var="correo" value="#{personaControlador.objPersona.listCorreos}">
+
+                                        <p:column headerText="Tipo" style="width: 60%">
+                                            <h:outputText value="#{correo.tipo}" />
+                                        </p:column>
+
+                                        <p:column headerText="Correo" style="width: 60%">
+                                            <h:outputText value="#{correo.correo}" />
+                                        </p:column>
+
+                                        <p:column headerText="Descripcion" style="width: 20%">
+                                            <center>
+                                                <p:commandButton icon="ui-icon-clear" style="background-color: #939393" disabled="#{personaControlador.aceptar}"
+                                                                 action="#{personaControlador.quitarCorreo(correo)}"  ajax="true" update=":formUser"> </p:commandButton>
+                                            </center>
+                                        </p:column>
+                                    </p:dataTable>  
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-11"></div>
+                                        <div class="ui-g-12 ui-md-1">
+                                            <p:commandButton icon="ui-icon-add-circle-outline"  disabled="#{personaControlador.aceptar}"
+                                                             onclick="PF('Email').show();" 
+                                                             > </p:commandButton>
+                                        </div>
+                                    </div>   
+
+                                </p:tab>
+                                <p:tab title="Log">
+                                    <p:dataTable var="log" value="#{personaControlador.objPersona.logs}">
+                                        <p:column headerText="Proceso" style="width: 20%">
+                                            <h:outputText value="#{log.proceso}" />
+                                        </p:column>
+
+                                        <p:column headerText="Usuario" style="width: 20%">
+                                            <h:outputText value="#{log.usuario}" />
+                                        </p:column>
+                                        <p:column headerText="Operacion" style="width: 20%">
+                                            <h:outputText value="#{log.operacion}" />
+                                        </p:column>
+                                        <p:column headerText="Fecha" style="width: 20%">
+                                            <h:outputText value="#{log.fecha}" />
+                                        </p:column>
+
+
+                                    </p:dataTable>  
+                                </p:tab>
+                            </p:tabView>
+
+
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3">
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-add"
+                                                         action="#{personaControlador.prepareNuevo()}" 
+                                                         ajax="true" update=":formUser :formlistUser"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{personaControlador.nuevo}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-create"
+                                                         action="#{personaControlador.prepareEdit()}" 
+                                                         ajax="true" update=":formUser :formlistUser"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{personaControlador.editar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-clear"
+                                                         action="#{personaControlador.prepareEliminar()}" 
+                                                         ajax="true" update=":formUser :formlistUser"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{personaControlador.eliminar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-search"
+                                                         action="#{personaControlador.prepareBuscar()}" 
+                                                         ajax="true" update=":formUser :formlistUser"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{personaControlador.buscar}"></p:commandButton>
+                                    </div>
+
+                                </div>
+                                <div class="ui-g-12 ui-md-4"></div>
+                                <div class="ui-g-12 ui-md-5">
+                                    <div class="ui-g-0 ui-md-4"></div>
+
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Aceptar"  action="#{personaControlador.transaccion()}" ajax="true" update=":formUser :formlistUser"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{personaControlador.aceptar}"> </p:commandButton>
+                                    </div>
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Cancelar" action="#{personaControlador.cancelarEventos()}" ajax="true" update=":formUser :formlistUser"
+                                                         style="background-color: #939393" > </p:commandButton>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </p:panel>  
+                    </h:form>
+                    <br/>
+                    <p:panel header="Lista" id="toggleable" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">   
+                        <h:form id="formlistUser">
+                            <p:dataTable var="user" value="#{personaControlador.listUser}">
+
+                                <p:column headerText="Codigo" style="width: 10%">
+                                    <h:outputText value="#{user.usuario}" />
+                                </p:column>
+                                <p:column headerText="Cedula" style="width: 10%">
+                                    <h:outputText value="#{user.cedula}" />
+                                </p:column>
+                                <p:column headerText="Nombre Completo" style="width: 50%">
+                                    <h:outputText value="#{user.nombre_completo}" />
+                                </p:column>
+                                <p:column headerText="Estado" style="width: 10%">
+                                    <h:outputText value="#{user.activo}" />
+                                </p:column>
+                                <p:column headerText="Descripcion" style="width: 20%">
+                                    <center>
+                                        <p:commandButton icon="ui-icon-create"   style="background-color: #939393" 
+                                                         action="#{personaControlador.prepareCrud(user, 1)}" ajax="true" update=":formUser"> </p:commandButton>
+                                        <p:commandButton icon="ui-icon-clear" style="background-color: #939393" 
+                                                         action="#{personaControlador.prepareCrud(user, 2)}"  ajax="true" update=":formUser"> </p:commandButton>
+                                        <p:commandButton icon="ui-icon-remove-red-eye" style="background-color: #939393" 
+                                                         action="#{personaControlador.prepareCrud(user, 3)}"  ajax="true" update=":formUser"> </p:commandButton>
+                                    </center>
+                                </p:column>
+
+
+                            </p:dataTable>  
+                        </h:form>
+                    </p:panel>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+
+
+

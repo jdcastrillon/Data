@@ -1,0 +1,233 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templet/template.xhtml">
+
+    <ui:define name="title">Dashboard</ui:define>
+
+    <ui:define name="head">
+        <script type="text/javascript">
+            //<![CDATA[
+            function skinChart() {
+                this.cfg.shadow = false;
+                this.cfg.title = '';
+                this.cfg.seriesColors = ['#FFC107', '#03A9F4'];
+                this.cfg.grid = {
+                    background: '#ffffff',
+                    borderColor: '#ffffff',
+                    gridLineColor: '#EEEEEE',
+                    shadow: false
+                };
+                this.cfg.axesDefaults = {
+                    rendererOptions: {
+                        textColor: '#212121'
+                    }
+                };
+                this.cfg.seriesDefaults = {
+                    shadow: false,
+                    lineWidth: 1,
+                    markerOptions: {
+                        shadow: false,
+                        size: 7,
+                        style: 'circle'
+                    }
+                }
+            }
+
+            //]]>  
+        </script>
+        <style type="text/css">
+            .main-content {
+                padding: 0;
+            }
+        </style>
+        <style type="text/css">
+            .knob-container {
+                display: inline-block;
+                padding: 10px;
+            }
+        </style>
+        <script type="text/javascript">
+            function handleLoginRequest(xhr, status, args) {
+                PF('vendedor').hide();
+            }
+
+            function cierreCuentas(xhr, status, args) {
+                PF('cuentas').hide();
+            }
+        </script>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card card-w-title">
+                    <p:panel id="panelCli" header="Caja" toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+                        <h:form id="formCliente">
+                            <p:growl id="growl" showDetail="true" life="5000" />  
+
+                            <p:tabView >
+                                <p:tab title="General">
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-12 ui-md-3">
+                                                <h:outputText value="Empresa :"></h:outputText>
+                                            </div>                                              
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:selectOneMenu value="#{cajasControlador.objCaja.cod_emp}" disabled="#{cajasControlador.aceptar}">
+                                                    <p:ajax listener="#{cajasControlador.cargarSucursales()}" update="sucursal" />
+                                                    <f:selectItem itemLabel="No Aplica" itemValue="0" />
+                                                    <f:selectItems value="#{cajasControlador.listEmpresas}" var="emp" itemValue="#{emp.cod_emp}" itemLabel="#{emp.nom_emp}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-3">
+                                                <h:outputText value="Sucursal :"></h:outputText>
+                                            </div>                                              
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:selectOneMenu id="sucursal" value="#{cajasControlador.objCaja.cod_sucursal}" disabled="#{cajasControlador.aceptar}">
+                                                    <f:selectItem itemLabel="No Aplica" itemValue="0" />
+                                                    <f:selectItems value="#{cajasControlador.listSucursal}" var="sucu" itemValue="#{sucu.cod_sucursal}" itemLabel="#{sucu.nom_sucursal}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-3">
+                                                <h:outputText value="Usuario :"></h:outputText>
+                                            </div>                                              
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:inputText value="#{cajasControlador.objCaja.usuario}" disabled="true"> </p:inputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText id="nombreCli" value="Fecha :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:calendar id="button" value="#{cajasControlador.objCaja.b_fec_doc}" showOn="button" disabled="#{cajasControlador.aceptar}"
+                                                            locale="de" navigator="true" pattern="dd/MM/yyyy" />
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText id="apellidoCli" value="Base :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:inputText value="#{cajasControlador.objCaja.imp_base}" disabled="#{cajasControlador.aceptar}">
+                                                 <f:convertNumber type="currency" currencySymbol="$"></f:convertNumber></p:inputText>
+                                            </div>
+
+                                        </div>
+                                        <div class="ui-g-12 ui-md-6"></div>
+                                    </div>
+                                </p:tab>
+
+                                <p:tab title="Log">
+                                    <p:dataTable var="log" value="#{cajasControlador.objCaja.logs}">
+                                        <p:column headerText="Proceso" style="width: 20%">
+                                            <h:outputText value="#{log.proceso}" />
+                                        </p:column>
+
+                                        <p:column headerText="Usuario" style="width: 20%">
+                                            <h:outputText value="#{log.usuario}" />
+                                        </p:column>
+                                        <p:column headerText="Operacion" style="width: 20%">
+                                            <h:outputText value="#{log.operacion}" />
+                                        </p:column>
+                                        <p:column headerText="Fecha" style="width: 20%">
+                                            <h:outputText value="#{log.fecha}" />
+                                        </p:column>
+
+
+                                    </p:dataTable>  
+                                </p:tab>
+                            </p:tabView>
+
+
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3">
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-add"
+                                                         action="#{cajasControlador.prepareNuevo() }" 
+                                                         ajax="true" update=":formCliente :formlistProv"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{cajasControlador.nuevo}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-create"
+                                                         action="#{cajasControlador.prepareEdit() }" 
+                                                         ajax="true" update=":formCliente :formlistProv"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{cajasControlador.editar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-clear"
+                                                         action="#{cajasControlador.prepareEliminar()}" 
+                                                         ajax="true" update=":formCliente :formlistProv"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{cajasControlador.eliminar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-search"
+                                                         action="#{cajasControlador.prepareBuscar()}" 
+                                                         ajax="true" update=":formCliente :formlistProv"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{cajasControlador.buscar}"></p:commandButton>
+                                    </div>
+
+                                </div>
+                                <div class="ui-g-12 ui-md-4"></div>
+                                <div class="ui-g-12 ui-md-5">
+                                    <div class="ui-g-0 ui-md-4"></div>
+
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Aceptar"  action="#{cajasControlador.transaccion()}" ajax="true" update=":formCliente :formlistProv"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{cajasControlador.aceptar}"> </p:commandButton>
+                                    </div>
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Cancelar" action="#{cajasControlador.cancelarEventos()}" ajax="true" update=":formCliente :formlistProv"
+                                                         style="background-color: #939393" > </p:commandButton>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:form>
+                    </p:panel>     
+                    <br/>
+                    <p:panel header="Lista" id="PanelDoc2" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">   
+                        <h:form id="formlistProv">
+                            <p:dataTable var="caja" value="#{cajasControlador.listCaja}" 
+                                         rows="10"
+                                         paginator="true"
+                                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                         rowsPerPageTemplate="5,10,15">
+
+                                <p:column headerText="Cod. Caja" style="width: 10%">
+                                    <h:outputText value="#{caja.cod_caja}" />
+                                </p:column>
+
+                                <p:column headerText="Empresa" style="width: 10%">
+                                    <h:outputText value="#{caja.cod_emp}" />
+                                </p:column>
+
+                                <p:column headerText="Fecha" style="width: 60%">
+                                    <h:outputText value="#{caja.fec_doc}" />
+                                </p:column>
+                                <p:column headerText="Descripcion" style="width: 20%">
+                                    <center>
+                                        <p:commandButton icon="ui-icon-create"   style="background-color: #939393" 
+                                                         action="#{cajasControlador.prepareCrud(caja, 1)}" ajax="true" update=":formCliente"> </p:commandButton>
+                                        <p:commandButton icon="ui-icon-clear" style="background-color: #939393" 
+                                                         action="#{cajasControlador.prepareCrud(caja, 2)}"  ajax="true" update=":formCliente"> </p:commandButton>
+                                        <p:commandButton icon="ui-icon-remove-red-eye" style="background-color: #939393" 
+                                                         action="#{cajasControlador.prepareCrud(caja, 3)}"  ajax="true" update=":formCliente"> </p:commandButton>
+                                    </center>
+                                </p:column>
+
+
+                            </p:dataTable>  
+                        </h:form>
+                    </p:panel>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+
+

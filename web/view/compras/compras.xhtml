@@ -1,0 +1,408 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templet/template.xhtml">
+
+    <ui:define name="title">Dashboard</ui:define>
+
+    <ui:define name="head">
+        <script type="text/javascript">
+            //<![CDATA[
+            function skinChart() {
+                this.cfg.shadow = false;
+                this.cfg.title = '';
+                this.cfg.seriesColors = ['#FFC107', '#03A9F4'];
+                this.cfg.grid = {
+                    background: '#ffffff',
+                    borderColor: '#ffffff',
+                    gridLineColor: '#EEEEEE',
+                    shadow: false
+                };
+                this.cfg.axesDefaults = {
+                    rendererOptions: {
+                        textColor: '#212121'
+                    }
+                };
+                this.cfg.seriesDefaults = {
+                    shadow: false,
+                    lineWidth: 1,
+                    markerOptions: {
+                        shadow: false,
+                        size: 7,
+                        style: 'circle'
+                    }
+                }
+            }
+
+            //]]>  
+        </script>
+        <style type="text/css">
+            .main-content {
+                padding: 0;
+            }
+        </style>
+        <style type="text/css">
+            .knob-container {
+                display: inline-block;
+                padding: 10px;
+            }
+        </style>
+        <script type="text/javascript">
+            function handleLoginRequest(xhr, status, args) {
+                PF('telefonos').hide();
+                PF('Email').hide();
+            }
+        </script>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card card-w-title">
+                    <p:panel id="panelProv" header="Orden de Compra" toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+                        <h:form id="formocompra" onkeypress="if (event.keyCode == 13)
+                                    event.returnValue = false;">
+                            <p:growl id="growl" showDetail="true" life="5000" />  
+
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3">
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-add"
+                                                         action="#{comprasControlador.prepareNuevo() }" 
+                                                         ajax="true" update=":formocompra :formlistComp"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{comprasControlador.nuevo}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-create"
+                                                         action="#{comprasControlador.prepareEdit() }" 
+                                                         ajax="true" update=":formocompra :formlistComp"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{comprasControlador.editar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-clear"
+                                                         action="#{comprasControlador.prepareEliminar()}" 
+                                                         ajax="true" update=":formocompra :formlistComp"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{comprasControlador.eliminar}"></p:commandButton>
+                                    </div>
+                                </div>
+                            </div>
+                            <p:tabView id="TabOC" >
+                                <p:tab title="General">
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-12 ui-md-3">
+                                                <h:outputText value="Empresa :"></h:outputText>
+                                            </div>                                              
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:selectOneMenu value="#{comprasControlador.objCompra.cod_emp}" disabled="#{comprasControlador.aceptar}">
+                                                    <f:selectItems value="#{comprasControlador.listEmpresas}" var="emp" 
+                                                                   itemValue="#{emp.cod_emp}" itemLabel="#{emp.nom_emp}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-3">
+                                                <h:outputText value="Proveedor :"></h:outputText>
+                                            </div>                                              
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:selectOneMenu value="#{comprasControlador.objCompra.cod_provedor}" disabled="#{comprasControlador.aceptar}">
+                                                    <p:ajax listener="#{comprasControlador.cargarPagos()}" update=":formocompra:TabOC:OcPagos" />
+                                                    <f:selectItem itemLabel="Seleccione Proveedor" itemValue="0"></f:selectItem>
+                                                    <f:selectItems value="#{comprasControlador.listProveedor}" 
+                                                                   var="prov" itemValue="#{prov.cod_provedor}" 
+                                                                   itemLabel="#{prov.razon_social}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-3">
+                                                <h:outputText value="Pago :"></h:outputText>
+                                            </div>                                              
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:selectOneMenu id="OcPagos" value="#{comprasControlador.objCompra.cod_fpago}"
+                                                                 disabled="#{comprasControlador.aceptar}">
+                                                    <f:selectItems value="#{comprasControlador.listPagos}" 
+                                                                   var="pago" itemValue="#{pago.cod_pago}" itemLabel="#{pago.descripcion}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+
+
+                                        </div>
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-2 ui-md-4">
+                                                <h:outputText value="Fecha :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-8">
+                                                <p:calendar id="button" value="#{comprasControlador.objCompra.d_fec_doc}" showOn="button" disabled="#{comprasControlador.aceptar}"
+                                                            locale="de" navigator="true" pattern="dd/MM/yyyy" />
+                                            </div>
+                                            <div class="ui-g-2 ui-md-4">
+                                                <h:outputText value="Orden Compra :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-8">
+                                                <p:inputText  value="#{comprasControlador.objCompra.nro_docum}" disabled="true" style="color:  black"></p:inputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-4">
+                                                <h:outputText value="Observacion :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-8">
+                                                <p:inputTextarea value="#{comprasControlador.objCompra.observaciones}" disabled="#{comprasControlador.aceptar}"></p:inputTextarea>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-10">
+                                            <div class="ui-g-2 ui-md-1">
+                                                <h:outputText value="Articulo"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-8">                                                
+                                                <p:autoComplete id="articulo" value="#{comprasControlador.objArticulo}" 
+                                                                completeMethod="#{comprasControlador.articulos}" 
+                                                                var="articulo" itemLabel="#{articulo.nom_articulo}" 
+                                                                itemValue="#{articulo}" forceSelection="true"
+                                                                converter="converarticulos"
+                                                                dropdown="true" title="Codigo Articulo ó Nombre Articulo"
+                                                                
+                                                                disabled="#{comprasControlador.aceptar}" style="color: black">
+
+                                                    <p:ajax event="itemSelect" listener="#{comprasControlador.cargaArticulo()}" update="listArti,articulo" />
+                                                </p:autoComplete>
+                                            </div>
+                                        </div>
+                                        <div class="ui-g-12 ui-md-5"></div>
+                                    </div> 
+
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-12">
+                                            <p:dataTable id="listArti" var="articulos" value="#{comprasControlador.objCompra.comprasDt}">
+                                                <p:ajax event="rowEdit" listener="#{comprasControlador.totalesGrilla(articulos)}" 
+                                                        update="listArti , formocompra:TabOC:OCNetos , formocompra:TabOC:OCImps , formocompra:TabOC:OCtots"></p:ajax>       
+                                                <p:columnGroup type="header">
+                                                    <p:row>
+                                                        <p:column colspan="3" headerText="Articulo" />
+                                                        <p:column colspan="6" headerText="Importes" />
+                                                    </p:row>
+                                                    <p:row>
+                                                        <p:column headerText="Codigo" />
+                                                        <p:column headerText="Nombre" />
+                                                        <p:column headerText="Inventario" />
+                                                        <p:column headerText="Cantidad" />
+                                                        <p:column headerText="Costo" />
+                                                        <p:column headerText="Iva" />
+                                                        <p:column headerText="Neto" />
+                                                        <p:column headerText="Total" />
+                                                        <p:column headerText="-" />
+                                                    </p:row>
+                                                </p:columnGroup>
+                                                <p:column style="width: 10%">
+                                                    <h:outputText value="#{articulos.codigo}" />
+                                                </p:column>
+
+                                                <p:column style="width: 15%">
+                                                    <h:outputText value="#{articulos.nom_articulo}" />
+                                                </p:column>
+                                                <p:column headerText="Inventario" style="width: 5%">
+                                                    <center>  <h:outputText value="#{articulos.stock}" /></center>
+                                                </p:column>
+
+                                                <p:column id="Cant" headerText="Cantidad" style="width: 15%" >
+                                                    <center> <p:inputText value="#{articulos.cantidad}" style="width: 95px" 
+                                                                          disabled="#{comprasControlador.aceptar}">
+                                                            <p:ajax listener="#{comprasControlador.totalesGrilla(articulos)}" 
+                                                                    update="InputCosto , 
+                                                                    formocompra:TabOC:OCNetos , formocompra:TabOC:OCImps , formocompra:TabOC:OCtots"></p:ajax>     
+                                                        </p:inputText>
+                                                    </center>
+                                                </p:column>
+
+                                                <p:column id="Costo" headerText="Costo" style="width: 15%" >
+                                                    <center> <p:inputText id="InputCosto"  value="#{articulos.imp_costo}"  style="width: 95px" 
+                                                                          disabled="#{comprasControlador.aceptar}"
+                                                                          >
+                                                            
+                                                            <p:ajax listener="#{comprasControlador.totalesGrilla(articulos)}" 
+                                                                    update="listArti , formocompra:TabOC:OCNetos , formocompra:TabOC:OCImps ,
+                                                                    formocompra:TabOC:OCtots"></p:ajax>   
+                                                        </p:inputText>
+                                                    </center>
+                                                </p:column>
+
+                                                <p:column id="IVA" headerText="IVA" style="width: 5%" >
+                                                    <center> <h:inputText style="width: 95px" value="#{articulos.porc_imp}" disabled="#{comprasControlador.aceptar}">
+                                                            <p:ajax listener="#{comprasControlador.totalesGrilla(articulos)}" 
+                                                                    update="listArti , formocompra:TabOC:OCNetos , formocompra:TabOC:OCImps , formocompra:TabOC:OCtots"></p:ajax>   
+                                                        </h:inputText>
+                                                    </center>
+                                                </p:column>
+
+                                                <p:column  headerText="Neto" style="width: 15%" >
+                                                    <center> <p:outputLabel id="Neto" value="#{articulos.imp_neto}">
+                                                            <f:convertNumber type="currency" currencySymbol="$"></f:convertNumber></p:outputLabel> </center>
+                                                </p:column>
+
+                                                <p:column headerText="Total" style="width: 15%" >
+                                                    <center> <p:outputLabel id="Total" value="#{articulos.imp_total}">
+                                                            <f:convertNumber type="currency" currencySymbol="$"></f:convertNumber></p:outputLabel> </center>
+
+                                                </p:column>
+
+                                                <p:column headerText="Operaciones" style="width: 10%">
+                                                    <center>
+                                                        <p:commandButton icon="ui-icon-clear" style="background-color: red" 
+                                                                         action="#{comprasControlador.eliminarArticuloGrilla(articulos)}"
+                                                                         ajax="true" update="listArti"> </p:commandButton>
+                                                    </center>
+                                                </p:column>
+
+
+                                            </p:dataTable> 
+
+                                        </div>
+                                    </div>
+
+
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-4"></div>
+                                        <div class="ui-g-12 ui-md-4"></div>
+                                        <div class="ui-g-12 ui-md-4">
+                                            <div class="ui-g-2 ui-md-5">
+                                                <h:outputText id="OCNeto" value="SUB TOTAL :" style="font-weight: bold"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-7">
+                                                <h:outputText id="OCNetos" value="#{comprasControlador.totales[3]}" style="font-weight: bold"> </h:outputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-5">
+                                                <h:outputText id="OCImp" value="IMPUESTO :" style="font-weight: bold"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-7">
+                                                <h:outputText id="OCImps" value="#{comprasControlador.totales[6]}" style="font-weight: bold" > </h:outputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-5">
+                                                <h:outputText id="OCtot" value="TOTAL :" style="font-weight: bold"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-7">
+                                                <h:outputText id="OCtots" value="#{comprasControlador.totales[4]}" style="font-weight: bold"> </h:outputText>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </p:tab>
+                                <p:tab title="Log">
+                                    <p:dataTable var="log" value="#{comprasControlador.objCompra.logs}">
+                                        <p:column headerText="Proceso" style="width: 20%">
+                                            <h:outputText value="#{log.proceso}" />
+                                        </p:column>
+
+                                        <p:column headerText="Usuario" style="width: 20%">
+                                            <h:outputText value="#{log.usuario}" />
+                                        </p:column>
+                                        <p:column headerText="Operacion" style="width: 20%">
+                                            <h:outputText value="#{log.operacion}" />
+                                        </p:column>
+                                        <p:column headerText="Fecha" style="width: 20%">
+                                            <h:outputText value="#{log.fecha}" />
+                                        </p:column>
+
+
+                                    </p:dataTable>  
+                                </p:tab>
+                            </p:tabView>
+
+
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3"> </div>
+                                <div class="ui-g-12 ui-md-4"></div>
+                                <div class="ui-g-12 ui-md-5">
+                                    <div class="ui-g-0 ui-md-4"></div>
+
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Aceptar"  action="#{comprasControlador.transaccion()}" ajax="true" update=":formocompra :formlistComp"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{comprasControlador.aceptar}"> </p:commandButton>
+                                    </div>
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Cancelar" action="#{comprasControlador.cancelarEventos()}" ajax="true" update=":formocompra :formlistComp"
+                                                         style="background-color: #939393" > </p:commandButton>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:form>
+                    </p:panel>     
+                    <br/>
+                    <p:panel id="PanelDoc2" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">   
+                        <h:form id="formlistComp">
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-12">
+                                    <div class="ui-g-12 ui-md-12">
+                                        <div class="ui-g-12 ui-md-1">
+                                            Busqueda :
+                                        </div>
+                                        <div class="ui-g-12 ui-md-5">
+                                            <p:inputText value="#{comprasControlador.valorBusqueda}" title="NIT Proveedor ò Codigo de OC">
+                                            </p:inputText>
+                                        </div>
+                                        <div class="ui-g-12 ui-md-2">
+                                            <p:commandButton icon="ui-icon-search"
+                                                             action="#{comprasControlador.busquedaDatos()}" 
+                                                             ajax="true" update=":formlistComp"
+                                                             style="background-color: #939393"></p:commandButton>
+
+                                            <p:commandButton  icon="ui-icon-clear"
+                                                              action="#{comprasControlador.limpiarDatos()}" 
+                                                              ajax="true" update=":formlistComp"
+                                                              style="background-color: #939393"></p:commandButton>
+
+                                        </div>
+
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12">
+
+                                        <p:dataTable var="ocompra" value="#{comprasControlador.listCompra}" 
+                                                     rows="10"
+                                                     paginator="true"
+                                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                                     rowsPerPageTemplate="5,10,15">
+                                            <f:facet name="header">
+                                                Lista de Ordenes de Compra
+                                            </f:facet>
+                                            <p:column headerText="Orden Compra" style="width: 10%">
+                                                <h:outputText value="#{ocompra.nro_docum}" />
+                                            </p:column>
+
+                                            <p:column headerText="Fecha" style="width: 10%">
+                                                <h:outputText value="#{ocompra.fec_doc}" />
+                                            </p:column>
+
+                                            <p:column headerText="proveedor" style="width: 60%">
+                                                <h:outputText value="#{ocompra.cod_provedor}" />
+                                            </p:column>
+                                            <p:column headerText="Descripcion" style="width: 20%">
+                                                <center>
+                                                    <p:commandButton icon="ui-icon-create"   style="background-color: #939393" 
+                                                                     action="#{comprasControlador.prepareCrud(ocompra, 1)}" ajax="true" update=":formocompra"> </p:commandButton>
+                                                    <p:commandButton icon="ui-icon-clear" style="background-color: #939393" 
+                                                                     action="#{comprasControlador.prepareCrud(ocompra, 2)}"  ajax="true" update=":formocompra"> </p:commandButton>
+                                                    <p:commandButton icon="ui-icon-remove-red-eye" style="background-color: #939393" 
+                                                                     action="#{comprasControlador.prepareCrud(ocompra, 3)}"  ajax="true" update=":formocompra"> </p:commandButton>
+                                                </center>
+                                            </p:column>
+
+
+                                        </p:dataTable>  
+
+                                    </div>
+                                </div>
+                            </div>
+                        </h:form>
+                    </p:panel>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+
+

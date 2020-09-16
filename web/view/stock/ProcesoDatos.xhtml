@@ -1,0 +1,276 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templet/template.xhtml"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+    <ui:define name="title">Dashboard</ui:define>
+
+    <ui:define name="head">
+        <script type="text/javascript">
+            //<![CDATA[
+            function skinChart() {
+                this.cfg.shadow = false;
+                this.cfg.title = '';
+                this.cfg.seriesColors = ['#FFC107', '#03A9F4'];
+                this.cfg.grid = {
+                    background: '#ffffff',
+                    borderColor: '#ffffff',
+                    gridLineColor: '#EEEEEE',
+                    shadow: false
+                };
+                this.cfg.axesDefaults = {
+                    rendererOptions: {
+                        textColor: '#212121'
+                    }
+                };
+                this.cfg.seriesDefaults = {
+                    shadow: false,
+                    lineWidth: 1,
+                    markerOptions: {
+                        shadow: false,
+                        size: 7,
+                        style: 'circle'
+                    }
+                }
+            }
+            //]]>  
+        </script>
+        <style type="text/css">
+            .main-content {
+                padding: 0;
+            } 
+            .knob-container {
+                display: inline-block;
+                padding: 10px;
+            }
+
+            .ui-fileupload{                
+                padding-top: -5px !important;
+                height: 72px !important;
+                /*border: solid;*/
+            }
+
+            .ui-fileupload-content{
+                display: none !important;
+            }
+
+            .ui-fileupload-buttonbar{
+                background-color: #fdfdfd !important;
+                border: solid #e8e8e8 !important;
+            }
+
+            .ui-fileupload-choose {
+                background-color: #939393 !important;
+            }
+
+        </style>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card card-w-title">
+                    <p:panel  id="paneldoc" header="Proceso de Datos" toggleable="true"
+                              collapsed="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+                        <h:form id="formProcesoDatos" onkeypress="if (event.keyCode == 13) {
+                                    return false;
+                                }">
+                            <p:growl id="growl" showDetail="true" life="5000" />  
+
+                            <p:tabView >
+                                <p:tab title="General">
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-6">
+
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Cod. Proceso :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:inputText  value="#{procesoDatosControlador.objProcesoDatos.nro_proceso}" disabled="true"></p:inputText>
+                                            </div>
+
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Descripcion :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:inputText  value="#{procesoDatosControlador.objProcesoDatos.descripcion}" disabled="#{procesoDatosControlador.aceptar}"></p:inputText>
+                                            </div>
+
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText style="cursor: pointer;" id="content" value="Seleccione Archivo :"></h:outputText>
+                                                <i class="ui-icon ui-icon-lightbulb-outline"></i> 
+                                                <p:tooltip id="toolTipContent" for="content" pt:position="top">
+                                                    <p:graphicImage name="/Captura3.PNG" />
+                                                </p:tooltip>
+                                            </div>
+
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:fileUpload id="upload" disabled="#{procesoDatosControlador.aceptar}" 
+                                                              fileUploadListener="#{procesoDatosControlador.handleFileUpload}"
+                                                              mode="advanced" update="growl2 listArti" auto="true" sizeLimit="10000000"
+                                                              allowTypes="/(\.|\/)(xls|xlsx)$/" label="Seleccione"
+                                                              />
+                                                <p:growl id="growl2" showDetail="true" life="5000" />  
+                                            </div>                                            
+                                        </div>
+                                        <div class="ui-g-12 ui-md-6">
+
+                                        </div>
+                                    </div>                                   
+
+                                    <p:dataTable id="listArti" var="detalle" value="#{procesoDatosControlador.objProcesoDatos.detalleProDatos}">
+
+                                        <p:column headerText="Codigo" style="width: 15%">
+                                            <h:outputText value="#{detalle.codigo}" />
+                                        </p:column>
+
+                                        <p:column headerText="Nombre" style="width: 35%">
+                                            <h:outputText value="#{detalle.nombre}" />
+                                        </p:column>
+
+                                        <p:column headerText="Stock" style="width: 15%">
+                                            <h:outputText value="#{detalle.stock}" />
+                                        </p:column>
+
+                                        <p:column headerText="Cantidad" style="width: 15%">
+                                            <h:outputText value="#{detalle.cantidad}" />
+                                        </p:column>
+
+                                        <p:column headerText="Ajuste" style="width: 15%">
+                                            <h:outputText value="#{detalle.ajuste}" />
+                                        </p:column>
+
+                                        <!--<p:column headerText="Operaciones" style="width: 10%">
+                                            <center>
+                                                <p:commandButton icon="ui-icon-clear" style="background-color: red" 
+                                                                 action="{conteoControlador.eliminarArticuloGrilla(articulos)}"  ajax="true" update="listArti"> </p:commandButton>
+                                            </center>
+                                        </p:column>-->
+
+
+                                    </p:dataTable> 
+                                </p:tab>
+                                <p:tab title="Log">
+                                    <p:dataTable var="log" value="#{procesoDatosControlador.objProcesoDatos.logs}">
+                                        <p:column headerText="Proceso" style="width: 20%">
+                                            <h:outputText value="#{log.proceso}" />
+                                        </p:column>
+
+                                        <p:column headerText="Usuario" style="width: 20%">
+                                            <h:outputText value="#{log.usuario}" />
+                                        </p:column>
+                                        <p:column headerText="Operacion" style="width: 20%">
+                                            <h:outputText value="#{log.operacion}" />
+                                        </p:column>
+                                        <p:column headerText="Fecha" style="width: 20%">
+                                            <h:outputText value="#{log.fecha}" />
+                                        </p:column>
+
+
+                                    </p:dataTable>  
+                                </p:tab>
+                            </p:tabView>
+
+
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3">
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-add"
+                                                         action="#{procesoDatosControlador.prepareNuevo()}" 
+                                                         ajax="true" update=":formProcesoDatos :formListProcesoDatos"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{procesoDatosControlador.nuevo}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-create"
+                                                         action="#{procesoDatosControlador.prepareEdit()}" 
+                                                         ajax="true" update=":formProcesoDatos :formListProcesoDatos"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{procesoDatosControlador.editar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-clear"
+                                                         action="#{procesoDatosControlador.prepareEliminar()}" 
+                                                         ajax="true" update=":formProcesoDatos :formListProcesoDatos"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{procesoDatosControlador.eliminar}"></p:commandButton>
+                                    </div>                                         
+
+                                </div>
+                                <div class="ui-g-12 ui-md-4"></div>
+                                <div class="ui-g-12 ui-md-5">
+                                    <div class="ui-g-0 ui-md-4"></div>
+
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Aceptar"  actionListener="#{procesoDatosControlador.transaccion()}" 
+                                                         ajax="true" update=":formProcesoDatos :formListProcesoDatos"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{procesoDatosControlador.aceptar}"
+                                                         >
+                                        </p:commandButton>
+
+                                        <!-- <p:commandLink style="display:none"    
+                                                        id="print" 
+                                                        styleClass="print"
+                                                        ajax="{(procesoDatosControlador.executeReport) ? 'false' : 'true'}" process="@this"
+                                                        partialSubmit="false"
+                                                        value="Generar Reporte"
+                                                        action="{procesoDatosControlador.exportarExcel()}"	
+                                                        target="_self" /> -->                 
+
+                                    </div>
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Cancelar" action="#{procesoDatosControlador.cancelarEventos()}" ajax="true" update=":formProcesoDatos :formListProcesoDatos"
+                                                         style="background-color: #939393" > </p:commandButton>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:form>
+                    </p:panel>     
+                    <br/>
+                    <p:panel header="Lista" id="toggleable" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">   
+                        <h:form id="formListProcesoDatos">
+                            <p:dataTable var="proceso" value="#{procesoDatosControlador.listaProcesoDatos}" 
+                                         rows="10"
+                                         paginator="true"
+                                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                         rowsPerPageTemplate="5,10,15">
+
+                                <p:column headerText="Nro Conteo" style="width: 10%">
+                                    <h:outputText value="#{proceso.nro_proceso}" />
+                                </p:column>
+
+                                <p:column headerText="Descripcion" style="width:10%">
+                                    <h:outputText value="#{proceso.descripcion}" />
+                                </p:column>
+
+
+                                <p:column headerText="Fecha" style="width: 15%">
+                                    <h:outputText value="#{proceso.fec_doc}" />
+                                </p:column>
+
+                                <p:column headerText="Operaciones" style="width: 20%">
+                                    <center>
+                                        <p:commandButton styleClass="updateBtn" icon="ui-icon-create"   style="background-color: #939393" 
+                                                         action="#{procesoDatosControlador.prepareCrud(proceso, 1)}" ajax="true" update=":formProcesoDatos"> </p:commandButton>
+                                        <p:commandButton icon="ui-icon-clear" style="background-color: #939393" 
+                                                         action="#{procesoDatosControlador.prepareCrud(proceso, 2)}"  ajax="true" update=":formProcesoDatos"> </p:commandButton>
+                                        <p:commandButton icon="ui-icon-remove-red-eye" style="background-color: #939393" 
+                                                         action="#{procesoDatosControlador.prepareCrud(proceso, 3)}"  ajax="true" update=":formProcesoDatos"> </p:commandButton>
+                                    </center>
+                                </p:column>
+
+                            </p:dataTable>  
+                        </h:form>
+                    </p:panel>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+
+

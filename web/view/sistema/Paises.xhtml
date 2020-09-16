@@ -1,0 +1,128 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templet/template.xhtml">
+
+    <ui:define name="title">Dashboard</ui:define>
+
+    <ui:define name="head">
+
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card card-w-title">
+                    <p:panel id="paneldoc" header="PAISES" toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+                        <h:form id="formPais">
+                            <p:growl id="growl" showDetail="true" life="5000" />  
+                            <p:tabView >
+                                <p:tab title="General">
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-7">
+                                            <div class="ui-g-2 ui-md-2">
+                                                <h:outputText value="Codigo :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-10">                                                
+                                                <p:inputText value="#{paisesControlador.objPais.cod_pais}" disabled="#{paisesControlador.aceptar}"> </p:inputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-2">
+                                                <h:outputText value="Nombre :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-10">
+                                                <p:inputText value="#{paisesControlador.objPais.nombre_pais}" disabled="#{paisesControlador.aceptar}"> </p:inputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-2">
+                                                <h:outputText value="Codigo Postal :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-10">
+                                                <p:inputText value="#{paisesControlador.objPais.cod_postal}" disabled="#{paisesControlador.aceptar}"> </p:inputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-2">
+                                                <h:outputText value="Activo :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-10">
+
+                                                <p:selectOneMenu value="#{paisesControlador.objPais.activo}" disabled="#{paisesControlador.aceptar}">
+                                                    <f:selectItem itemLabel="Activo" itemValue="A" />
+                                                    <f:selectItem itemLabel="Inactivo" itemValue="I" />
+                                                </p:selectOneMenu>
+
+                                            </div>
+                                        </div>    
+                                        <div class="ui-g-12 ui-md-5"></div>
+                                    </div>
+                                </p:tab>
+                            </p:tabView>
+
+
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3">
+                                    <div class="ui-g-6 ui-md-6">
+                                        <p:commandButton value="Aceptar"  action="#{paisesControlador.transaccion()}" ajax="true" update=":formPais :formlistPais"
+                                                         style="background-color: #939393" disabled="#{paisesControlador.aceptar}"> </p:commandButton>
+                                    </div>
+                                    <div class="ui-g-6 ui-md-6">
+                                        <p:commandButton value="Cancelar" action="#{paisesControlador.cancelarEventos()}" ajax="true" update=":formPais"
+                                                         style="background-color: #939393" disabled="#{paisesControlador.cancelar}"> </p:commandButton>
+                                    </div>
+                                </div>
+                                <div class="ui-g-12 ui-md-5"></div>
+                                <div class="ui-g-12 ui-md-4">
+                                    <div class="ui-g-4 ui-md-5"></div>
+                                    <div class="ui-g-4 ui-md-5">
+                                        <p:commandButton value="Nuevo"  icon="ui-icon-add" action="#{paisesControlador.prepareNuevoDocumento()}" ajax="true" update=":formPais"
+                                                         style="background-color: #939393" disabled="#{paisesControlador.nuevo}"> </p:commandButton>
+                                    </div>
+                                    <div class="ui-g-4 ui-md-1">
+                                        <p:commandButton icon="ui-icon-search"
+                                                         style="background-color: #939393" disabled="#{paisesControlador.buscar}" > </p:commandButton>
+                                    </div>
+                                    <div class="ui-g-4 ui-md-1">
+                                        <p:commandButton icon="ui-icon-clear"
+                                                         style="background-color: #939393" disabled="#{paisesControlador.cancelarBusqueda}"> </p:commandButton>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:form>
+                    </p:panel>     
+                    <br/>
+                    <p:panel header="Lista" id="toggleable" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">   
+                        <h:form id="formlistPais">
+                            <p:dataTable var="pais" value="#{paisesControlador.listPais}">
+
+                                <p:column headerText="Codigo" style="width: 10%">
+                                    <h:outputText value="#{pais.cod_pais}" />
+                                </p:column>
+
+                                <p:column headerText="Descripcion" style="width: 60%">
+                                    <h:outputText value="#{pais.nombre_pais}" />
+                                </p:column>
+                                <p:column headerText="Codigo Postal" style="width: 60%">
+                                    <h:outputText value="#{pais.cod_postal}" />
+                                </p:column>
+                                <p:column headerText="Descripcion" style="width: 20%">
+                                    <center>
+                                        <p:commandButton icon="ui-icon-create"   style="background-color: #939393" 
+                                                         action="#{paisesControlador.prepareCrud(pais, 1)}" ajax="true" update=":formPais"> </p:commandButton>
+                                        <p:commandButton icon="ui-icon-clear" style="background-color: #939393" 
+                                                         action="#{paisesControlador.prepareCrud(pais, 2)}"  ajax="true" update=":formPais"> </p:commandButton>
+                                        <p:commandButton icon="ui-icon-remove-red-eye" style="background-color: #939393" 
+                                                         action="#{paisesControlador.prepareCrud(pais, 3)}"  ajax="true" update=":formPais"> </p:commandButton>
+                                    </center>
+                                </p:column>
+
+
+                            </p:dataTable>  
+                        </h:form>
+                    </p:panel>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+
+

@@ -1,0 +1,370 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templet/template.xhtml">
+
+    <ui:define name="title">Dashboard</ui:define>
+
+    <ui:define name="head">
+        <script type="text/javascript">
+            //<![CDATA[
+            function skinChart() {
+                this.cfg.shadow = false;
+                this.cfg.title = '';
+                this.cfg.seriesColors = ['#FFC107', '#03A9F4'];
+                this.cfg.grid = {
+                    background: '#ffffff',
+                    borderColor: '#ffffff',
+                    gridLineColor: '#EEEEEE',
+                    shadow: false
+                };
+                this.cfg.axesDefaults = {
+                    rendererOptions: {
+                        textColor: '#212121'
+                    }
+                };
+                this.cfg.seriesDefaults = {
+                    shadow: false,
+                    lineWidth: 1,
+                    markerOptions: {
+                        shadow: false,
+                        size: 7,
+                        style: 'circle'
+                    }
+                }
+            }
+
+            //]]>  
+        </script>
+        <style type="text/css">
+            .main-content {
+                padding: 0;
+            }
+        </style>
+        <style type="text/css">
+            .knob-container {
+                display: inline-block;
+                padding: 10px;
+            }
+        </style>
+        <script type="text/javascript">
+            function handleLoginRequest(xhr, status, args) {
+                PF('recepTras').hide();
+            }
+        </script>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card card-w-title">
+                    <p:panel id="paneldoc" header="Recepcion Traslado Entre Bodegas" toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+
+                        <h:form id="formRecepD">
+                            <p:dialog header="" widgetVar="recepTras"  modal="true" width="600">
+
+                                <p:dataTable var="recepTras" value="#{recepTrasladoBodControlador.listTranslado}"
+                                             selectionMode="single" 
+                                             selection="#{recepTrasladoBodControlador.objTraslado}" rowKey="#{recepTras.nro_docum}">
+                                    <f:facet name="header">
+                                        Ordenes de Traslado 
+                                    </f:facet>
+                                    <p:column headerText="Empresa" style="width: 20%">
+                                        <h:outputText value="#{recepTras.cod_emp}" />
+                                    </p:column>
+
+                                    <p:column headerText="Fecha" style="width: 20%">
+                                        <h:outputText value="#{recepTras.fec_doc}" />
+                                    </p:column>
+
+                                    <p:column headerText="Nro. Traslado" style="width: 20%">
+                                        <h:outputText value="#{recepTras.nro_docum}" />
+                                    </p:column>
+                                </p:dataTable> 
+
+                                <f:facet name="footer">
+                                    <p:commandButton value="Aceptar" oncomplete="handleLoginRequest(xhr, status, args)" ajax="true"
+                                                     action="#{recepTrasladoBodControlador.cargarNroTraslado() }" update=":formRecep :formRecepD"/>
+                                </f:facet> 
+
+                            </p:dialog>   
+                        </h:form>
+
+                        <h:form id="formRecep" onkeypress="if (event.keyCode == 13) {return false;}">
+                            <p:growl id="growl" showDetail="true" life="5000" />  
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3">
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-add"
+                                                         action="#{recepTrasladoBodControlador.prepareNuevo() }" 
+                                                         ajax="true" update=":formRecep :formListRecep :formRecepD :formRecepT"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{recepTrasladoBodControlador.nuevo}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-create"
+                                                         action="#{recepTrasladoBodControlador.prepareEdit() }" 
+                                                         ajax="true" update=":formRecep :formListRecep"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{recepTrasladoBodControlador.editar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-clear"
+                                                         action="#{recepTrasladoBodControlador.prepareEliminar()}" 
+                                                         ajax="true" update=":formRecep :formListRecep"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{recepTrasladoBodControlador.eliminar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-search"
+                                                         action="#{recepTrasladoBodControlador.prepareReporte()}" 
+                                                         ajax="true" update=":formRecep :formListRecep"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{recepTrasladoBodControlador.nuevo}"></p:commandButton>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <p:tabView>
+                                <p:tab title="General">
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Nro. Traslado :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-7">
+                                                <p:inputText  value="#{recepTrasladoBodControlador.objRecepTraslado.nro_doca}" disabled="true" style="color:  black"></p:inputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-2">
+                                                <center>
+                                                    <p:commandButton icon="ui-icon-dehaze"  style="width: 22px;height: 25px"
+                                                                     disabled="#{recepTrasladoBodControlador.aceptar}" 
+                                                                     onclick="PF('recepTras').show();"> </p:commandButton>
+                                                </center>
+                                            </div>
+
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Deposito Envio:"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-9">
+                                                <p:inputText id="CodArticulo" value="#{recepTrasladoBodControlador.objRecepTraslado.nom_deposito}" 
+                                                             disabled="true" 
+                                                             style="color: black"> </p:inputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Estado Envio :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-9">
+                                                <p:inputText id="estado" value="#{recepTrasladoBodControlador.objRecepTraslado.nom_estado}" 
+                                                             disabled="true"> </p:inputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Deposito Recepcion :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-9">
+                                                <p:inputText id="deposito2" value="#{recepTrasladoBodControlador.objRecepTraslado.nom_deposito2}" 
+                                                             disabled="true"> </p:inputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Estado Recepcion:"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-9">
+                                                <p:inputText id="estado2" value="#{recepTrasladoBodControlador.objRecepTraslado.nom_estado2}" 
+                                                             disabled="true"> </p:inputText>
+                                            </div>
+
+                                        </div>
+                                        <div class="ui-g-12 ui-md-6">
+
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Fecha envio :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:calendar id="Fenvio" value="#{recepTrasladoBodControlador.objRecepTraslado.fecha}" 
+                                                            showOn="button" disabled="true"
+                                                            locale="de" navigator="true" pattern="dd/MM/yyyy" />
+                                            </div>
+
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Fecha Recepcion:"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:calendar id="button" value="#{recepTrasladoBodControlador.objRecepTraslado.fecha}" 
+                                                            showOn="button" disabled="#{recepTrasladoBodControlador.aceptar}"
+                                                            locale="de" navigator="true" pattern="dd/MM/yyyy" />
+                                            </div>
+
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Empresa :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-9">
+                                                <p:inputText id="empresa" value="#{recepTrasladoBodControlador.objRecepTraslado.cod_emp}" 
+                                                             disabled="true"> </p:inputText>
+                                            </div>
+
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Observacion :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:inputTextarea value="#{recepTrasladoBodControlador.objRecepTraslado.observacion}" 
+                                                                 disabled="#{recepTrasladoBodControlador.aceptar}"></p:inputTextarea>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <p:dataTable id="listArti" var="articulos" value="#{recepTrasladoBodControlador.objRecepTraslado.detalleArt}">
+
+                                        <p:column headerText="Codigo" style="width: 15%">
+                                            <h:outputText value="#{articulos.codigo}" />
+                                        </p:column>
+
+                                        <p:column headerText="Nombre" style="width: 35%">
+                                            <h:outputText value="#{articulos.nom_articulo}" />
+                                        </p:column>
+
+                                        <p:column headerText="Inventario" style="width: 35%">
+                                            <h:outputText value="#{articulos.stock}" />
+                                        </p:column>
+
+                                        <p:column headerText="Cantidad" style="width: 20%" >
+                                            <h:inputText value="#{articulos.cantidad}" disabled="#{recepTrasladoBodControlador.aceptar}">
+
+                                            </h:inputText>
+                                        </p:column>
+                                        <p:column headerText="Operaciones" style="width: 10%">
+                                            <center>
+                                                <p:commandButton icon="ui-icon-clear" style="background-color: red" 
+                                                                 action="#{recepTrasladoBodControlador.eliminarArticuloGrilla(articulos)}"  
+                                                                 update="listArti"> </p:commandButton>
+                                            </center>
+                                        </p:column>
+
+
+                                    </p:dataTable> 
+                                </p:tab>
+                                <p:tab title="Log">
+                                    <p:dataTable var="log" value="#{recepTrasladoBodControlador.objRecepTraslado.logs}">
+                                        <p:column headerText="Proceso" style="width: 20%">
+                                            <h:outputText value="#{log.proceso}" />
+                                        </p:column>
+
+                                        <p:column headerText="Usuario" style="width: 20%">
+                                            <h:outputText value="#{log.usuario}" />
+                                        </p:column>
+                                        <p:column headerText="Operacion" style="width: 20%">
+                                            <h:outputText value="#{log.operacion}" />
+                                        </p:column>
+                                        <p:column headerText="Fecha" style="width: 20%">
+                                            <h:outputText value="#{log.fecha}" />
+                                        </p:column>
+
+
+                                    </p:dataTable>  
+                                </p:tab>
+                            </p:tabView>
+                        </h:form>
+                        <h:form id="formRecepT">
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3"></div>
+                                <div class="ui-g-12 ui-md-4"></div>
+                                <div class="ui-g-12 ui-md-5">
+                                    <div class="ui-g-0 ui-md-4"></div>
+
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Aceptar"  action="#{recepTrasladoBodControlador.transaccion()}" 
+                                                         ajax="true" update=":formRecep :formListRecep"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{recepTrasladoBodControlador.aceptar}"> </p:commandButton>
+                                    </div>
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Cancelar" action="#{recepTrasladoBodControlador.cancelarEventos()}" 
+                                                         ajax="true" update=":formRecep :formListRecep"
+                                                         style="background-color: #939393" > </p:commandButton>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                        </h:form>
+
+                    </p:panel>     
+                    <br/>
+                    <p:panel id="toggleable" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">   
+                        <h:form id="formListRecep">
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-12">
+                                    <div class="ui-g-12 ui-md-12">
+                                        <div class="ui-g-12 ui-md-1">
+                                            Busqueda :
+                                        </div>
+                                        <div class="ui-g-12 ui-md-5">
+                                            <p:inputText value="#{recepTrasladoBodControlador.valorBusqueda}" >
+                                            </p:inputText>
+                                        </div>
+                                        <div class="ui-g-12 ui-md-2">
+                                            <p:commandButton icon="ui-icon-search"
+                                                             action="#{recepTrasladoBodControlador.busquedaDatos()}" 
+                                                             ajax="true" update=":formListRecep"
+                                                             style="background-color: #939393"></p:commandButton>
+
+                                            <p:commandButton  icon="ui-icon-clear"
+                                                              action="#{recepTrasladoBodControlador.limpiarDatos()}" 
+                                                              ajax="true" update=":formListRecep"
+                                                              style="background-color: #939393"></p:commandButton>
+
+                                        </div>
+
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12">
+                                        <p:dataTable var="traslado" value="#{recepTrasladoBodControlador.list_RecepTraslado}" 
+                                                     rows="10"
+                                                     paginator="true"
+                                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                                     rowsPerPageTemplate="5,10,15">
+                                            <f:facet name="header">
+                                                Lista Ajustes de Stock
+                                            </f:facet>
+                                            <p:column headerText="Codigo" style="width: 10%">
+                                                <h:outputText value="#{traslado.nro_docum}" />
+                                            </p:column>
+
+                                            <p:column headerText="Empresa" style="width:40%">
+                                                <h:outputText value="#{traslado.cod_emp}" />
+                                            </p:column>
+                                            <p:column headerText="Fecha" style="width: 15%">
+                                                <h:outputText value="#{traslado.fec_doc}" />
+                                            </p:column>
+                                            <p:column headerText="Estado" style="width: 15%">
+                                                <h:outputText value="#{traslado.cod_estado}" />
+                                            </p:column>
+                                            <p:column headerText="Operaciones" style="width: 20%">
+                                                <center>
+                                                    <p:commandButton icon="ui-icon-create"   style="background-color: #939393" 
+                                                                     action="#{recepTrasladoBodControlador.prepareCrud(traslado, 1)}" ajax="true" update=":formRecep"> </p:commandButton>
+                                                    <p:commandButton icon="ui-icon-clear" style="background-color: #939393" 
+                                                                     action="#{recepTrasladoBodControlador.prepareCrud(traslado, 2)}"  ajax="true" update=":formRecep"> </p:commandButton>
+                                                    <p:commandButton icon="ui-icon-remove-red-eye" style="background-color: #939393" 
+                                                                     action="#{recepTrasladoBodControlador.prepareCrud(traslado, 3)}"  ajax="true" update=":formRecep"> </p:commandButton>
+                                                </center>
+                                            </p:column>
+
+
+                                        </p:dataTable>  
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </h:form>
+                    </p:panel>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+
+

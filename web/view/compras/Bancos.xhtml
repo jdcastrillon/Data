@@ -1,0 +1,229 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templet/template.xhtml">
+
+    <ui:define name="title">Dashboard</ui:define>
+
+    <ui:define name="head">
+        <script type="text/javascript">
+            //<![CDATA[
+            function skinChart() {
+                this.cfg.shadow = false;
+                this.cfg.title = '';
+                this.cfg.seriesColors = ['#FFC107', '#03A9F4'];
+                this.cfg.grid = {
+                    background: '#ffffff',
+                    borderColor: '#ffffff',
+                    gridLineColor: '#EEEEEE',
+                    shadow: false
+                };
+                this.cfg.axesDefaults = {
+                    rendererOptions: {
+                        textColor: '#212121'
+                    }
+                };
+                this.cfg.seriesDefaults = {
+                    shadow: false,
+                    lineWidth: 1,
+                    markerOptions: {
+                        shadow: false,
+                        size: 7,
+                        style: 'circle'
+                    }
+                }
+            }
+
+            //]]>  
+        </script>
+        <style type="text/css">
+            .main-content {
+                padding: 0;
+            }
+        </style>
+        <style type="text/css">
+            .knob-container {
+                display: inline-block;
+                padding: 10px;
+            }
+        </style>
+        <script type="text/javascript">
+            function handleLoginRequest(xhr, status, args) {
+                PF('telefonos').hide();
+                PF('Email').hide();
+            }
+        </script>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card card-w-title">
+                    <p:panel id="panelProv" header="Bancos" toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+                        <h:form id="formBanco">
+                            <p:growl id="growl" showDetail="true" life="5000" />  
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3">
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-add"
+                                                         action="#{bancosControlador.prepareNuevo() }" 
+                                                         ajax="true" update=":formBanco :formlistBanco"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{bancosControlador.nuevo}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-create"
+                                                         action="#{bancosControlador.prepareEdit() }" 
+                                                         ajax="true" update=":formBanco :formlistBanco"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{bancosControlador.editar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-clear"
+                                                         action="#{bancosControlador.prepareEliminar()}" 
+                                                         ajax="true" update=":formBanco :formlistBanco"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{bancosControlador.eliminar}"></p:commandButton>
+                                    </div>
+                                </div>
+                            </div>
+                            <p:tabView >
+                                <p:tab title="General">
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-12 ui-md-3">
+                                                <h:outputText value="Banco :"></h:outputText>
+                                            </div>                                              
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:inputText value="#{bancosControlador.objBancos.descripcion}" disabled="#{bancosControlador.aceptar}"> </p:inputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Pais :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:selectOneMenu value="#{bancosControlador.objBancos.cod_pais}" autoWidth="false">
+                                                    <f:selectItems value="#{bancosControlador.listPais}" var="pais"
+                                                                   itemLabel="#{pais.nombre_pais}" itemValue="#{pais.cod_pais}"></f:selectItems>
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Estado :"></h:outputText>                                                
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:inputSwitch value="#{bancosControlador.objBancos.b_activo}" disabled="#{bancosControlador.aceptar}" style="color: black"/>                                                
+                                            </div>
+                                        </div>
+                                        <div class="ui-g-12 ui-md-6"></div>
+                                    </div>
+                                </p:tab>
+
+                                <p:tab title="Log">
+                                    <p:dataTable var="log" value="#{bancosControlador.objBancos.logs}">
+                                        <p:column headerText="Proceso" style="width: 20%">
+                                            <h:outputText value="#{log.proceso}" />
+                                        </p:column>
+
+                                        <p:column headerText="Usuario" style="width: 20%">
+                                            <h:outputText value="#{log.usuario}" />
+                                        </p:column>
+                                        <p:column headerText="Operacion" style="width: 20%">
+                                            <h:outputText value="#{log.operacion}" />
+                                        </p:column>
+                                        <p:column headerText="Fecha" style="width: 20%">
+                                            <h:outputText value="#{log.fecha}" />
+                                        </p:column>
+
+
+                                    </p:dataTable>  
+                                </p:tab>
+                            </p:tabView>
+
+
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3"></div>
+                                <div class="ui-g-12 ui-md-4"></div>
+                                <div class="ui-g-12 ui-md-5">
+                                    <div class="ui-g-0 ui-md-4"></div>
+
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Aceptar"  action="#{bancosControlador.transaccion()}" ajax="true" update=":formBanco :formlistBanco"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{bancosControlador.aceptar}"> </p:commandButton>
+                                    </div>
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Cancelar" action="#{bancosControlador.cancelarEventos()}" ajax="true" update=":formBanco :formlistBanco"
+                                                         style="background-color: #939393" > </p:commandButton>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:form>
+                    </p:panel>     
+                    <br/>
+                    <p:panel id="PanelDoc2" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">   
+                        <h:form id="formlistBanco">
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-12">
+                                    <div class="ui-g-12 ui-md-12">
+                                        <div class="ui-g-12 ui-md-1">
+                                            Busqueda :
+                                        </div>
+                                        <div class="ui-g-12 ui-md-5">
+                                            <p:inputText value="#{proveedorControlador.valorBusqueda}" >
+                                            </p:inputText>
+                                        </div>
+                                        <div class="ui-g-12 ui-md-2">
+                                            <p:commandButton icon="ui-icon-search"
+                                                             action="#{proveedorControlador.busquedaDatos()}" 
+                                                             ajax="true" update=":formlistBanco"
+                                                             style="background-color: #939393"></p:commandButton>
+
+                                            <p:commandButton  icon="ui-icon-clear"
+                                                              action="#{proveedorControlador.limpiarDatos()}" 
+                                                              ajax="true" update=":formlistBanco"
+                                                              style="background-color: #939393"></p:commandButton>
+
+                                        </div>
+
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12">
+                                        <p:dataTable var="banco" value="#{bancosControlador.listBancos}" 
+                                                     rows="10"
+                                                     paginator="true"
+                                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                                     rowsPerPageTemplate="5,10,15">
+
+                                            <p:column headerText="Tipo" style="width: 10%">
+                                                <h:outputText value="#{banco.cod_banco}" />
+                                            </p:column>
+
+                                            <p:column headerText="Codigo" style="width: 10%">
+                                                <h:outputText value="#{banco.descripcion}" />
+                                            </p:column>
+
+
+                                            <p:column headerText="Descripcion" style="width: 20%">
+                                                <center>
+                                                    <p:commandButton icon="ui-icon-create"   style="background-color: #939393" 
+                                                                     action="#{bancosControlador.prepareCrud(banco, 1)}" ajax="true" update=":formBanco"> </p:commandButton>
+                                                    <p:commandButton icon="ui-icon-clear" style="background-color: #939393" 
+                                                                     action="#{bancosControlador.prepareCrud(banco, 2)}"  ajax="true" update=":formBanco"> </p:commandButton>
+                                                    <p:commandButton icon="ui-icon-remove-red-eye" style="background-color: #939393" 
+                                                                     action="#{bancosControlador.prepareCrud(banco, 3)}"  ajax="true" update=":formBanco"> </p:commandButton>
+                                                </center>
+                                            </p:column>
+                                        </p:dataTable> 
+                                    </div>
+                                </div> 
+                            </div>
+                        </h:form>
+                    </p:panel>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+
+

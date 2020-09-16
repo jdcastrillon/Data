@@ -1,0 +1,234 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templet/template.xhtml">
+
+    <ui:define name="title">Dashboard</ui:define>
+
+    <ui:define name="head">
+        <script type="text/javascript">
+            //<![CDATA[
+            function skinChart() {
+                this.cfg.shadow = false;
+                this.cfg.title = '';
+                this.cfg.seriesColors = ['#FFC107', '#03A9F4'];
+                this.cfg.grid = {
+                    background: '#ffffff',
+                    borderColor: '#ffffff',
+                    gridLineColor: '#EEEEEE',
+                    shadow: false
+                };
+                this.cfg.axesDefaults = {
+                    rendererOptions: {
+                        textColor: '#212121'
+                    }
+                };
+                this.cfg.seriesDefaults = {
+                    shadow: false,
+                    lineWidth: 1,
+                    markerOptions: {
+                        shadow: false,
+                        size: 7,
+                        style: 'circle'
+                    }
+                }
+            }
+
+            //]]>  
+        </script>
+        <style type="text/css">
+            .main-content {
+                padding: 0;
+            }
+        </style>
+        <style type="text/css">
+            .knob-container {
+                display: inline-block;
+                padding: 10px;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card card-w-title">
+                    <p:panel id="paneldoc" header="DASHBOARD STOCK" toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+                        <h:form id="formBDS">
+                            <p:growl id="growl" showDetail="true" life="5000" />  
+                            <p:tabView>
+                                <p:tab title="General">
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-6">
+
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Empresa :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:selectOneMenu value="#{dBStock_Controlador.obj_Board.cod_emp}"  > 
+                                                    <f:selectItems value="#{dBStock_Controlador.listEmpresas}" var="emp" itemValue="#{emp.cod_emp}" itemLabel="#{emp.nom_emp}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Depositos :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:selectOneMenu value="#{dBStock_Controlador.obj_Board.cod_deposito}"  > 
+                                                    <f:selectItems value="#{dBStock_Controlador.listDepositos}" var="depo" itemValue="#{depo.cod_deposito}" itemLabel="#{depo.nom_deposito}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+
+                                        </div>
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Estado :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:selectOneMenu value="#{dBStock_Controlador.obj_Board.cod_estado}"  > 
+                                                    <f:selectItems value="#{dBStock_Controlador.listEstados}" var="estado" itemValue="#{estado.cod_estado}" itemLabel="#{estado.nom_estado}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Articulo :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:autoComplete id="articulo" value="#{dBStock_Controlador.objArticulo}" 
+                                                                completeMethod="#{dBStock_Controlador.articulos}" 
+                                                                var="articulo" itemLabel="#{articulo.nom_articulo}" 
+                                                                itemValue="#{articulo}" forceSelection="true"
+                                                                converter="converarticulos"
+                                                                dropdown="true"
+                                                                style="color: black">
+                                                </p:autoComplete>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </p:tab>
+                            </p:tabView>
+
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3">                                  
+                                </div>
+                                <div class="ui-g-12 ui-md-4"></div>
+                                <div class="ui-g-12 ui-md-5">
+                                    <div class="ui-g-0 ui-md-4"></div>
+
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Aceptar"  actionListener="#{dBStock_Controlador.transaccion()}" ajax="true" update=":formBDS"
+                                                         style="background-color: #939393" > </p:commandButton>
+                                    </div>
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Cancelar" action="#{dBStock_Controlador.cancelarEventos()}" ajax="true" update=":formBDS"
+                                                         style="background-color: #939393" > </p:commandButton>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:form>
+                    </p:panel>
+                    <p:panel id="paneldoc2"  toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+                        <h:form id="formBD">
+                            <p:growl id="growl" showDetail="true" life="5000" />  
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-2">    
+                                    <p:panel >
+                                        <center>
+                                            <p:outputLabel value="Stock"></p:outputLabel> <br/>
+                                            <p:outputLabel value="#{dBStock_Controlador.obj_Board.stock}" style="font-weight: bold"></p:outputLabel></center>
+                                    </p:panel>
+                                </div>
+                                <div class="ui-g-12 ui-md-10">
+                                    <p:tabView >
+                                        <p:tab title="Deposito General">
+                                            <div class="ui-g ui-fluid form-group">
+                                                <div class="ui-g-12 ui-md-12">
+                                                    <p:dataTable var="dep" value="#{dBStock_Controlador.depostiosGeneral}">
+                                                        <p:column headerText="Empresa" style="width: 20%">
+                                                            <h:outputText value="#{dep.cod_emp}" />
+                                                        </p:column>
+                                                        <p:column headerText="Deposito" style="width: 20%">
+                                                            <h:outputText value="#{dep.cod_deposito}" />
+                                                        </p:column>
+                                                        <p:column headerText="Descripcion" style="width: 20%">
+                                                            <h:outputText value="#{dep.nom_deposito}" />
+                                                        </p:column>
+                                                        <p:column headerText="Cantidad" style="width: 20%">
+                                                            <h:outputText value="#{dep.cantidad}" />
+                                                        </p:column>
+                                                    </p:dataTable> 
+
+                                                </div>
+                                            </div>
+                                        </p:tab>
+                                        <p:tab title="Deposito Estados">
+                                            <div class="ui-g ui-fluid form-group">
+                                                <div class="ui-g-12 ui-md-12">
+                                                    <p:dataTable var="depE" value="#{dBStock_Controlador.depostiosGeneral}">
+                                                        <p:column headerText="Empresa" style="width: 20%">
+                                                            <h:outputText value="#{depE.cod_emp}" />
+                                                        </p:column>
+                                                        <p:column headerText="Deposito" style="width: 20%">
+                                                            <h:outputText value="#{depE.cod_deposito}" />
+                                                        </p:column>
+                                                        <p:column headerText="Descripcion" style="width: 20%">
+                                                            <h:outputText value="#{depE.nom_deposito}" />
+                                                        </p:column>
+                                                        <p:column headerText="Estado" style="width: 20%">
+                                                            <h:outputText value="#{depE.cod_estado}" />
+                                                        </p:column>
+                                                        <p:column headerText="Cantidad" style="width: 20%">
+                                                            <h:outputText value="#{depE.cantidad}" />
+                                                        </p:column>
+                                                    </p:dataTable> 
+
+                                                </div>
+                                            </div>
+                                        </p:tab>
+                                    </p:tabView>
+
+
+                                </div>
+                            </div>
+                            <div class="ui-g ui-fluid form-group">
+
+                                <div class="ui-g-12 ui-md-12">
+                                    <p>Detalle Articulos  </p> 
+                                    <p:dataTable var="detalle" value="#{dBStock_Controlador.detalle}">
+                                        <p:column headerText="Empresa" style="width: 20%">
+                                            <h:outputText value="#{detalle.cod_emp}" />
+                                        </p:column>
+                                        <p:column headerText="Deposito" style="width: 20%">
+                                            <h:outputText value="#{detalle.cod_deposito}" />
+                                        </p:column>
+                                        <p:column headerText="Descripcion" style="width: 20%">
+                                            <h:outputText value="#{detalle.nom_deposito}" />
+                                        </p:column>
+                                        <p:column headerText="Estado" style="width: 20%">
+                                            <h:outputText value="#{detalle.cod_estado}" />
+                                        </p:column>
+                                        <p:column headerText="Articulo" style="width: 20%">
+                                            <h:outputText value="#{detalle.cod_articulo}" />
+                                        </p:column>
+                                        <p:column headerText="Descripcion" style="width: 20%">
+                                            <h:outputText value="#{detalle.nom_articulo}" />
+                                        </p:column>
+                                        <p:column headerText="Cantidad" style="width: 20%">
+                                            <h:outputText value="#{detalle.cantidad}" />
+                                        </p:column>
+                                    </p:dataTable> 
+                                </div> 
+                            </div>
+                        </h:form>
+                    </p:panel>
+                </div>
+            </div>
+
+        </div>
+    </ui:define>
+
+</ui:composition>
+
+
