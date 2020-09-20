@@ -17,6 +17,8 @@ import java.util.List;
  */
 public class ProcesoDatos implements Serializable {
 
+    private int nro_inventario;
+    private int nro_conteo;
     private int nro_proceso;
     private String descripcion;
     private int cod_log;
@@ -25,6 +27,7 @@ public class ProcesoDatos implements Serializable {
     private transient Date fecha;
     private transient List<Log_Transaccion> logs = new ArrayList();
     private transient List<ProcesoDatosDT> DetalleProDatos = new ArrayList();
+    private transient String cod_emp;
 
     public ProcesoDatos() {
     }
@@ -69,7 +72,7 @@ public class ProcesoDatos implements Serializable {
         this.fec_doc = fec_doc;
     }
 
-    public List<ProcesoDatosDT> getDetalleProDatos() {        
+    public List<ProcesoDatosDT> getDetalleProDatos() {
         return DetalleProDatos;
     }
 
@@ -83,6 +86,30 @@ public class ProcesoDatos implements Serializable {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public int getNro_inventario() {
+        return nro_inventario;
+    }
+
+    public void setNro_inventario(int nro_inventario) {
+        this.nro_inventario = nro_inventario;
+    }
+
+    public int getNro_conteo() {
+        return nro_conteo;
+    }
+
+    public void setNro_conteo(int nro_conteo) {
+        this.nro_conteo = nro_conteo;
+    }
+
+    public String getCod_emp() {
+        return cod_emp;
+    }
+
+    public void setCod_emp(String cod_emp) {
+        this.cod_emp = cod_emp;
     }
 
 }

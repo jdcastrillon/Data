@@ -120,11 +120,11 @@ public class AjusteStockService implements Serializable {
             System.out.println(":" + map.get("mns").toString());
             Resulta[0] = map.get("estado");
             Resulta[1] = map.get("mns").toString().indexOf("#imp") > 0 ? map.get("mns").toString().substring(12, 100) : map.get("mns");
-            Resulta[3] = obj.getTrans();
+            Resulta[2] = obj.getTrans();
         } catch (JsonSyntaxException ex) {
             Resulta[0] = "Error";
             Resulta[1] = "Comuniquese con soporte";
-            Resulta[3] = 0;
+            Resulta[2] = 0;
         }
 
         return Resulta;

@@ -50,6 +50,7 @@ public class ConteoControlador {
     private Seleccion SelService;
 
     private Conteo objConteo;
+    private Inventario objInvetario;
     private List<Conteo> listaConteo = new ArrayList();
     private List<Inventario> listInventario = new ArrayList();
     private List<Empresa> listEmpresas = new ArrayList();
@@ -60,11 +61,6 @@ public class ConteoControlador {
 
     private Articulos objArticulo;
 
-//    private ProConteoDT objConteoDT;
-//    private Articulos objArticulo;
-    //Variables de combo
-//    Object variables[] = new Object[4];
-    //Campos Para Botonera
     Object acciones[] = new Object[6];
     private boolean aceptar;
     private boolean editar;
@@ -74,13 +70,13 @@ public class ConteoControlador {
     private boolean reporte;
     private String evento;
     private String eventJavascrtipt = "";
+    private String tituloReporte;
     private boolean executeReport = false;
 
     @PostConstruct
     public void init() {
         try {
             getObjConteo();
-//            getObjArticulo();
             lista(1);
             this.evento = "inicio";
             controlEventos(evento);
@@ -103,60 +99,18 @@ public class ConteoControlador {
         listCategorias.clear();
         listSubCategorias.clear();
         listArticulos.clear();
-
-//        if (condicion == 1) {
-//          
-//            JsonArray Jelementos = ObjIni.listObjectos("select cod_emp,nom_emp from m_empresa");
-//            for (JsonElement jsonElement : Jelementos) {
-//                if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-//                    Empresa emp = new Empresa();
-//                    Map<String, Object> map = ObjIni.fromJson(jsonElement);
-//                    emp.setCod_emp(map.get("cod_emp").toString());
-//                    emp.setNom_emp(map.get("nom_emp").toString());
-//                    listEmpresas.add(emp);
-//                }
-//            }
-//
-//            //Depositos
-//            JsonArray Jelementos2 = ObjIni.listObjectos("select cod_deposito,nom_deposito from m_depositos where cod_emp='" + listEmpresas.get(0).getCod_emp() + "' and activo='S'");
-//            for (JsonElement jsonElement : Jelementos2) {
-//                if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-//                    Depositos obj = new Depositos();
-//                    Map<String, Object> map = ObjIni.fromJson(jsonElement);
-//                    obj.setCod_deposito(map.get("cod_deposito").toString());
-//                    obj.setNom_deposito(map.get("nom_deposito").toString());
-//                    listDepositos.add(obj);
-//                }
-//            }
-//
-//            //Estados
-//            JsonArray Jelementos3 = ObjIni.listObjectos("select cod_estado,nom_estado from m_estados where cod_categoria='Stock' and cod_deposito='Deposito' and activo='S'");
-//            for (JsonElement jsonElement : Jelementos3) {
-//                if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-//                    Estados obj = new Estados();
-//                    Map<String, Object> map = ObjIni.fromJson(jsonElement);
-//                    obj.setCod_estado(map.get("cod_estado").toString());
-//                    obj.setNom_estado(map.get("nom_estado").toString());
-//                    listEstados.add(obj);
-//                }
-//            }
-//        }
     }
 
     public void prepareNuevo() {
         setObjConteo(null);
         getObjConteo();
-        listaConteo.clear();
-        listaConteo = CService.Lista();
+
         listInventario.clear();
         listEmpresas.clear();
         listDepositos.clear();
         listCategorias.clear();
         listSubCategorias.clear();
         listArticulos.clear();
-
-        //Numerador
-        objConteo.setNro_conteo(ObjIni.numerador("nro_conteo"));
 
         //Empresas
         JsonArray Jelementos = ObjIni.listObjectos("select cod_emp,nom_emp from m_empresa");
@@ -170,13 +124,15 @@ public class ConteoControlador {
             }
         }
 //        //Inventario 
-        JsonArray Jelementos2 = ObjIni.listObjectos("select nro_inventario from t_inventario where cod_emp='" + listEmpresas.get(0).getCod_emp() + "'");
+        JsonArray Jelementos2 = ObjIni.listObjectos("select nro_inventario,cod_emp,fec_doc from t_inventario where cod_emp='" + listEmpresas.get(0).getCod_emp() + "'");
         for (JsonElement jsonElement : Jelementos2) {
             if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
                 Inventario obj = new Inventario();
                 Map<String, Object> map = ObjIni.fromJson(jsonElement);
 
                 obj.setNro_inventario((int) Double.parseDouble(map.get("nro_inventario").toString()));
+                obj.setCod_emp(map.get("cod_emp").toString());
+                obj.setFec_doc(map.get("fec_doc").toString());
                 listInventario.add(obj);
             }
         }
@@ -205,13 +161,12 @@ public class ConteoControlador {
             }
         }
         //Variables
-//        System.out.println("Size Empresa : " + listEmpresas.size());
-//        System.out.println("Size Depositod : " + listDepositos.size());
-////        objConteo.setCod_emp(listEmpresas.get(0).getCod_emp());
-//        objConteo.setCod_deposito(listDepositos.get(0).getCod_deposito());
+        objConteo.setCod_emp(listEmpresas.get(0).getCod_emp());
         this.evento = "Nuevo";
         objConteo.setFecha(new Date());
         controlEventos(evento);
+        tituloReporte = "";
+        System.out.println("Inventarios : " + listInventario.size());
     }
 
     public void prepareEdit() {
@@ -231,130 +186,56 @@ public class ConteoControlador {
         controlEventos(evento);
     }
 
-//    public void prepareReporte(boolean reporte) throws JRException, IOException {
-//
-//        System.out.println("reporte = " + reporte);
-//
-//        if (reporte) {
-//            File jasper = new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Reportes/Prueba.jasper"));
-//
-//            System.out.println("Mauricio = " + jasper.getPath());
-//
-////        ReportePruebaDataSource rdatasource = new ReportePruebaDataSource();
-//            List<ReportePrueba> listReporte = new ArrayList();
-//
-//            for (int i = 0; i < 10; i++) {
-//                ReportePrueba r = new ReportePrueba(i, "Nombre" + i, "Apellido" + i, "Direccion" + i, "Telefono" + i);
-//                listReporte.add(r);
+    public void reporte() {
+        this.executeReport = true;
+    }
+
+    public void exportarExcel(boolean reporte) throws IOException, JRException {
+
+        if (reporte) {
+            File jasper = new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Reportes/ProcesoConteo.jasper"));
+            String consulta = "select 'Inventario '||D.nom_emp as titulo,'" + tituloReporte + "' as titulo2,C.nom_deposito,E.nom_Categoria,F.nom_subcategoria,B.codigo as cod_articulo,B.nom_articulo,A.cantidad \n"
+                    + "from s_stkdepositos A INNER JOIN m_articulos B on A.cod_Articulo=B.cod_Articulo\n"
+                    + "left join m_depositos C on A.cod_tit=C.cod_deposito\n"
+                    + "left join m_empresa D on A.cod_emp=D.cod_emp\n"
+                    + "left join m_categoria E on B.categoria=E.cod_Categoria\n"
+                    + "left join m_subcategoria F on B.subcategoria=F.cod_subcategoria\n"
+                    + "where A.cod_emp='" + objConteo.getCod_emp() + "' and cod_estado='Disponible' ";
+            //Condiciones
+//            if (!objConteo.getCod_deposito().equalsIgnoreCase("0")) {
+//                consulta += " A.cod_tit='" + objConteo.getCod_deposito() + "'";
 //            }
-////        rdatasource.setListReporte(listReporte);
-//            String json = new Gson().toJson(listReporte);
 //
-//            System.out.println(json);
-//            ByteArrayInputStream jsonDataStream = new ByteArrayInputStream(json.getBytes());
+//            if (!objConteo.getCod_categoria().equalsIgnoreCase("0")) {
 //
-//            JsonDataSource ds = new JsonDataSource(jsonDataStream);
-//
-//            byte[] jp = JasperRunManager.runReportToPdf(jasper.getPath(), null, ds);
-//            HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-//            response.setContentType("application/pdf");
-//            response.setContentLength(jp.length);
-//            try (ServletOutputStream outStream = response.getOutputStream()) {
-//                outStream.write(jp, 0, jp.length);
-//                outStream.flush();
-//                outStream.close();
 //            }
-//            FacesContext.getCurrentInstance().responseComplete();
-//        }
-//    }
-//
-//    public void downloadReporte() throws JRException, IOException {
-//        File jasper = new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Reportes/Prueba.jasper"));
-//
-//        System.out.println("Mauricio = " + jasper.getPath());
-//
-////        ReportePruebaDataSource rdatasource = new ReportePruebaDataSource();
-//        List<ReportePrueba> listReporte = new ArrayList();
-//
-//        for (int i = 0; i < 10; i++) {
-//            ReportePrueba r = new ReportePrueba(i, "Nombre" + i, "Apellido" + i, "Direccion" + i, "Telefono" + i);
-//            listReporte.add(r);
-//        }
-////        rdatasource.setListReporte(listReporte);
-//        String json = new Gson().toJson(listReporte);
-//
-//        System.out.println(json);
-//        ByteArrayInputStream jsonDataStream = new ByteArrayInputStream(json.getBytes());
-//
-//        JsonDataSource ds = new JsonDataSource(jsonDataStream);
-//
-////        byte[] jp = JasperRunManager.runReportToPdf(jasper.getPath(), null, ds);
-////        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-////        response.setContentType("application/pdf");
-////        response.setContentLength(jp.length);
-////        try (ServletOutputStream outStream = response.getOutputStream()) {
-////            outStream.write(jp, 0, jp.length);
-////            outStream.flush();
-////            outStream.close();
-////        }
-////        FacesContext.getCurrentInstance().responseComplete();
-//        JasperPrint jp = JasperFillManager.fillReport(jasper.getPath(), null, ds);
-//        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-//        response.addHeader("Content-disposition", "attachment; filename=Reporte.pdf");
-//        try (ServletOutputStream stream = response.getOutputStream()) {
-//            JasperExportManager.exportReportToPdfStream(jp, stream);
-//        }
-//        FacesContext.getCurrentInstance().responseComplete();
-//
-//    }
-    public void exportarExcel() throws IOException, JRException {
 
-        File jasper = new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Reportes/ProcesoConteo.jasper"));
+            String String_json = SelService.ConsultaIreport(consulta);
+            System.out.println("" + String_json.replace("\\", "").replace("\"[", "[").replace("]\"", "]"));
 
-        System.out.println("Mauricio = " + jasper.getPath());
+            System.out.println(String_json);
+            ByteArrayInputStream jsonDataStream = new ByteArrayInputStream(String_json.replace("\\", "").replace("\"[", "[").replace("]\"", "]").getBytes());
 
-        //Ajuste para Json
-//
-//        List<StockxDepositos> listReporte = new ArrayList();
-//
-//
-//        JsonArray Jelementos3 = ObjIni.listObjectos("select * from s_stkdepositos");
-//        for (JsonElement jsonElement : Jelementos3) {
-//            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-//                StockxDepositos obj = new StockxDepositos();
-//                Map<String, Object> map = ObjIni.fromJson(jsonElement);
-//                obj.setCod_emp(map.get("cod_emp").toString());
-//                obj.setCod_estado(map.get("cod_estado").toString());
-//                obj.setCod_tit(map.get("cod_tit").toString());
-//                obj.setCod_articulo(new BigDecimal(map.get("cod_articulo").toString()).intValue());
-//                obj.setCantidad(new BigDecimal(map.get("cantidad").toString()).intValue());
-//                listReporte.add(obj);
-//            }
-//        }
-        String String_json = SelService.ConsultaIreport("select A.cod_emp,A.cod_estado,A.cod_tit,B.codigo as cod_articulo,A.cantidad from s_stkdepositos A INNER JOIN m_articulos B on A.cod_Articulo=B.cod_Articulo\n"
-                + "where cod_emp='Data' and cod_estado='Disponible'");
-//        String json = new Gson().toJson(String_json);
-        System.out.println(String_json);
-        ByteArrayInputStream jsonDataStream = new ByteArrayInputStream(String_json.getBytes());
+            JsonDataSource ds = new JsonDataSource(jsonDataStream);
 
-        JsonDataSource ds = new JsonDataSource(jsonDataStream);
+            JasperPrint jp = JasperFillManager.fillReport(jasper.getPath(), null, ds);
+            HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
+            response.addHeader("Content-disposition", "attachment; filename=Inventario.xls");
 
-        JasperPrint jp = JasperFillManager.fillReport(jasper.getPath(), null, ds);
-        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-        response.addHeader("Content-disposition", "attachment; filename=ProcesoConteo.xls");
+            ServletOutputStream stream = response.getOutputStream();
+            JRXlsExporter exporter = new JRXlsExporter();
+            exporter.setParameter(JRXlsExporterParameter.JASPER_PRINT, jp);
+            exporter.setParameter(JRXlsExporterParameter.OUTPUT_STREAM, stream);
+            exporter.setParameter(JRXlsExporterParameter.IS_ONE_PAGE_PER_SHEET, Boolean.FALSE);
+            exporter.setParameter(JRXlsExporterParameter.IS_DETECT_CELL_TYPE, Boolean.TRUE);
+            exporter.setParameter(JRXlsExporterParameter.IS_WHITE_PAGE_BACKGROUND, Boolean.FALSE);
+            exporter.setParameter(JRXlsExporterParameter.IS_REMOVE_EMPTY_SPACE_BETWEEN_ROWS, Boolean.TRUE);
+            exporter.exportReport();
+            stream.flush();
 
-        ServletOutputStream stream = response.getOutputStream();
-        JRXlsExporter exporter = new JRXlsExporter();
-        exporter.setParameter(JRXlsExporterParameter.JASPER_PRINT, jp);
-        exporter.setParameter(JRXlsExporterParameter.OUTPUT_STREAM, stream);
-        exporter.setParameter(JRXlsExporterParameter.IS_ONE_PAGE_PER_SHEET, Boolean.FALSE);
-        exporter.setParameter(JRXlsExporterParameter.IS_DETECT_CELL_TYPE, Boolean.TRUE);
-        exporter.setParameter(JRXlsExporterParameter.IS_WHITE_PAGE_BACKGROUND, Boolean.FALSE);
-        exporter.setParameter(JRXlsExporterParameter.IS_REMOVE_EMPTY_SPACE_BETWEEN_ROWS, Boolean.TRUE);
-        exporter.exportReport();
-        stream.flush();
-
-        FacesContext.getCurrentInstance().responseComplete();
+            FacesContext.getCurrentInstance().responseComplete();
+        }
+        setObjConteo(null);
 
     }
 
@@ -363,7 +244,9 @@ public class ConteoControlador {
         Object Resulta[] = new Object[2];
         Resulta = CService.recuperarInfo(objecto);
         setObjConteo((Conteo) Resulta[0]);
+        setTituloReporte((String) Resulta[1]);
         lista(2);
+        setExecuteReport(true);
         //Condiciones
         switch (condicion) {
             case 1:
@@ -392,35 +275,24 @@ public class ConteoControlador {
     }
 
     public void transaccion() {
-        Object Resulta[] = new Object[1];
+        Object Resulta[] = new Object[3];
         String mns = "";
         if (validaciones()) {
             switch (this.evento) {
                 case "Nuevo":
                     Resulta = CService.Transaccion(objConteo, "Nuevo");
-                    mns = "Deposito Creado exitosamente";
+                    mns = "Conteo Creado Cargando Excel";
                     break;
                 case "Eliminar":
                     Resulta = CService.Transaccion(objConteo, "Borrar");
-                    mns = "Deposito Eliminado exitosamente";
+                    mns = "Conteo Eliminado";
                     break;
                 case "Editar":
                     Resulta = CService.Transaccion(objConteo, "Editar");
-                    mns = "Deposito Editado exitosamente";
+                    mns = "Conteo Editado";
+
+                    mns = "Reporte";
                     break;
-                case "Reporte": {
-                    try {
-                        Resulta = SelService.PDFDescargar2("reporte");
-                    } catch (IOException ex) {
-                        System.out.println("Error reporte");
-                        Logger.getLogger(ConteoControlador.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-                mns = "Reporte";
-                break;
-//                case "Buscar":
-//                    Resulta = CService.buscarDoc(objConteo);
-//                    break;
 
             }
             if (Resulta[0].equals("OK")) {
@@ -430,7 +302,11 @@ public class ConteoControlador {
                 } else {
                     FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", mns));
                     lista(2);
-                    setObjConteo(null);
+
+                    if (evento.equalsIgnoreCase("Nuevo")) {
+                        setTituloReporte((String) Resulta[2]);
+                        setExecuteReport(true);
+                    }
                     this.evento = "inicio";
                     controlEventos(evento);
                 }
@@ -475,22 +351,6 @@ public class ConteoControlador {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Info", mns));
         }
         return mns.length() <= 0;
-    }
-
-    public void cargarInventario() {
-//        System.out.println("Cargando cargarInventario " + objConteo.getCod_emp());
-        listInventario.clear();
-        //Depositos
-        JsonArray Jelementos2 = ObjIni.listObjectos("select nro_inventario from t_inventario where cod_emp='" + objConteo.getCod_emp() + "'");
-        for (JsonElement jsonElement : Jelementos2) {
-            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-                Inventario obj = new Inventario();
-                Map<String, Object> map = ObjIni.fromJson(jsonElement);
-                obj.setNro_inventario((int) map.get("nro_inventario"));
-                listInventario.add(obj);
-            }
-        }
-//        cargarUbicaciones();
     }
 
     public void cargarDepositos() {
@@ -554,60 +414,32 @@ public class ConteoControlador {
         return valor;
     }
 
-    public void cargarUbicaciones() {
-//        System.out.println("Cargando cargarInventario " + objConteo.toString());
-//        if (objConteo.getCod_deposito() == null) {
-//            System.out.println("Objecto Null");
-//        }
-//        listUbicaciones.clear();
-//        //Ubicaciones
-////        System.out.println("Variable 1 : " + variables[0].toString());
-////        System.out.println("Variable 1 : " + variables[1].toString());
-//        JsonArray Jelementos4 = ObjIni.listObjectos("select cod_ubicacion,nom_ubicacion from m_ubicaciones where cod_emp='" + objConteo.getCod_deposito() + "' "
-//                + "and cod_deposito='" + objConteo.getCod_deposito() + "' and activo='S'");
-//        for (JsonElement jsonElement : Jelementos4) {
-//            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-//                Ubicaciones obj = new Ubicaciones();
-//                Map<String, Object> map = ObjIni.fromJson(jsonElement);
-//                obj.setCod_ubicacion(map.get("cod_ubicacion").toString());
-//                obj.setNom_ubicacion(map.get("nom_ubicacion").toString());
-//                listUbicaciones.add(obj);
-//            }
-//        }
-    }
-
-//    public List<Articulos> articulos(String query) {
-//        getObjArticulo();
-//        System.out.println("------------ Bean articulos------------");
-//        System.out.println("Articulo : " + objArticulo.toString());
-//
-//        listArticulos = SelService.cargaArticulo(query, 2);
-//        return listArticulos;
-//    }
-//    public void cargaArticulo() {
-//        System.out.println("Carga Estado : " + objArticulo.toString());
-//        ProConteoDT obj = new ProConteoDT(objArticulo.getCod_articulo(), objArticulo.getCodigo(), objArticulo.getNom_articulo());
-//        if (buscarElemento(obj) == false) {
-//            objConteo.getDetalleArt().add(obj);
-//        }
-//        setObjArticulo(null);
-//    }
     public void eliminarArticuloGrilla(ProConteoDT obj) {
         if (buscarElemento(obj)) {
             objConteo.getDetalleCont().remove(obj);
         }
 
     }
-//    public boolean buscarElemento(ConteoDT obj) {
-//        boolean valor = false;
-//        for (ConteoDT obj2 : objConteo.getDetalleArt()) {
-//            if (obj.getCod_articulo() == obj2.getCod_articulo()) {
-//                valor = true;
-//                break;
-//            }
-//        }
-//        return valor;
-//    }
+
+    public void cargarNroInventario() {
+        getObjInvetario();
+        System.out.println("Orden de compra : " + objInvetario.toString());
+        objConteo.setCod_emp(objInvetario.getCod_emp());
+        objConteo.setNro_inventario(objInvetario.getNro_inventario());
+
+        objConteo.setNro_conteo(ObjIni.numerador("nro_conteo"));
+        JsonArray conteo = ObjIni.listObjectos("select count(B.nro_conteo)+1 conteo from t_inventario A inner join t_pro_conteo B on A.nro_inventario=B.nro_inventario\n"
+                + "where A.nro_inventario=" + objInvetario.getNro_inventario());
+
+        int Nroconteo = 0;
+        for (JsonElement jsonElement : conteo) {
+            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
+                Map<String, Object> map = ObjIni.fromJson(jsonElement);
+                Nroconteo = ((int) Double.parseDouble(map.get("conteo").toString()));
+            }
+        }
+        objConteo.setNro_conteo(Nroconteo);
+    }
 
     public ConteoService getCService() {
         return CService;
@@ -716,15 +548,6 @@ public class ConteoControlador {
         this.evento = evento;
     }
 
-//    public ConteoDT getObjConteoDT() {
-//        if (objConteoDT == null) {
-//            objConteoDT = new ConteoDT();
-//        }
-//        return objConteoDT;
-//    }
-//    public void setObjConteoDT(ConteoDT objConteoDT) {
-//        this.objConteoDT = objConteoDT;
-//    }
     public Articulos getObjArticulo() {
         if (objArticulo == null) {
             objArticulo = new Articulos();
@@ -735,22 +558,6 @@ public class ConteoControlador {
     public void setObjArticulo(Articulos objArticulo) {
         this.objArticulo = objArticulo;
     }
-//
-//    public List<Articulos> getListArticulos() {
-//        return listArticulos;
-//    }
-//
-//    public void setListArticulos(List<Articulos> listArticulos) {
-//        this.listArticulos = listArticulos;
-//    }
-//
-//    public List<Ubicaciones> getListUbicaciones() {
-//        return listUbicaciones;
-//    }
-//
-//    public void setListUbicaciones(List<Ubicaciones> listUbicaciones) {
-//        this.listUbicaciones = listUbicaciones;
-//    }
 
     public boolean isReporte() {
         return reporte;
@@ -814,6 +621,33 @@ public class ConteoControlador {
 
     public void setListSubCategorias(List<SubCategoria> listSubCategorias) {
         this.listSubCategorias = listSubCategorias;
+    }
+
+    public Inventario getObjInvetario() {
+        if (objInvetario == null) {
+            objInvetario = new Inventario();
+        }
+        return objInvetario;
+    }
+
+    public void setObjInvetario(Inventario objInvetario) {
+        this.objInvetario = objInvetario;
+    }
+
+    public List<Articulos> getListArticulos() {
+        return listArticulos;
+    }
+
+    public void setListArticulos(List<Articulos> listArticulos) {
+        this.listArticulos = listArticulos;
+    }
+
+    public String getTituloReporte() {
+        return tituloReporte;
+    }
+
+    public void setTituloReporte(String tituloReporte) {
+        this.tituloReporte = tituloReporte;
     }
 
 }

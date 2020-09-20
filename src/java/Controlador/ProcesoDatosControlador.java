@@ -1,6 +1,7 @@
 package Controlador;
 
 import Modelo.Bodega.*;
+import Modelo.Empresa;
 import Servicios.ProcesoDatosService;
 import Servicios.Sistema.Inicializacion;
 import Servicios.Sistema.Seleccion;
@@ -61,12 +62,13 @@ public class ProcesoDatosControlador {
     private Seleccion SelService;
 
     private ProcesoDatos objProDatos;
+    private Inventario objInvetario;
     private List<ProcesoDatos> listaProcesoDatos = new ArrayList();
+    private List<Inventario> listInventario = new ArrayList();
+    private List<Empresa> listEmpresas = new ArrayList();
     private UploadedFile uploadedFile;
 
     //Variables de combo
-//    Object variables[] = new Object[4];
-    //Campos Para Botonera
     Object acciones[] = new Object[6];
     private boolean aceptar;
     private boolean editar;
@@ -82,7 +84,6 @@ public class ProcesoDatosControlador {
     public void init() {
         try {
             getObjProcesoDatos();
-//            getObjArticulo();
             lista(1);
             this.evento = "inicio";
             controlEventos(evento);
@@ -98,52 +99,50 @@ public class ProcesoDatosControlador {
         //1: Carga Inicial
         //2: Carga Despues de Transaccion
         listaProcesoDatos.clear();
+        listEmpresas.clear();
         listaProcesoDatos = CService.Lista();
 
-//        if (condicion == 1) {
-//          
-//            JsonArray Jelementos = ObjIni.listObjectos("select cod_emp,nom_emp from m_empresa");
-//            for (JsonElement jsonElement : Jelementos) {
-//                if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-//                    Empresa emp = new Empresa();
-//                    Map<String, Object> map = ObjIni.fromJson(jsonElement);
-//                    emp.setCod_emp(map.get("cod_emp").toString());
-//                    emp.setNom_emp(map.get("nom_emp").toString());
-//                    listEmpresas.add(emp);
-//                }
-//            }
-//
-//            //Depositos
-//            JsonArray Jelementos2 = ObjIni.listObjectos("select cod_deposito,nom_deposito from m_depositos where cod_emp='" + listEmpresas.get(0).getCod_emp() + "' and activo='S'");
-//            for (JsonElement jsonElement : Jelementos2) {
-//                if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-//                    Depositos obj = new Depositos();
-//                    Map<String, Object> map = ObjIni.fromJson(jsonElement);
-//                    obj.setCod_deposito(map.get("cod_deposito").toString());
-//                    obj.setNom_deposito(map.get("nom_deposito").toString());
-//                    listDepositos.add(obj);
-//                }
-//            }
-//
-//            //Estados
-//            JsonArray Jelementos3 = ObjIni.listObjectos("select cod_estado,nom_estado from m_estados where cod_categoria='Stock' and cod_deposito='Deposito' and activo='S'");
-//            for (JsonElement jsonElement : Jelementos3) {
-//                if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-//                    Estados obj = new Estados();
-//                    Map<String, Object> map = ObjIni.fromJson(jsonElement);
-//                    obj.setCod_estado(map.get("cod_estado").toString());
-//                    obj.setNom_estado(map.get("nom_estado").toString());
-//                    listEstados.add(obj);
-//                }
-//            }
-//        }
     }
 
     public void prepareNuevo() {
         setObjProcesoDatos(null);
         getObjProcesoDatos();
-        listaProcesoDatos.clear();
-        listaProcesoDatos = CService.Lista();
+
+        listEmpresas.clear();
+        listInventario.clear();
+        //Empresas
+        JsonArray Jelementos = ObjIni.listObjectos("select cod_emp,nom_emp from m_empresa");
+        for (JsonElement jsonElement : Jelementos) {
+            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
+                Empresa emp = new Empresa();
+                Map<String, Object> map = ObjIni.fromJson(jsonElement);
+                emp.setCod_emp(map.get("cod_emp").toString());
+                emp.setNom_emp(map.get("nom_emp").toString());
+                listEmpresas.add(emp);
+            }
+        }
+        System.out.println("select a.nro_inventario,cod_emp,a.fec_doc,B.nro_conteo from t_inventario A inner join t_pro_conteo B \n"
+                + "on A.nro_inventario=B.nro_inventario where \n"
+                + "B.nro_conteo not in(select nro_conteo from t_pro_datos where nro_inventario=A.nro_inventario)\n"
+                + "and  cod_emp='" + listEmpresas.get(0).getCod_emp() + "'");
+        //Inventario 
+        JsonArray Jelementos2 = ObjIni.listObjectos(
+                "select a.nro_inventario,cod_emp,a.fec_doc,B.nro_conteo from t_inventario A inner join t_pro_conteo B \n"
+                + "on A.nro_inventario=B.nro_inventario where \n"
+                + "B.nro_conteo not in(select nro_conteo from t_pro_datos where nro_inventario=A.nro_inventario)\n"
+                + "and  cod_emp='" + listEmpresas.get(0).getCod_emp() + "'");
+        for (JsonElement jsonElement : Jelementos2) {
+            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
+                Inventario obj = new Inventario();
+                Map<String, Object> map = ObjIni.fromJson(jsonElement);
+
+                obj.setNro_inventario((int) Double.parseDouble(map.get("nro_inventario").toString()));
+                obj.setCod_emp(map.get("cod_emp").toString());
+                obj.setFec_doc(map.get("fec_doc").toString());
+                obj.setNro_conteo((int) Double.parseDouble(map.get("nro_conteo").toString()));
+                listInventario.add(obj);
+            }
+        }
         //Numerador
         objProDatos.setNro_proceso(ObjIni.numerador("nro_proceso"));
         this.evento = "Nuevo";
@@ -167,7 +166,6 @@ public class ProcesoDatosControlador {
         setObjProcesoDatos(null);
         controlEventos(evento);
     }
-
 
     public void handleFileUpload(FileUploadEvent event) throws IOException, SQLException {
         FacesMessage msg = new FacesMessage("Aviso", event.getFile().getFileName() + " se cargo correctamente..!");
@@ -196,20 +194,24 @@ public class ProcesoDatosControlador {
                         StringBuilder sb = new StringBuilder();
                         // For each row, iterate through each columns
                         Iterator<Cell> cellIterator = row.cellIterator();
-//                        while (cellIterator.hasNext()) {
-//                            Cell cell = cellIterator.next();
+                        while (cellIterator.hasNext()) {
+                            Cell cell = cellIterator.next();
+                            System.out.println("Tipo :" + cell.getCellType());
 //                            switch (cell.getCellType()) {
+//
 //                                case Cell.CELL_TYPE_BOOLEAN:
 //                                    System.out.print(cell.getBooleanCellValue());
 //                                    break;
 //                                case Cell.CELL_TYPE_NUMERIC:
+////                                System.out.print(Integer.toString((int) cell.getNumericCellValue()));
 //                                    sb.append(Integer.toString((int) cell.getNumericCellValue())).append(",");
 //                                    break;
 //                                case Cell.CELL_TYPE_STRING:
+////                                System.out.print(cell.getStringCellValue());
 //                                    sb.append(cell.getStringCellValue().trim()).append(",");
 //                                    break;
 //                            }
-//                        }
+                        }
                         if (!sb.toString().equals("")) {
                             lista.add(sb.toString().substring(0, sb.toString().length() - 1));
                         }
@@ -217,7 +219,7 @@ public class ProcesoDatosControlador {
 
                 }
             }
-            
+
             lista.forEach((next) -> {
                 System.out.println("next " + next);
                 String datos[] = next.split(",");//                                                        int nro_proceso, int codigo, String nombre, int stock, int cantidad, int ajuste
@@ -308,7 +310,6 @@ public class ProcesoDatosControlador {
 //        FacesContext.getCurrentInstance().responseComplete();
 //
 //    }
-
     public void exportarExcel() throws IOException, JRException {
 
         File jasper = new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Reportes/ProcesoProcesoDatos.jasper"));
@@ -332,7 +333,6 @@ public class ProcesoDatosControlador {
 //                listReporte.add(obj);
 //            }
 //        }
-
         //        rdatasource.setListReporte(listReporte);
         String json = new Gson().toJson("");
 
@@ -427,7 +427,7 @@ public class ProcesoDatosControlador {
             }
             if (Resulta[0].equals("OK")) {
                 if (evento.equalsIgnoreCase("Buscar")) {
-                    listaProcesoDatos.clear();                    
+                    listaProcesoDatos.clear();
                     listaProcesoDatos = (List<ProcesoDatos>) Resulta[1];
                 } else {
                     FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", mns));
@@ -477,6 +477,25 @@ public class ProcesoDatosControlador {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Info", mns));
         }
         return mns.length() <= 0;
+    }
+
+    public void cargarNroInventario() {
+        getObjInvetario();
+        System.out.println("Orden de compra : " + objInvetario.toString());
+        objProDatos.setCod_emp(objInvetario.getCod_emp());
+        objProDatos.setNro_inventario(objInvetario.getNro_inventario());
+
+        objProDatos.setNro_conteo(objInvetario.getNro_conteo());
+        JsonArray conteo = ObjIni.listObjectos("select count(nro_proceso)+1 conteo from t_pro_datos where nro_inventario=" + objInvetario.getNro_inventario());
+
+        int Nroconteo = 0;
+        for (JsonElement jsonElement : conteo) {
+            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
+                Map<String, Object> map = ObjIni.fromJson(jsonElement);
+                Nroconteo = ((int) Double.parseDouble(map.get("conteo").toString()));
+            }
+        }
+        objProDatos.setNro_proceso(Nroconteo);
     }
 
 //    public void cargarInventario() {
@@ -661,6 +680,50 @@ public class ProcesoDatosControlador {
 
     public void setExecuteReport(boolean executeReport) {
         this.executeReport = executeReport;
+    }
+
+    public ProcesoDatos getObjProDatos() {
+        return objProDatos;
+    }
+
+    public void setObjProDatos(ProcesoDatos objProDatos) {
+        this.objProDatos = objProDatos;
+    }
+
+    public List<Inventario> getListInventario() {
+        return listInventario;
+    }
+
+    public void setListInventario(List<Inventario> listInventario) {
+        this.listInventario = listInventario;
+    }
+
+    public UploadedFile getUploadedFile() {
+        return uploadedFile;
+    }
+
+    public void setUploadedFile(UploadedFile uploadedFile) {
+        this.uploadedFile = uploadedFile;
+    }
+
+    public List<Empresa> getListEmpresas() {
+        return listEmpresas;
+    }
+
+    public void setListEmpresas(List<Empresa> listEmpresas) {
+        this.listEmpresas = listEmpresas;
+    }
+
+    public Inventario getObjInvetario() {
+        if (objInvetario == null) {
+            objInvetario = new Inventario();
+        }
+
+        return objInvetario;
+    }
+
+    public void setObjInvetario(Inventario objInvetario) {
+        this.objInvetario = objInvetario;
     }
 
 }

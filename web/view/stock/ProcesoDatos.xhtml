@@ -67,6 +67,11 @@
             }
 
         </style>
+        <script type="text/javascript">
+            function handleLoginRequest(xhr, status, args) {
+                PF('inventario').hide();
+            }
+        </script>
     </ui:define>
 
     <ui:define name="content">
@@ -75,30 +80,97 @@
                 <div class="card card-w-title">
                     <p:panel  id="paneldoc" header="Proceso de Datos" toggleable="true"
                               collapsed="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+
+                        <h:form id="formProceso">
+                            <p:dialog header="" widgetVar="inventario"  modal="true" width="600">
+
+                                <p:dataTable var="inven" value="#{procesoDatosControlador.listInventario}"
+                                             selectionMode="single" 
+                                             selection="#{procesoDatosControlador.objInvetario}" rowKey="#{inven.nro_inventario}">
+                                    <f:facet name="header">
+                                        Inventarios 
+                                    </f:facet>
+                                    <p:column headerText="Empresa" style="width: 20%">
+                                        <h:outputText value="#{inven.cod_emp}" />
+                                    </p:column>
+
+                                    <p:column headerText="Fecha" style="width: 20%">
+                                        <h:outputText value="#{inven.fec_doc}" />
+                                    </p:column>
+
+                                    <p:column headerText="Nro. Inventario" style="width: 20%">
+                                        <h:outputText value="#{inven.nro_inventario}" />
+                                    </p:column>
+
+                                    <p:column headerText="Nro. Conteo" style="width: 20%">
+                                        <h:outputText value="#{inven.nro_conteo}" />
+                                    </p:column>
+                                </p:dataTable> 
+
+                                <f:facet name="footer">
+                                    <p:commandButton value="Aceptar" oncomplete="handleLoginRequest(xhr, status, args)" ajax="true"
+                                                     action="#{procesoDatosControlador.cargarNroInventario() }" update=":formProcesoDatos :formProceso"/>
+                                </f:facet> 
+
+                            </p:dialog>   
+                        </h:form>
+
                         <h:form id="formProcesoDatos" onkeypress="if (event.keyCode == 13) {
                                     return false;
                                 }">
                             <p:growl id="growl" showDetail="true" life="5000" />  
 
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3">
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-add"
+                                                         action="#{procesoDatosControlador.prepareNuevo()}" 
+                                                         ajax="true" update=":formProcesoDatos :formListProcesoDatos :formProceso"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{procesoDatosControlador.nuevo}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-create"
+                                                         action="#{procesoDatosControlador.prepareEdit()}" 
+                                                         ajax="true" update=":formProcesoDatos :formListProcesoDatos"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{procesoDatosControlador.editar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-clear"
+                                                         action="#{procesoDatosControlador.prepareEliminar()}" 
+                                                         ajax="true" update=":formProcesoDatos :formListProcesoDatos"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{procesoDatosControlador.eliminar}"></p:commandButton>
+                                    </div>                                         
+                                </div>
+                            </div>
+
                             <p:tabView >
                                 <p:tab title="General">
                                     <div class="ui-g ui-fluid form-group">
                                         <div class="ui-g-12 ui-md-6">
-
                                             <div class="ui-g-2 ui-md-3">
-                                                <h:outputText value="Cod. Proceso :"></h:outputText>
+                                                <h:outputText value="Empresa :"></h:outputText>
                                             </div>
                                             <div class="ui-g-10 ui-md-9">
-                                                <p:inputText  value="#{procesoDatosControlador.objProcesoDatos.nro_proceso}" disabled="true"></p:inputText>
+                                                <p:selectOneMenu value="#{procesoDatosControlador.objProDatos.cod_emp}" disabled="#{procesoDatosControlador.aceptar}" >                                                     
+                                                    <f:selectItems value="#{procesoDatosControlador.listEmpresas}" var="emp" itemValue="#{emp.cod_emp}" itemLabel="#{emp.nom_emp}"></f:selectItems> 
+                                                </p:selectOneMenu>
                                             </div>
-
                                             <div class="ui-g-2 ui-md-3">
-                                                <h:outputText value="Descripcion :"></h:outputText>
+                                                <h:outputText value="Nro. Inventario :"></h:outputText>
                                             </div>
-                                            <div class="ui-g-10 ui-md-9">
-                                                <p:inputText  value="#{procesoDatosControlador.objProcesoDatos.descripcion}" disabled="#{procesoDatosControlador.aceptar}"></p:inputText>
+                                            <div class="ui-g-10 ui-md-7">
+                                                <p:inputText  value="#{procesoDatosControlador.objProDatos.nro_inventario}" disabled="true" style="color:  black"></p:inputText>
                                             </div>
-
+                                            <div class="ui-g-10 ui-md-2">
+                                                <center>
+                                                    <p:commandButton icon="ui-icon-dehaze"  style="width: 22px;height: 25px"
+                                                                     disabled="#{procesoDatosControlador.aceptar}" 
+                                                                     onclick="PF('inventario').show();"> </p:commandButton>
+                                                </center>
+                                            </div>
                                             <div class="ui-g-2 ui-md-3">
                                                 <h:outputText style="cursor: pointer;" id="content" value="Seleccione Archivo :"></h:outputText>
                                                 <i class="ui-icon ui-icon-lightbulb-outline"></i> 
@@ -116,8 +188,30 @@
                                                 <p:growl id="growl2" showDetail="true" life="5000" />  
                                             </div>                                            
                                         </div>
-                                        <div class="ui-g-12 ui-md-6">
 
+
+
+
+
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Cod. Conteo :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:inputText  value="#{procesoDatosControlador.objProcesoDatos.nro_conteo}" disabled="true"></p:inputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Cod. Proceso :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:inputText  value="#{procesoDatosControlador.objProcesoDatos.nro_proceso}" disabled="true"></p:inputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Observacion :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:inputTextarea  value="#{procesoDatosControlador.objProcesoDatos.descripcion}" disabled="#{procesoDatosControlador.aceptar}"></p:inputTextarea>
+                                            </div>
                                         </div>
                                     </div>                                   
 
@@ -146,7 +240,7 @@
                                         <!--<p:column headerText="Operaciones" style="width: 10%">
                                             <center>
                                                 <p:commandButton icon="ui-icon-clear" style="background-color: red" 
-                                                                 action="{conteoControlador.eliminarArticuloGrilla(articulos)}"  ajax="true" update="listArti"> </p:commandButton>
+                                                                 action="{procesoDatosControlador.eliminarArticuloGrilla(articulos)}"  ajax="true" update="listArti"> </p:commandButton>
                                             </center>
                                         </p:column>-->
 
@@ -176,30 +270,7 @@
 
 
                             <div class="ui-g ui-fluid form-group">
-                                <div class="ui-g-12 ui-md-3">
-                                    <div class="ui-g-2 ui-md-2">
-                                        <p:commandButton icon="ui-icon-add"
-                                                         action="#{procesoDatosControlador.prepareNuevo()}" 
-                                                         ajax="true" update=":formProcesoDatos :formListProcesoDatos"
-                                                         style="background-color: #939393" 
-                                                         disabled="#{procesoDatosControlador.nuevo}"></p:commandButton>
-                                    </div>
-                                    <div class="ui-g-2 ui-md-2">
-                                        <p:commandButton icon="ui-icon-create"
-                                                         action="#{procesoDatosControlador.prepareEdit()}" 
-                                                         ajax="true" update=":formProcesoDatos :formListProcesoDatos"
-                                                         style="background-color: #939393" 
-                                                         disabled="#{procesoDatosControlador.editar}"></p:commandButton>
-                                    </div>
-                                    <div class="ui-g-2 ui-md-2">
-                                        <p:commandButton icon="ui-icon-clear"
-                                                         action="#{procesoDatosControlador.prepareEliminar()}" 
-                                                         ajax="true" update=":formProcesoDatos :formListProcesoDatos"
-                                                         style="background-color: #939393" 
-                                                         disabled="#{procesoDatosControlador.eliminar}"></p:commandButton>
-                                    </div>                                         
-
-                                </div>
+                                <div class="ui-g-12 ui-md-3"></div>
                                 <div class="ui-g-12 ui-md-4"></div>
                                 <div class="ui-g-12 ui-md-5">
                                     <div class="ui-g-0 ui-md-4"></div>

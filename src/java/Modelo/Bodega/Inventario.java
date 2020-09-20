@@ -25,6 +25,7 @@ public class Inventario implements Serializable {
 
     transient Date fecha;
     transient List<Log_Transaccion> logs = new ArrayList();
+    transient int nro_conteo;
 
     public int getNro_inventario() {
         return nro_inventario;
@@ -80,6 +81,14 @@ public class Inventario implements Serializable {
 
     public void setLogs(List<Log_Transaccion> logs) {
         this.logs = logs;
+    }
+
+    public int getNro_conteo() {
+        return nro_conteo;
+    }
+
+    public void setNro_conteo(int nro_conteo) {
+        this.nro_conteo = nro_conteo;
     }
 
 }
