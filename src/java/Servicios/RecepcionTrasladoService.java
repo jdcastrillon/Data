@@ -9,6 +9,7 @@ import ConecionService.Service;
 import Dao.ObjectoDao;
 import Dao.ObjectoImp;
 import Modelo.Bodega.RecepcionTraslado;
+import Modelo.Bodega.TrasladoBodega;
 import Modelo.Bodega.TrasladoBodegaDT;
 import Modelo.Sistema.Log_Transaccion;
 import ModeloService.imp_tablas;
@@ -23,10 +24,14 @@ import com.google.gson.reflect.TypeToken;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.inject.Named;
 import javax.enterprise.context.ApplicationScoped;
 import javax.faces.context.FacesContext;
@@ -122,38 +127,52 @@ public class RecepcionTrasladoService implements Serializable {
     }
 
     public List<RecepcionTraslado> Lista() {
-//        String respuesta = dao.QueryObj("select trans,cod_emp,fec_doc,nro_docum,cod_estado,cod_deposito,cod_propietario,cod_motivo,observacion,signo,cod_log from t_ajuststock A order by 1 desc");
-//        JsonArray Jelementos = parser.parse(respuesta).getAsJsonArray();
+        String respuesta = dao.QueryObj("SELECT trans, A.cod_emp, fec_doc, nro_docum, nro_doca, A.cod_deposito, A.cod_estado, \n"
+                + "cod_deposito2, cod_estado2, observacion, A.cod_log,\n"
+                + "B.nom_deposito,C.nom_deposito as nom_deposito2,\n"
+                + "D.nom_estado,E.cod_estado as nom_estado2\n"
+                + "FROM public.t_receptraslado A \n"
+                + "left join m_depositos B on A.cod_deposito=B.cod_deposito\n"
+                + "left join m_depositos C on A.cod_deposito2=C.cod_deposito\n"
+                + "left join m_estados D on A.cod_estado=D.cod_estado\n"
+                + "left join m_estados E on A.cod_estado=E.cod_estado\n"
+                + "order by trans desc limit 500");
+        JsonArray Jelementos = parser.parse(respuesta).getAsJsonArray();
         List<RecepcionTraslado> listRecepcionTraslado = new ArrayList();
-//        for (JsonElement jsonElement : Jelementos) {
-//            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-//                try {
-//                    RecepcionTraslado obj = new RecepcionTraslado();
-//                    Map<String, Object> map = gson.fromJson(jsonElement.getAsString(), new TypeToken<Map<String, Object>>() {
-//                    }.getType());
-//                    System.out.println("cod_tipodoc : " + map.get("cod_tipodoc"));
-//                    obj.setTrans(new BigDecimal(map.get("trans").toString()).intValue());
-//                    obj.setCod_emp(map.get("cod_emp").toString());
-//                    obj.setFec_doc(map.get("fec_doc").toString());
-//                    obj.setNro_docum(new BigDecimal(map.get("nro_docum").toString()).intValue());
-//                    obj.setCod_estado(map.get("cod_estado").toString());
-//                    obj.setCod_deposito(map.get("cod_deposito").toString());
-//                    obj.setCod_propietario(map.get("cod_propietario").toString());
-//                    obj.setCod_motivo(new BigDecimal(map.get("cod_motivo").toString()).intValue());
-//                    obj.setObservacion(map.get("observacion").toString());
-//                    obj.setSigno(new BigDecimal(map.get("signo").toString()).intValue());
-//                    obj.setCod_log(new BigDecimal(map.get("cod_log").toString()).intValue());
-//
-//                    System.out.println("FEcha : " + obj.getFec_doc());
-//                    Date date1 = new SimpleDateFormat("yyyy-MM-dd").parse(obj.getFec_doc());
-//                    obj.setFecha(date1);
-//
-//                    listRecepcionTraslado.add(obj);
-//                } catch (ParseException ex) {
-//                    Logger.getLogger(RecepcionTrasladoService.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-//            }
-//        }
+        for (JsonElement jsonElement : Jelementos) {
+            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
+                try {
+                    RecepcionTraslado obj = new RecepcionTraslado();
+                    Map<String, Object> map = gson.fromJson(jsonElement.getAsString(), new TypeToken<Map<String, Object>>() {
+                    }.getType());
+                    System.out.println("cod_tipodoc : " + map.get("cod_tipodoc"));
+                    obj.setTrans(new BigDecimal(map.get("trans").toString()).intValue());
+                    obj.setCod_emp(map.get("cod_emp").toString());
+                    obj.setFec_doc(map.get("fec_doc").toString());
+                    obj.setNro_docum(new BigDecimal(map.get("nro_docum").toString()).intValue());
+                    obj.setNro_doca(new BigDecimal(map.get("nro_doca").toString()).intValue());
+                    obj.setCod_estado(map.get("cod_estado").toString());
+                    obj.setCod_deposito(map.get("cod_deposito").toString());
+                    obj.setCod_deposito2(map.get("cod_deposito2").toString());
+                    obj.setCod_estado2(map.get("cod_estado2").toString());
+                    obj.setObservacion(map.get("observacion").toString());
+                    obj.setCod_log(new BigDecimal(map.get("cod_log").toString()).intValue());
+
+                    obj.setNom_deposito(map.get("nom_deposito").toString());
+                    obj.setNom_deposito2(map.get("nom_deposito2").toString());
+                    obj.setNom_estado(map.get("nom_estado").toString());
+                    obj.setNom_estado2(map.get("nom_estado2").toString());
+
+                    System.out.println("FEcha : " + obj.getFec_doc());
+                    Date date1 = new SimpleDateFormat("yyyy-MM-dd").parse(obj.getFec_doc());
+                    obj.setFecha(date1);
+
+                    listRecepcionTraslado.add(obj);
+                } catch (ParseException ex) {
+                    System.out.println("Error Lista Recepcion " + ex.getMessage());
+                }
+            }
+        }
         return listRecepcionTraslado;
     }
 
@@ -224,6 +243,36 @@ public class RecepcionTrasladoService implements Serializable {
             }
         }
 
+        //Articulos
+        obj.getDetalleArt().clear();
+        String respuesta2 = dao.QueryObj("SELECT trans, A.cod_articulo, cod_ubicacion, A.cod_unidad, cant_enviada, \n"
+                + "cant_recibida, linea,B.codigo,B.nom_articulo\n"
+                + "FROM public.td_receptraslado A inner join m_articulos B \n"
+                + "on A.cod_articulo=B.cod_articulo where trans=" + obj.getTrans());
+
+        JsonArray JsonLog2 = parser.parse(respuesta2).getAsJsonArray();
+        for (JsonElement jsonElement : JsonLog2) {
+            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
+                TrasladoBodegaDT articulo = new TrasladoBodegaDT();
+                Map<String, Object> maparticulo = gson.fromJson(jsonElement.getAsString(), new TypeToken<Map<String, Object>>() {
+                }.getType());
+
+                articulo.setTrans(new BigDecimal(maparticulo.get("trans").toString()).intValue());
+                articulo.setCod_articulo(new BigDecimal(maparticulo.get("cod_articulo").toString()).intValue());
+                articulo.setCod_ubicacion(maparticulo.get("cod_ubicacion").toString());
+                articulo.setCod_unidad(maparticulo.get("cod_unidad").toString());
+                articulo.setCant_enviada(new BigDecimal(maparticulo.get("cant_enviada").toString()).intValue());
+                articulo.setCant_recibida(new BigDecimal(maparticulo.get("cant_recibida").toString()).intValue());
+                articulo.setTrans(new BigDecimal(maparticulo.get("linea").toString()).intValue());
+
+                articulo.setCodigo(maparticulo.get("codigo").toString());
+                articulo.setNom_articulo(maparticulo.get("nom_articulo").toString());
+
+                obj.getDetalleArt().add(articulo);
+            }
+        }
+
+        //objecto de traslado
         Resulta[0] = obj;
 
         return Resulta;

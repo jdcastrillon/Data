@@ -1,12 +1,10 @@
 package Controlador;
 
 import Modelo.Bodega.*;
-import Modelo.Empresa;
 import Servicios.Sistema.*;
 import Servicios.RecepcionTrasladoService;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -153,11 +151,11 @@ public class RecepTrasladoBodControlador {
     }
 
     public void prepareCrud(RecepcionTraslado objecto, int condicion) {
+        System.out.println("Objecto : "+objecto.toString());
         setObjRecepTraslado(null);
         Object Resulta[] = new Object[2];
         Resulta = recepTraslado.recuperarInfo(objecto);
         setObjRecepTraslado((RecepcionTraslado) Resulta[0]);
-        lista(2);
         //Condiciones
         switch (condicion) {
             case 1:
@@ -203,26 +201,6 @@ public class RecepTrasladoBodControlador {
                     Resulta = recepTraslado.Transaccion(objRecepTraslado, "Editar");
                     mns = "Deposito Editado exitosamente";
                     break;
-                case "Reporte": {
-                    try {
-                        Resulta = SelService.PDFDescargar2("Blank_A4_1");
-                    } catch (IOException ex) {
-                        System.out.println("Error reporte");
-                        Logger.getLogger(RecepTrasladoBodControlador.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-                mns = "Reporte";
-                break;
-//                case "Buscar":
-//                    Resulta = recepTraslado.buscarDoc(objRecepTraslado);
-//                    break;//                case "Buscar":
-//                    Resulta = recepTraslado.buscarDoc(objRecepTraslado);
-//                    break;//                case "Buscar":
-//                    Resulta = recepTraslado.buscarDoc(objRecepTraslado);
-//                    break;//                case "Buscar":
-//                    Resulta = recepTraslado.buscarDoc(objRecepTraslado);
-//                    break;
-
             }
             if (Resulta[0] == null) {
                 Resulta[0] = "";
@@ -350,6 +328,10 @@ public class RecepTrasladoBodControlador {
 
     public RecepcionTrasladoService getRecepTraslado() {
         return recepTraslado;
+    }
+
+    public void datosBean() {
+        System.out.println("Datos Bean");
     }
 
     public void setRecepTraslado(RecepcionTrasladoService recepTraslado) {

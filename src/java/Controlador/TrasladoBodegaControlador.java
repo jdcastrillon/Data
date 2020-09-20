@@ -304,10 +304,12 @@ public class TrasladoBodegaControlador {
         System.out.println(" buscar : " + buscar);
 
         if (this.nuevo == false) {
-            //Validaciones
-//            if (ObjVal.ValPrimaryKey("select count(*) from m_tipodocumentos where cod_tipodoc='" + objTraldoBodega.getCod_tipodoc() + "'")) {
-//                mns = "El codigo del documento ya existe";
-//            }
+            if (objTraldoBodega.getCod_deposito2().equalsIgnoreCase("0")) {
+                mns = "Se debe seleccionar bodega destino";
+            }
+            if (objTraldoBodega.getDetalleArt().size() == 0) {
+                mns = "Se ddebe seleccionar al menos 1 articulo";
+            }
         }
 
         System.out.println("mns : " + mns);

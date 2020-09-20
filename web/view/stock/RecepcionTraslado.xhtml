@@ -223,13 +223,11 @@
 
                                         <p:column headerText="Cant. envio" style="width: 20%" >
                                             <h:inputText value="#{articulos.cant_enviada}" 
-                                                         disabled="true">
-
-                                            </h:inputText>
+                                                         disabled="true"></h:inputText>
                                         </p:column>
                                         <p:column headerText="Cant. Recibida" style="width: 20%" >
                                             <h:inputText value="#{articulos.cant_recibida}" disabled="#{recepTrasladoBodControlador.aceptar}">
-
+                                                <p:ajax listener="#{recepTrasladoBodControlador.datosBean()}" update="listArti" />
                                             </h:inputText>
                                         </p:column>
                                         <p:column headerText="Operaciones" style="width: 10%">

@@ -494,7 +494,6 @@ public class StockAjusteControlador {
 
     public void datosBean() {
         System.out.println("Datos Bean signo " + objAjuste.getSigno());
-
     }
 
     public AjusteStockService getAJService() {
