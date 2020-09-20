@@ -51,25 +51,103 @@
                 padding: 10px;
             }
         </style>
+        <script type="text/javascript">
+            function handleLoginRequest(xhr, status, args) {
+                PF('inventario').hide();
+            }
+        </script>
     </ui:define>
 
     <ui:define name="content">
         <div class="ui-g">
             <div class="ui-g-12">
                 <div class="card card-w-title">
-                    <p:panel  id="paneldoc" header="Conteo" toggleable="true"
-                              collapsed="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
-                        <h:form id="formDepo" onkeypress="if (event.keyCode == 13) {
+                    <p:panel  id="paneldoc" header="Conteo de Inventario" toggleable="true"
+                              collapsed="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px"> 
+                        <h:form id="formConteoD">
+                            <p:dialog header="" widgetVar="inventario"  modal="true" width="600">
+
+                                <p:dataTable var="inven" value="#{conteoControlador.listInventario}"
+                                             selectionMode="single" 
+                                             selection="#{conteoControlador.objInvetario}" rowKey="#{inven.nro_inventario}">
+                                    <f:facet name="header">
+                                        Inventarios 
+                                    </f:facet>
+                                    <p:column headerText="Empresa" style="width: 20%">
+                                        <h:outputText value="#{inven.cod_emp}" />
+                                    </p:column>
+
+                                    <p:column headerText="Fecha" style="width: 20%">
+                                        <h:outputText value="#{inven.fec_doc}" />
+                                    </p:column>
+
+                                    <p:column headerText="Nro. Inventario" style="width: 20%">
+                                        <h:outputText value="#{inven.nro_inventario}" />
+                                    </p:column>
+                                </p:dataTable> 
+
+                                <f:facet name="footer">
+                                    <p:commandButton value="Aceptar" oncomplete="handleLoginRequest(xhr, status, args)" ajax="true"
+                                                     action="#{conteoControlador.cargarNroInventario() }" update=":formConteo :formConteoD"/>
+                                </f:facet> 
+
+                            </p:dialog>   
+                        </h:form>
+                        <h:form id="formConteo" onkeypress="if (event.keyCode == 13) {
                                     return false;
                                 }">
                             <p:growl id="growl" showDetail="true" life="5000" />  
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3">
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-add"
+                                                         action="#{conteoControlador.prepareNuevo()}" 
+                                                         ajax="true" update=":formConteo :formListConteo :formConteoD"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{conteoControlador.nuevo}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-create"
+                                                         action="#{conteoControlador.prepareEdit()}" 
+                                                         ajax="true" update=":formConteo :formListConteo"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{conteoControlador.editar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-clear"
+                                                         action="#{conteoControlador.prepareEliminar()}" 
+                                                         ajax="true" update=":formConteo :formListConteo"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{conteoControlador.eliminar}"></p:commandButton>
+                                    </div>   
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-insert-drive-file"
+                                                         action="#{conteoControlador.reporte() }" 
+                                                         style="background-color: #939393" 
+                                                         ajax="true" update=":formConteo :formListConteo :formConteo:print"
+                                                         disabled="#{conteoControlador.reporte}"
+                                                         oncomplete="trigger()"></p:commandButton>                                              
 
+                                    </div>
+                                </div>
+                            </div>
                             <p:tabView >
                                 <p:tab title="General">
                                     <div class="ui-g ui-fluid form-group">
                                         <div class="ui-g-12 ui-md-6">
-
-
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Nro. Inventario :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-7">
+                                                <p:inputText  value="#{conteoControlador.objConteo.nro_inventario}" disabled="true" style="color:  black"></p:inputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-2">
+                                                <center>
+                                                    <p:commandButton icon="ui-icon-dehaze"  style="width: 22px;height: 25px"
+                                                                     disabled="#{conteoControlador.aceptar}" 
+                                                                     onclick="PF('inventario').show();"> </p:commandButton>
+                                                </center>
+                                            </div>
                                             <div class="ui-g-2 ui-md-3">
                                                 <h:outputText value="Cod. Conteo :"></h:outputText>
                                             </div>
@@ -88,16 +166,6 @@
                                             </div>
 
                                             <div class="ui-g-2 ui-md-3">
-                                                <h:outputText value="Inventario :"></h:outputText>
-                                            </div>
-                                            <div class="ui-g-10 ui-md-9">
-                                                <p:selectOneMenu id="Inventario" value="#{conteoControlador.objConteo.nro_inventario}" disabled="#{conteoControlador.aceptar}" >                                                    
-                                                    <f:selectItem itemLabel="Seleccione" itemValue="0" />
-                                                    <f:selectItems value="#{conteoControlador.listInventario}" var="inv" itemValue="#{inv.nro_inventario}" itemLabel="#{inv.nro_inventario}"></f:selectItems> 
-                                                </p:selectOneMenu>
-                                            </div>
-
-                                            <div class="ui-g-2 ui-md-3">
                                                 <h:outputText value="Deposito :"></h:outputText>
                                             </div>
                                             <div class="ui-g-10 ui-md-9">
@@ -108,7 +176,13 @@
                                             </div>  
                                         </div>
                                         <div class="ui-g-12 ui-md-6">
-
+                                            <div class="ui-g-2 ui-md-4">
+                                                <h:outputText value="Fecha :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-8">
+                                                <p:calendar id="button" value="#{conteoControlador.objConteo.fecha}" showOn="button" disabled="true"
+                                                            locale="de" navigator="true" pattern="dd/MM/yyyy" />
+                                            </div>
 
                                             <div class="ui-g-2 ui-md-4">
                                                 <h:outputText value="Categoria :"></h:outputText>
@@ -131,15 +205,6 @@
                                                     <f:selectItems value="#{conteoControlador.listSubCategorias}" var="subcat" itemValue="#{subcat.cod_subcategoria}" itemLabel="#{subcat.nom_subcategoria}"></f:selectItems> 
                                                 </p:selectOneMenu>
                                             </div>
-
-                                            <div class="ui-g-2 ui-md-4">
-                                                <h:outputText value="Fecha :"></h:outputText>
-                                            </div>
-                                            <div class="ui-g-10 ui-md-8">
-                                                <p:calendar id="button" value="#{conteoControlador.objConteo.fecha}" showOn="button" disabled="true"
-                                                            locale="de" navigator="true" pattern="dd/MM/yyyy" />
-                                            </div>
-
                                         </div>
                                     </div>
                                     <div class="ui-g ui-fluid form-group">
@@ -184,7 +249,7 @@
                                     </p:dataTable> 
                                 </p:tab>
                                 <p:tab title="Log">
-                                    <p:dataTable var="log" value="#{stockAjusteControlador.objAjuste.logs}">
+                                    <p:dataTable var="log" value="#{conteoControlador.objConteo.logs}">
                                         <p:column headerText="Proceso" style="width: 20%">
                                             <h:outputText value="#{log.proceso}" />
                                         </p:column>
@@ -206,37 +271,14 @@
 
 
                             <div class="ui-g ui-fluid form-group">
-                                <div class="ui-g-12 ui-md-3">
-                                    <div class="ui-g-2 ui-md-2">
-                                        <p:commandButton icon="ui-icon-add"
-                                                         action="#{conteoControlador.prepareNuevo()}" 
-                                                         ajax="true" update=":formDepo :formListConteo"
-                                                         style="background-color: #939393" 
-                                                         disabled="#{stockAjusteControlador.nuevo}"></p:commandButton>
-                                    </div>
-                                    <div class="ui-g-2 ui-md-2">
-                                        <p:commandButton icon="ui-icon-create"
-                                                         action="#{stockAjusteControlador.prepareEdit()}" 
-                                                         ajax="true" update=":formDepo :formListConteo"
-                                                         style="background-color: #939393" 
-                                                         disabled="#{stockAjusteControlador.editar}"></p:commandButton>
-                                    </div>
-                                    <div class="ui-g-2 ui-md-2">
-                                        <p:commandButton icon="ui-icon-clear"
-                                                         action="#{stockAjusteControlador.prepareEliminar()}" 
-                                                         ajax="true" update=":formDepo :formListConteo"
-                                                         style="background-color: #939393" 
-                                                         disabled="#{stockAjusteControlador.eliminar}"></p:commandButton>
-                                    </div>                                         
-
-                                </div>
+                                <div class="ui-g-12 ui-md-3"></div>
                                 <div class="ui-g-12 ui-md-4"></div>
                                 <div class="ui-g-12 ui-md-5">
                                     <div class="ui-g-0 ui-md-4"></div>
 
                                     <div class="ui-g-5 ui-md-4">
                                         <p:commandButton value="Aceptar"  actionListener="#{conteoControlador.transaccion()}" 
-                                                         ajax="true" update=":formDepo :formListConteo"
+                                                         ajax="true" update=":formConteo :formListConteo"
                                                          style="background-color: #939393" 
                                                          disabled="#{conteoControlador.aceptar}"
                                                          oncomplete="trigger()">
@@ -248,12 +290,12 @@
                                                        ajax="#{(conteoControlador.executeReport) ? 'false' : 'true'}" process="@this"
                                                        partialSubmit="false"
                                                        value="Generar Reporte"
-                                                       action="#{conteoControlador.exportarExcel()}"	
+                                                       action="#{conteoControlador.exportarExcel(conteoControlador.executeReport)}"	
                                                        target="_self" />                  
 
                                     </div>
                                     <div class="ui-g-5 ui-md-4">
-                                        <p:commandButton value="Cancelar" action="#{conteoControlador.cancelarEventos()}" ajax="true" update=":formDepo :formListConteo"
+                                        <p:commandButton value="Cancelar" action="#{conteoControlador.cancelarEventos()}" ajax="true" update=":formConteo :formListConteo"
                                                          style="background-color: #939393" > </p:commandButton>
                                     </div>
                                 </div>
@@ -291,12 +333,12 @@
 
                                 <p:column headerText="Operaciones" style="width: 20%">
                                     <center>
-                                        <p:commandButton styleClass="updateBtn" icon="ui-icon-create"   style="background-color: #939393" 
-                                                         action="#{conteoControlador.prepareCrud(conteo, 1)}" ajax="true" update=":formDepo"> </p:commandButton>
-                                        <p:commandButton icon="ui-icon-clear" style="background-color: #939393" 
-                                                         action="#{conteoControlador.prepareCrud(conteo, 2)}"  ajax="true" update=":formDepo"> </p:commandButton>
-                                        <p:commandButton icon="ui-icon-remove-red-eye" style="background-color: #939393" 
-                                                         action="#{conteoControlador.prepareCrud(conteo, 3)}"  ajax="true" update=":formDepo"> </p:commandButton>
+                                        <p:commandButton icon="ui-icon-create" styleClass="SubirPanel"  style="background-color: #939393" 
+                                                         action="#{conteoControlador.prepareCrud(conteo, 1)}" ajax="true" update=":formConteo"> </p:commandButton>
+                                        <p:commandButton icon="ui-icon-clear" styleClass="SubirPanel" style="background-color: #939393" 
+                                                         action="#{conteoControlador.prepareCrud(conteo, 2)}"  ajax="true" update=":formConteo"> </p:commandButton>
+                                        <p:commandButton icon="ui-icon-remove-red-eye" styleClass="SubirPanel" style="background-color: #939393" 
+                                                         action="#{conteoControlador.prepareCrud(conteo, 3)}"  ajax="true" update=":formConteo"> </p:commandButton>
                                     </center>
                                 </p:column>
 

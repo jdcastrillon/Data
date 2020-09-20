@@ -16,7 +16,7 @@ public class ProcesoDatosDT implements Serializable {
     private int nro_detalle_pro;
     private int nro_proceso;
     private int cod_articulo;
-    private String nombre;
+    private String nom_articulo;
     private int stock;
     private int cantidad;
     private int ajuste;
@@ -31,22 +31,20 @@ public class ProcesoDatosDT implements Serializable {
     public ProcesoDatosDT(int nro_proceso, int cod_articulo, String nombre, int stock, int cantidad, int ajuste) {
         this.nro_proceso = nro_proceso;
         this.cod_articulo = cod_articulo;
-        this.nombre = nombre;
+        this.nom_articulo = nombre;
         this.stock = stock;
         this.cantidad = cantidad;
         this.ajuste = ajuste;
     }
+
+    public String getNom_articulo() {
+        return nom_articulo;
+    }
+
+    public void setNom_articulo(String nom_articulo) {
+        this.nom_articulo = nom_articulo;
+    }
       
-
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
     public int getStock() {
         return stock;
     }

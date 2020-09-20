@@ -54,7 +54,7 @@ public class ConteoService implements Serializable {
 
     public Object[] Transaccion(Conteo obj, String accion) {
         System.out.println("Entro a Servicio " + obj.toString());
-        Object Resulta[] = new Object[2];
+        Object Resulta[] = new Object[3];
         try {
             List<objsql> transacciones = new ArrayList();
 
@@ -101,9 +101,11 @@ public class ConteoService implements Serializable {
             System.out.println(":" + map.get("mns").toString());
             Resulta[0] = map.get("estado");
             Resulta[1] = map.get("mns").toString().indexOf("#imp") > 0 ? map.get("mns").toString().substring(12, 100) : map.get("mns");
+            Resulta[2] = "Inventario:" + obj.getNro_inventario() + " Conteo:" + obj.getNro_conteo();
         } catch (JsonSyntaxException ex) {
             Resulta[0] = "Error";
             Resulta[1] = "Comuniquese con soporte";
+            Resulta[2] = "";
         }
 
         return Resulta;
@@ -166,27 +168,8 @@ public class ConteoService implements Serializable {
         //Articulos
         String respuesta2 = dao.QueryObj("select A.*,B.codigo,B.nom_articulo from td_ajuststock A INNER JOIN  m_articulos B ON A.cod_articulo=B.cod_articulo where trans=" + obj.getNro_conteo() + " order by linea");
 
-//        obj.getDetalleArt().clear();
-//        JsonArray JsonLog2 = parser.parse(respuesta2).getAsJsonArray();
-//        for (JsonElement jsonElement : JsonLog2) {
-//            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-//                ConteoDT obj2 = new ConteoDT();
-//                Map<String, Object> map = gson.fromJson(jsonElement.getAsString(), new TypeToken<Map<String, Object>>() {
-//                }.getType());
-//
-//                obj2.setTrans(new BigDecimal(map.get("trans").toString()).intValue());
-//                obj2.setCod_articulo(new BigDecimal(map.get("cod_articulo").toString()).intValue());
-//                obj2.setCod_ubicacion(map.get("cod_ubicacion").toString());
-//                obj2.setCod_unidad(new BigDecimal(map.get("cod_unidad").toString()).intValue());
-//                obj2.setCantidad(new BigDecimal(map.get("cantidad").toString()).intValue());
-//                obj2.setLinea(new BigDecimal(map.get("linea").toString()).intValue());
-//                obj2.setCodigo(map.get("codigo").toString());
-//                obj2.setNom_articulo(map.get("nom_articulo").toString());
-//
-//                obj.getDetalleArt().add(obj2);
-//            }
-//        }
         Resulta[0] = obj;
+        Resulta[1] = "Inventario:" + obj.getNro_inventario() + " Conteo:" + obj.getNro_conteo();
 
         return Resulta;
     }

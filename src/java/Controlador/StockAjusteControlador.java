@@ -306,7 +306,7 @@ public class StockAjusteControlador {
     public void transaccion() throws IOException {
         System.out.println("****************************************");
         System.out.println("Objecto : " + objAjuste.toString());
-        Object Resulta[] = new Object[2];
+        Object Resulta[] = new Object[3];
         String mns = "";
         setExecuteReport(false);
         if (validaciones()) {
@@ -332,13 +332,14 @@ public class StockAjusteControlador {
                     FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", mns));
                     lista(2);
                     setObjAjuste(null);
-                    this.evento = "inicio";
-                    controlEventos(evento);
+                    getObjAjuste();
                     if (evento.equalsIgnoreCase("Nuevo")) {
                         objAjuste.setTrans((int) Resulta[2]);
                         System.out.println("Trans : " + objAjuste.getTrans());
                         setExecuteReport(true);
                     }
+                    this.evento = "inicio";
+                    controlEventos(evento);
                 }
             } else {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Info", (String) Resulta[1]));
@@ -493,7 +494,6 @@ public class StockAjusteControlador {
 
     public void datosBean() {
         System.out.println("Datos Bean signo " + objAjuste.getSigno());
-
     }
 
     public AjusteStockService getAJService() {
