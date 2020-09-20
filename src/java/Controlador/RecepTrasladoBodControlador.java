@@ -1,12 +1,10 @@
 package Controlador;
 
 import Modelo.Bodega.*;
-import Modelo.Empresa;
 import Servicios.Sistema.*;
 import Servicios.RecepcionTrasladoService;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -153,11 +151,11 @@ public class RecepTrasladoBodControlador {
     }
 
     public void prepareCrud(RecepcionTraslado objecto, int condicion) {
+        System.out.println("Objecto : "+objecto.toString());
         setObjRecepTraslado(null);
         Object Resulta[] = new Object[2];
         Resulta = recepTraslado.recuperarInfo(objecto);
         setObjRecepTraslado((RecepcionTraslado) Resulta[0]);
-        lista(2);
         //Condiciones
         switch (condicion) {
             case 1:
@@ -203,26 +201,6 @@ public class RecepTrasladoBodControlador {
                     Resulta = recepTraslado.Transaccion(objRecepTraslado, "Editar");
                     mns = "Deposito Editado exitosamente";
                     break;
-                case "Reporte": {
-                    try {
-                        Resulta = SelService.PDFDescargar2("Blank_A4_1");
-                    } catch (IOException ex) {
-                        System.out.println("Error reporte");
-                        Logger.getLogger(RecepTrasladoBodControlador.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-                mns = "Reporte";
-                break;
-//                case "Buscar":
-//                    Resulta = recepTraslado.buscarDoc(objRecepTraslado);
-//                    break;//                case "Buscar":
-//                    Resulta = recepTraslado.buscarDoc(objRecepTraslado);
-//                    break;//                case "Buscar":
-//                    Resulta = recepTraslado.buscarDoc(objRecepTraslado);
-//                    break;//                case "Buscar":
-//                    Resulta = recepTraslado.buscarDoc(objRecepTraslado);
-//                    break;
-
             }
             if (Resulta[0] == null) {
                 Resulta[0] = "";
@@ -327,7 +305,7 @@ public class RecepTrasladoBodControlador {
         objRecepTraslado.setNro_docum(objTraslado.getNro_docum());
         objRecepTraslado.getDetalleArt().clear();
         //Articulos
-        JsonArray Jelementos3 = ObjIni.listObjectos("select B.cod_Articulo,B.codigo,B.nom_articulo,A.cantidad,A.linea from td_trasladobodega A inner join m_Articulos B on A.cod_articulo=B.cod_Articulo\n"
+        JsonArray Jelementos3 = ObjIni.listObjectos("select B.cod_Articulo,B.codigo,B.nom_articulo,A.cant_enviada,A.linea from td_trasladobodega A inner join m_Articulos B on A.cod_articulo=B.cod_Articulo\n"
                 + "and A.Trans=" + objTraslado.getTrans() + " order by A.linea");
         for (JsonElement jsonElement : Jelementos3) {
             if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
@@ -337,7 +315,8 @@ public class RecepTrasladoBodControlador {
 
                 obj.setCod_articulo(new BigDecimal(map.get("cod_articulo").toString()).intValue());
                 obj.setStock(0);
-                obj.setCantidad(new BigDecimal(map.get("cantidad").toString()).intValue());
+                obj.setCant_enviada(new BigDecimal(map.get("cant_enviada").toString()).intValue());
+                obj.setCant_recibida(new BigDecimal(map.get("cant_enviada").toString()).intValue());
                 obj.setLinea(new BigDecimal(map.get("linea").toString()).intValue());
                 obj.setCodigo(map.get("codigo").toString());
                 obj.setNom_articulo(map.get("nom_articulo").toString());
@@ -349,6 +328,10 @@ public class RecepTrasladoBodControlador {
 
     public RecepcionTrasladoService getRecepTraslado() {
         return recepTraslado;
+    }
+
+    public void datosBean() {
+        System.out.println("Datos Bean");
     }
 
     public void setRecepTraslado(RecepcionTrasladoService recepTraslado) {

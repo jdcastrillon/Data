@@ -239,10 +239,10 @@ public class TrasladoBodegaService implements Serializable {
             }
         }
         //Empresas
-        System.out.println("Query Articulos : " + "SELECT trans, cod_articulo, cod_ubicacion, cod_unidad, cantidad, linea\n"
+        System.out.println("Query Articulos : " + "SELECT trans, cod_articulo, cod_ubicacion, cod_unidad, cant_enviada, linea\n"
                 + "  FROM public.td_trasladobodega where trans=" + obj.getTrans());
         obj.getDetalleArt().clear();
-        String respuesta2 = dao.QueryObj("SELECT trans, a.cod_articulo, cod_ubicacion, a.cod_unidad, cantidad, linea,b.codigo,b.nom_articulo\n"
+        String respuesta2 = dao.QueryObj("SELECT trans, a.cod_articulo, cod_ubicacion, a.cod_unidad, cant_enviada, linea,b.codigo,b.nom_articulo\n"
                 + "  FROM public.td_trasladobodega a inner join m_articulos b on a.cod_Articulo=b.cod_articulo where trans=" + obj.getTrans());
         JsonArray JsonLog2 = parser.parse(respuesta2).getAsJsonArray();
         for (JsonElement jsonElement : JsonLog2) {
@@ -254,7 +254,7 @@ public class TrasladoBodegaService implements Serializable {
                 articulo.setTrans(new BigDecimal(map.get("trans").toString()).intValue());
                 articulo.setCod_ubicacion(map.get("cod_articulo").toString());
                 articulo.setCod_unidad(map.get("cod_ubicacion").toString());
-                articulo.setCantidad(new BigDecimal(map.get("cantidad").toString()).intValue());
+                articulo.setCant_enviada(new BigDecimal(map.get("cant_enviada").toString()).intValue());
                 articulo.setLinea(new BigDecimal(map.get("linea").toString()).intValue());
                 articulo.setCodigo(map.get("codigo").toString());
                 articulo.setNom_articulo(map.get("nom_articulo").toString());

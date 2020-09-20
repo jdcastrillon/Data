@@ -185,4 +185,9 @@ public class RecepcionTraslado implements Serializable {
         this.nom_estado2 = nom_estado2;
     }
 
+    @Override
+    public String toString() {
+        return "RecepcionTraslado{" + "trans=" + trans + ", cod_emp=" + cod_emp + ", fec_doc=" + fec_doc + ", nro_docum=" + nro_docum + ", nro_doca=" + nro_doca + ", cod_deposito=" + cod_deposito + ", cod_estado=" + cod_estado + ", cod_deposito2=" + cod_deposito2 + ", cod_estado2=" + cod_estado2 + ", observacion=" + observacion + ", cod_log=" + cod_log + ", logs=" + logs + ", DetalleArt=" + DetalleArt + ", fecha=" + fecha + ", nom_deposito=" + nom_deposito + ", nom_deposito2=" + nom_deposito2 + ", nom_estado=" + nom_estado + ", nom_estado2=" + nom_estado2 + '}';
+    }
+
 }
