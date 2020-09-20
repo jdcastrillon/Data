@@ -10,6 +10,7 @@ import Dao.ObjectoDao;
 import Dao.ObjectoImp;
 import Modelo.Bodega.CierreInventario;
 import Modelo.Sistema.Log_Transaccion;
+import ModeloService.imp_tablas;
 import ModeloService.iniciarSesion;
 import ModeloService.objsql;
 import com.google.gson.Gson;
@@ -64,6 +65,7 @@ public class CierreInventarioService implements Serializable {
             BigDecimal logproceso = new BigDecimal(obj.getCod_log());
             if (accion.equalsIgnoreCase("Nuevo")) {
                 logproceso = Service.service.logProceso("logs");
+                obj.setTrans(Service.service.logProceso("trans").intValue());
             }
             transacciones.add(Service.service.log("CierreInventario", login.getUsuario(), accion, logproceso.intValue(), login.getBase()));
 
@@ -79,6 +81,18 @@ public class CierreInventarioService implements Serializable {
             o1.setDatos(gson.toJson(obj));
 
             transacciones.add(o1);
+            
+                        //Impactos
+            imp_tablas param = new imp_tablas();
+            param.setCod_trans(obj.getTrans());
+            param.setAccion(accion);
+            objsql o3 = new objsql();
+            o3.setAccion("Impacto");
+            o3.setTabla("imp_inventario");
+            o3.setBase(login.getBase());
+            o3.setDatos(gson.toJson(param));
+
+            transacciones.add(o3);
 
             String resultado = dao.TransObj(gson.toJson(transacciones));
             Map<String, Object> map = gson.fromJson(resultado, new TypeToken<Map<String, Object>>() {

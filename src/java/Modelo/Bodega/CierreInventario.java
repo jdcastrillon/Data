@@ -18,6 +18,7 @@ import java.util.List;
 public class CierreInventario implements Serializable {
 
     private int nro_inventario;
+    private int trans;
     private String cod_emp;
     private String fec_inv;
     private String fec_cierre;
@@ -102,6 +103,14 @@ public class CierreInventario implements Serializable {
     public void setFec_cierre(String fec_cierre) {
         this.fec_cierre = fec_cierre;
     }  
+
+    public int getTrans() {
+        return trans;
+    }
+
+    public void setTrans(int trans) {
+        this.trans = trans;
+    }
     
 
 }

@@ -96,8 +96,7 @@ public class CierreInventarioControlador {
         listCierreInventario.clear();
         listCierreInventario = cierreInventarioService.Lista();
 
-        listInventario.clear();
-        listInventario = InventarioService.Lista();
+        listProDatosDT.clear();
 
         if (condicion == 1) {
             listEmpresas.clear();
@@ -122,6 +121,8 @@ public class CierreInventarioControlador {
         getObjCierreInventario();
         listEmpresas.clear();
 
+        listInventario.clear();
+        listInventario = InventarioService.Lista();
         //Numerador
         //objInventario.setNro_inventario(ObjIni.numerador_Controlado("Data", "nro_inventario"));
         //Empresas
@@ -531,16 +532,16 @@ public class CierreInventarioControlador {
         if (id > 0) {
             listInventario.stream().filter((inv) -> (inv.getNro_inventario() == id)).forEachOrdered((inv) -> {
                 String[] dateString = inv.getFec_doc().split("-");
-                String strFecha = inv.getFec_doc();              
-                Date fecha = null;               
+                String strFecha = inv.getFec_doc();
+                Date fecha = null;
                 try {
-                    fecha = formato.parse(strFecha);                   
-                    
+                    fecha = formato.parse(strFecha);
+
                 } catch (ParseException ex) {
                     System.out.println("Error " + ex);
                 }
                 objCierreInventario.setCod_emp(inv.getCod_emp());
-                objCierreInventario.setFecha2(new Date());             
+                objCierreInventario.setFecha2(new Date());
                 objCierreInventario.setFecha(fecha);
                 objCierreInventario.setFec_inv(dateString[2] + "/" + dateString[1] + "/" + dateString[0]);
                 objCierreInventario.setObservacion(inv.getObservacion());
