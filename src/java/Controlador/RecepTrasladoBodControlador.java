@@ -327,7 +327,7 @@ public class RecepTrasladoBodControlador {
         objRecepTraslado.setNro_docum(objTraslado.getNro_docum());
         objRecepTraslado.getDetalleArt().clear();
         //Articulos
-        JsonArray Jelementos3 = ObjIni.listObjectos("select B.cod_Articulo,B.codigo,B.nom_articulo,A.cantidad,A.linea from td_trasladobodega A inner join m_Articulos B on A.cod_articulo=B.cod_Articulo\n"
+        JsonArray Jelementos3 = ObjIni.listObjectos("select B.cod_Articulo,B.codigo,B.nom_articulo,A.cant_enviada,A.linea from td_trasladobodega A inner join m_Articulos B on A.cod_articulo=B.cod_Articulo\n"
                 + "and A.Trans=" + objTraslado.getTrans() + " order by A.linea");
         for (JsonElement jsonElement : Jelementos3) {
             if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
@@ -337,7 +337,8 @@ public class RecepTrasladoBodControlador {
 
                 obj.setCod_articulo(new BigDecimal(map.get("cod_articulo").toString()).intValue());
                 obj.setStock(0);
-                obj.setCantidad(new BigDecimal(map.get("cantidad").toString()).intValue());
+                obj.setCant_enviada(new BigDecimal(map.get("cant_enviada").toString()).intValue());
+                obj.setCant_recibida(new BigDecimal(map.get("cant_enviada").toString()).intValue());
                 obj.setLinea(new BigDecimal(map.get("linea").toString()).intValue());
                 obj.setCodigo(map.get("codigo").toString());
                 obj.setNom_articulo(map.get("nom_articulo").toString());

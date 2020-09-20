@@ -17,7 +17,8 @@ public class TrasladoBodegaDT implements Serializable {
     private int cod_articulo;
     private String cod_ubicacion;
     private String cod_unidad;
-    private int cantidad;
+    private int cant_enviada;
+    private int cant_recibida;
     private int linea;
     transient private String codigo;
     transient private String nom_articulo;
@@ -63,15 +64,7 @@ public class TrasladoBodegaDT implements Serializable {
     public void setCod_unidad(String cod_unidad) {
         this.cod_unidad = cod_unidad;
     }
-
-    public int getCantidad() {
-        return cantidad;
-    }
-
-    public void setCantidad(int cantidad) {
-        this.cantidad = cantidad;
-    }
-
+    
     public int getLinea() {
         return linea;
     }
@@ -102,6 +95,22 @@ public class TrasladoBodegaDT implements Serializable {
 
     public void setStock(int stock) {
         this.stock = stock;
+    }
+
+    public int getCant_enviada() {
+        return cant_enviada;
+    }
+
+    public void setCant_enviada(int cant_enviada) {
+        this.cant_enviada = cant_enviada;
+    }
+
+    public int getCant_recibida() {
+        return cant_recibida;
+    }
+
+    public void setCant_recibida(int cant_recibida) {
+        this.cant_recibida = cant_recibida;
     }
 
 }

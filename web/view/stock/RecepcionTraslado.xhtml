@@ -60,7 +60,7 @@
         <div class="ui-g">
             <div class="ui-g-12">
                 <div class="card card-w-title">
-                    <p:panel id="paneldoc" header="Recepcion Traslado Entre Bodegas" toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+                    <p:panel id="paneldoc" header="Recepcion Traslado Entre Bodegas" collapsed="true"  toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
 
                         <h:form id="formRecepD">
                             <p:dialog header="" widgetVar="recepTras"  modal="true" width="600">
@@ -92,7 +92,9 @@
                             </p:dialog>   
                         </h:form>
 
-                        <h:form id="formRecep" onkeypress="if (event.keyCode == 13) {return false;}">
+                        <h:form id="formRecep" onkeypress="if (event.keyCode == 13) {
+                                    return false;
+                                }">
                             <p:growl id="growl" showDetail="true" life="5000" />  
                             <div class="ui-g ui-fluid form-group">
                                 <div class="ui-g-12 ui-md-3">
@@ -117,13 +119,7 @@
                                                          style="background-color: #939393" 
                                                          disabled="#{recepTrasladoBodControlador.eliminar}"></p:commandButton>
                                     </div>
-                                    <div class="ui-g-2 ui-md-2">
-                                        <p:commandButton icon="ui-icon-search"
-                                                         action="#{recepTrasladoBodControlador.prepareReporte()}" 
-                                                         ajax="true" update=":formRecep :formListRecep"
-                                                         style="background-color: #939393" 
-                                                         disabled="#{recepTrasladoBodControlador.nuevo}"></p:commandButton>
-                                    </div>
+
 
                                 </div>
                             </div>
@@ -225,12 +221,14 @@
                                             <h:outputText value="#{articulos.nom_articulo}" />
                                         </p:column>
 
-                                        <p:column headerText="Inventario" style="width: 35%">
-                                            <h:outputText value="#{articulos.stock}" />
-                                        </p:column>
+                                        <p:column headerText="Cant. envio" style="width: 20%" >
+                                            <h:inputText value="#{articulos.cant_enviada}" 
+                                                         disabled="true">
 
-                                        <p:column headerText="Cantidad" style="width: 20%" >
-                                            <h:inputText value="#{articulos.cantidad}" disabled="#{recepTrasladoBodControlador.aceptar}">
+                                            </h:inputText>
+                                        </p:column>
+                                        <p:column headerText="Cant. Recibida" style="width: 20%" >
+                                            <h:inputText value="#{articulos.cant_recibida}" disabled="#{recepTrasladoBodControlador.aceptar}">
 
                                             </h:inputText>
                                         </p:column>
@@ -342,11 +340,11 @@
                                             </p:column>
                                             <p:column headerText="Operaciones" style="width: 20%">
                                                 <center>
-                                                    <p:commandButton icon="ui-icon-create"   style="background-color: #939393" 
+                                                    <p:commandButton icon="ui-icon-create" styleClass="SubirPanel"   style="background-color: #939393" 
                                                                      action="#{recepTrasladoBodControlador.prepareCrud(traslado, 1)}" ajax="true" update=":formRecep"> </p:commandButton>
-                                                    <p:commandButton icon="ui-icon-clear" style="background-color: #939393" 
+                                                    <p:commandButton icon="ui-icon-clear" styleClass="SubirPanel"  style="background-color: #939393" 
                                                                      action="#{recepTrasladoBodControlador.prepareCrud(traslado, 2)}"  ajax="true" update=":formRecep"> </p:commandButton>
-                                                    <p:commandButton icon="ui-icon-remove-red-eye" style="background-color: #939393" 
+                                                    <p:commandButton icon="ui-icon-remove-red-eye" styleClass="SubirPanel"  style="background-color: #939393" 
                                                                      action="#{recepTrasladoBodControlador.prepareCrud(traslado, 3)}"  ajax="true" update=":formRecep"> </p:commandButton>
                                                 </center>
                                             </p:column>

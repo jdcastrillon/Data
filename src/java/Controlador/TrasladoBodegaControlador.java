@@ -113,20 +113,7 @@ public class TrasladoBodegaControlador {
                     listDepositos.add(obj);
                 }
             }
-
-            //Estados
-//            JsonArray Jelementos3 = ObjIni.listObjectos("select cod_estado,nom_estado from m_estados where cod_categoria='Stock' and cod_deposito='Deposito' and activo='S'");
-//            for (JsonElement jsonElement : Jelementos3) {
-//                if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-//                    Estados obj = new Estados();
-//                    Map<String, Object> map = ObjIni.fromJson(jsonElement);
-//                    obj.setCod_estado(map.get("cod_estado").toString());
-//                    obj.setNom_estado(map.get("nom_estado").toString());
-//                    listEstados.add(obj);
-//                }
-//            }
         }
-
     }
 
     public void prepareNuevo() {
@@ -252,15 +239,15 @@ public class TrasladoBodegaControlador {
             switch (this.evento) {
                 case "Nuevo":
                     Resulta = TrasladoService.Transaccion(objTraldoBodega, "Nuevo");
-                    mns = "Deposito Creado exitosamente";
+                    mns = "Traslado Correctamente";
                     break;
                 case "Eliminar":
                     Resulta = TrasladoService.Transaccion(objTraldoBodega, "Borrar");
-                    mns = "Deposito Eliminado exitosamente";
+                    mns = "Traslado Eliminado";
                     break;
                 case "Editar":
                     Resulta = TrasladoService.Transaccion(objTraldoBodega, "Editar");
-                    mns = "Deposito Editado exitosamente";
+                    mns = "Traslado Editado";
                     break;
                 case "Reporte": {
                     try {
