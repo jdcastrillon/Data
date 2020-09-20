@@ -15,17 +15,19 @@ import java.util.List;
  *
  * @author Mauricio Herrera
  */
-public class Inventario implements Serializable {
+public class CierreInventario implements Serializable {
 
     private int nro_inventario;
+    private int trans;
     private String cod_emp;
-    private String fec_doc;
+    private String fec_inv;
+    private String fec_cierre;
     private String observacion;
     private int cod_log;
 
     transient Date fecha;
+    transient Date fecha2;
     transient List<Log_Transaccion> logs = new ArrayList();
-    transient int nro_conteo;
 
     public int getNro_inventario() {
         return nro_inventario;
@@ -43,14 +45,7 @@ public class Inventario implements Serializable {
         this.cod_emp = cod_emp;
     }
 
-    public String getFec_doc() {
-        return fec_doc;
-    }
-
-    public void setFec_doc(String fec_doc) {
-        this.fec_doc = fec_doc;
-    }
-
+   
     public String getObservacion() {
         return observacion;
     }
@@ -82,14 +77,40 @@ public class Inventario implements Serializable {
     public void setLogs(List<Log_Transaccion> logs) {
         this.logs = logs;
     }
+
+    public Date getFecha2() {
+        return fecha2;
+    }
+
+    public void setFecha2(Date fecha2) {
+        this.fecha2 = fecha2;
+    }
+
+   
+
+    public String getFec_inv() {
+        return fec_inv;
+    }
+
+    public void setFec_inv(String fec_inv) {
+        this.fec_inv = fec_inv;
+    }
+
+    public String getFec_cierre() {
+        return fec_cierre;
+    }
+
+    public void setFec_cierre(String fec_cierre) {
+        this.fec_cierre = fec_cierre;
+    }  
+
+    public int getTrans() {
+        return trans;
+    }
+
+    public void setTrans(int trans) {
+        this.trans = trans;
+    }
     
-
-    public int getNro_conteo() {
-        return nro_conteo;
-    }
-
-    public void setNro_conteo(int nro_conteo) {
-        this.nro_conteo = nro_conteo;
-    }
 
 }
