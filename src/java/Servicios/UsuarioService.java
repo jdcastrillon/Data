@@ -5,6 +5,7 @@
  */
 package Servicios;
 
+
 import Dao.DaoUsuario;
 import Dao.UsuarioImp;
 import ModeloService.contenedor;
@@ -55,8 +56,8 @@ public class UsuarioService {
 
         return objUsuario;
     }
-    
-     private static void cargaDatosArbol() {
+
+    private static void cargaDatosArbol() {
         DataService.Start_Service service = new DataService.Start_Service();
         DataService.Start port = service.getStartPort();
         port.cargaDatosArbol();

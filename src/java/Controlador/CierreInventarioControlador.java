@@ -2,6 +2,7 @@ package Controlador;
 
 import Modelo.Bodega.*;
 import Modelo.Empresa;
+import Servicios.CierreInventarioService;
 import Servicios.InventarioService;
 import Servicios.Sistema.Inicializacion;
 import Servicios.Sistema.Seleccion;
@@ -12,6 +13,9 @@ import com.google.gson.JsonElement;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -37,10 +41,10 @@ import net.sf.jasperreports.engine.export.JRXlsExporterParameter;
  */
 @ManagedBean
 @ViewScoped
-public class InventarioControlador {
+public class CierreInventarioControlador {
 
     @Inject
-    private InventarioService InventarioService;
+    private CierreInventarioService cierreInventarioService;
 
     @Inject
     private Inicializacion ObjIni;
@@ -51,10 +55,16 @@ public class InventarioControlador {
     @Inject
     private Seleccion SelService;
 
-    private Inventario objInventario;  
+    @Inject
+    private InventarioService InventarioService;
+
+    private CierreInventario objCierreInventario;
+
+    private List<CierreInventario> listCierreInventario = new ArrayList();
     private List<Inventario> listInventario = new ArrayList();
 
-    private List<Empresa> listEmpresas = new ArrayList();   
+    private List<Empresa> listEmpresas = new ArrayList();
+    private List<ProcesoDatosDT> listProDatosDT = new ArrayList();
     Object acciones[] = new Object[6];
     private boolean aceptar;
     private boolean editar;
@@ -68,7 +78,7 @@ public class InventarioControlador {
     @PostConstruct
     public void init() {
         try {
-            getObjInventario();
+            getObjCierreInventario();
             lista(1);
             this.evento = "inicio";
             controlEventos(evento);
@@ -77,12 +87,15 @@ public class InventarioControlador {
         }
     }
 
-    public InventarioControlador() {
+    public CierreInventarioControlador() {
     }
 
     public void lista(int condicion) {
         //1: Carga Inicial
         //2: Carga Despues de Transaccion
+        listCierreInventario.clear();
+        listCierreInventario = cierreInventarioService.Lista();
+
         listInventario.clear();
         listInventario = InventarioService.Lista();
 
@@ -105,31 +118,28 @@ public class InventarioControlador {
     }
 
     public void prepareNuevo() {
-        setObjInventario(null);
-        getObjInventario();
+        setObjCierreInventario(null);
+        getObjCierreInventario();
         listEmpresas.clear();
 
         //Numerador
-        objInventario.setNro_inventario(ObjIni.numerador_Controlado("Data", "nro_inventario"));
-
+        //objInventario.setNro_inventario(ObjIni.numerador_Controlado("Data", "nro_inventario"));
         //Empresas
-        JsonArray Jelementos = ObjIni.listObjectos("select cod_emp,nom_emp from m_empresa");
-        for (JsonElement jsonElement : Jelementos) {
-            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-                Empresa emp = new Empresa();
-                Map<String, Object> map = ObjIni.fromJson(jsonElement);
-                emp.setCod_emp(map.get("cod_emp").toString());
-                emp.setNom_emp(map.get("nom_emp").toString());
-                listEmpresas.add(emp);
-            }
-        }
-
+//        JsonArray Jelementos = ObjIni.listObjectos("select cod_emp,nom_emp from m_empresa");
+//        for (JsonElement jsonElement : Jelementos) {
+//            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
+//                Empresa emp = new Empresa();
+//                Map<String, Object> map = ObjIni.fromJson(jsonElement);
+//                emp.setCod_emp(map.get("cod_emp").toString());
+//                emp.setNom_emp(map.get("nom_emp").toString());
+//                listEmpresas.add(emp);
+//            }
+//        }
         //Variables
-        System.out.println("Size Empresa : " + listEmpresas.size());
-        objInventario.setCod_emp(listEmpresas.get(0).getCod_emp());
-
+//        System.out.println("Size Empresa : " + listEmpresas.size());
+//        objCierreInventario.setCod_emp(listEmpresas.get(0).getCod_emp());
         this.evento = "Nuevo";
-        objInventario.setFecha(new Date());
+//        objCierreInventario.setFecha_c(new Date());
         controlEventos(evento);
     }
 
@@ -146,7 +156,7 @@ public class InventarioControlador {
     public void prepareBuscar() {
         listInventario.clear();
         this.evento = "Buscar";
-        setObjInventario(null);
+        setObjCierreInventario(null);
         controlEventos(evento);
     }
 
@@ -262,11 +272,11 @@ public class InventarioControlador {
 
     }
 
-    public void prepareCrud(Inventario objecto, int condicion) {
-        setObjInventario(null);
+    public void prepareCrud(CierreInventario objecto, int condicion) {
+        setObjCierreInventario(null);
         Object Resulta[] = new Object[2];
-        Resulta = InventarioService.recuperarInfo(objecto);
-        setObjInventario((Inventario) Resulta[0]);
+        Resulta = cierreInventarioService.recuperarInfo(objecto);
+        setObjCierreInventario((CierreInventario) Resulta[0]);
         lista(2);
         //Condiciones
         switch (condicion) {
@@ -292,7 +302,7 @@ public class InventarioControlador {
         }
         this.evento = "inicio";
         controlEventos(evento);
-        setObjInventario(null);
+        setObjCierreInventario(null);
     }
 
     public void transaccion() {
@@ -301,23 +311,23 @@ public class InventarioControlador {
         if (validaciones()) {
             switch (this.evento) {
                 case "Nuevo":
-                    Resulta = InventarioService.Transaccion(objInventario, "Nuevo");
-                    mns = "Deposito Creado exitosamente";
+                    Resulta = cierreInventarioService.Transaccion(objCierreInventario, "Nuevo");
+                    mns = "Cierre creado exitosamente";
                     break;
                 case "Eliminar":
-                    Resulta = InventarioService.Transaccion(objInventario, "Borrar");
-                    mns = "Deposito Eliminado exitosamente";
+                    Resulta = cierreInventarioService.Transaccion(objCierreInventario, "Borrar");
+                    mns = "Cierre Eliminado exitosamente";
                     break;
                 case "Editar":
-                    Resulta = InventarioService.Transaccion(objInventario, "Editar");
-                    mns = "Deposito Editado exitosamente";
+                    Resulta = cierreInventarioService.Transaccion(objCierreInventario, "Editar");
+                    mns = "Cierre Editado exitosamente";
                     break;
                 case "Reporte": {
                     try {
                         Resulta = SelService.PDFDescargar2("reporte");
                     } catch (IOException ex) {
                         System.out.println("Error reporte");
-                        Logger.getLogger(InventarioControlador.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(CierreInventarioControlador.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
                 mns = "Reporte";
@@ -329,12 +339,13 @@ public class InventarioControlador {
             }
             if (Resulta[0].equals("OK")) {
                 if (evento.equalsIgnoreCase("Buscar")) {
-                    listInventario.clear();
-                    listInventario = (List<Inventario>) Resulta[1];
+                    listProDatosDT.clear();
+                    listCierreInventario.clear();
+                    listCierreInventario = (List<CierreInventario>) Resulta[1];
                 } else {
                     FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", mns));
                     lista(2);
-                    setObjInventario(null);
+                    setObjCierreInventario(null);
                     this.evento = "inicio";
                     controlEventos(evento);
                 }
@@ -356,7 +367,7 @@ public class InventarioControlador {
     }
 
     public boolean validaciones() {
-        getObjInventario();
+        getObjCierreInventario();
         String mns = "";
         System.out.println(" aceptar : " + aceptar);
         System.out.println(" editar : " + editar);
@@ -381,21 +392,21 @@ public class InventarioControlador {
     public void busquedaDatos() {
         System.out.println("Valor : " + valorBusqueda);
         listInventario.clear();
-        listInventario = InventarioService.ListaBusqueda(valorBusqueda);
+        listCierreInventario = cierreInventarioService.ListaBusqueda(valorBusqueda);
     }
 
     public void limpiarDatos() {
         listInventario.clear();
-        listInventario = InventarioService.Lista();
+        listCierreInventario = cierreInventarioService.Lista();
         this.valorBusqueda = "";
     }
 
-    public InventarioService getInventarioService() {
-        return InventarioService;
+    public CierreInventarioService getCierreInventarioService() {
+        return cierreInventarioService;
     }
 
-    public void setInventarioService(InventarioService InventarioService) {
-        this.InventarioService = InventarioService;
+    public void setCierreInventarioService(CierreInventarioService cierreInventarioService) {
+        this.cierreInventarioService = cierreInventarioService;
     }
 
     public Inicializacion getObjIni() {
@@ -422,23 +433,15 @@ public class InventarioControlador {
         this.SelService = SelService;
     }
 
-    public Inventario getObjInventario() {
-        if (objInventario == null) {
-            objInventario = new Inventario();
+    public CierreInventario getObjCierreInventario() {
+        if (objCierreInventario == null) {
+            objCierreInventario = new CierreInventario();
         }
-        return objInventario;
+        return objCierreInventario;
     }
 
-    public void setObjInventario(Inventario objInventario) {
-        this.objInventario = objInventario;
-    }
-
-    public List<Inventario> getListInventario() {
-        return listInventario;
-    }
-
-    public void setListInventario(List<Inventario> listInventario) {
-        this.listInventario = listInventario;
+    public void setObjCierreInventario(CierreInventario objCierreInventario) {
+        this.objCierreInventario = objCierreInventario;
     }
 
     public List<Empresa> getListEmpresas() {
@@ -520,4 +523,77 @@ public class InventarioControlador {
     public void setValorBusqueda(String valorBusqueda) {
         this.valorBusqueda = valorBusqueda;
     }
+
+    public void setCurrentInventario(int id) {
+//        System.out.println("id = " + id);
+        SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
+        listProDatosDT.clear();
+        if (id > 0) {
+            listInventario.stream().filter((inv) -> (inv.getNro_inventario() == id)).forEachOrdered((inv) -> {
+                String[] dateString = inv.getFec_doc().split("-");
+                String strFecha = inv.getFec_doc();              
+                Date fecha = null;               
+                try {
+                    fecha = formato.parse(strFecha);                   
+                    
+                } catch (ParseException ex) {
+                    System.out.println("Error " + ex);
+                }
+                objCierreInventario.setCod_emp(inv.getCod_emp());
+                objCierreInventario.setFecha2(new Date());             
+                objCierreInventario.setFecha(fecha);
+                objCierreInventario.setFec_inv(dateString[2] + "/" + dateString[1] + "/" + dateString[0]);
+                objCierreInventario.setObservacion(inv.getObservacion());
+            });
+            JsonArray Jelementos = ObjIni.listObjectos("select d.* from t_pro_datos t "
+                    + "inner join  td_pro_datos d on t.nro_proceso = d.nro_proceso "
+                    + "where t.nro_inventario = " + id);
+            for (JsonElement jsonElement : Jelementos) {
+                if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
+                    ProcesoDatosDT prdDt = new ProcesoDatosDT();
+                    Map<String, Object> map = ObjIni.fromJson(jsonElement);
+                    prdDt.setNro_detalle_pro(new BigDecimal(map.get("nro_detalle_pro").toString()).intValue());
+                    prdDt.setNro_proceso(new BigDecimal(map.get("nro_proceso").toString()).intValue());
+                    prdDt.setCod_articulo(new BigDecimal(map.get("cod_articulo").toString()).intValue());
+                    prdDt.setNombre(map.get("nombre").toString());
+                    prdDt.setStock(new BigDecimal(map.get("stock").toString()).intValue());
+                    prdDt.setCantidad(new BigDecimal(map.get("cantidad").toString()).intValue());
+                    prdDt.setAjuste(new BigDecimal(map.get("ajuste").toString()).intValue());
+                    prdDt.setLinea(new BigDecimal(map.get("linea").toString()).intValue());
+                    listProDatosDT.add(prdDt);
+                }
+            }
+        }
+
+        /*else {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Info", "Seleccione Inventario"));
+        }
+         */
+//        System.out.println(this.currentInventario.toString());
+    }
+
+    public List<ProcesoDatosDT> getListProDatosDT() {
+        return listProDatosDT;
+    }
+
+    public void setListProDatosDT(List<ProcesoDatosDT> listProDatosDT) {
+        this.listProDatosDT = listProDatosDT;
+    }
+
+    public List<CierreInventario> getListCierreInventario() {
+        return listCierreInventario;
+    }
+
+    public void setListCierreInventario(List<CierreInventario> listCierreInventario) {
+        this.listCierreInventario = listCierreInventario;
+    }
+
+    public List<Inventario> getListInventario() {
+        return listInventario;
+    }
+
+    public void setListInventario(List<Inventario> listInventario) {
+        this.listInventario = listInventario;
+    }
+
 }

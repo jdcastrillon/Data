@@ -1,0 +1,291 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templet/template.xhtml">
+
+    <ui:define name="title">Dashboard</ui:define>
+
+    <ui:define name="head">        
+        <style type="text/css">
+            .main-content {
+                padding: 0;
+            }
+        </style>
+        <style type="text/css">
+            .knob-container {
+                display: inline-block;
+                padding: 10px;
+            }
+        </style>
+
+        <script>
+            function setTotal(opc) {
+                var inputTotal = document.getElementById("input_form:tot");
+            }
+
+        </script>
+        <script type="text/javascript">
+            function cierremodal(xhr, status, args) {
+                PF('vendedor').hide();
+            }
+        </script>
+    </ui:define>
+
+
+    <ui:define name="content" >
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card card-w-title">
+                    <p:panel id="paneldoc" header="Ajuste" toggleable="true" collapsed="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+                        <h:form id="formAjust" onkeypress="if (event.keyCode == 13) {
+                                    return false;
+                                }" >
+
+                            <p:growl id="growl" showDetail="true" life="5000" />  
+
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3">
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-add"
+                                                         action="#{cierreInventarioControlador.prepareNuevo() }" 
+                                                         ajax="true" update=":formAjust :formlistAjus :formAjustT :formAjustT"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{cierreInventarioControlador.nuevo}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-create"
+                                                         action="#{cierreInventarioControlador.prepareEdit() }" 
+                                                         ajax="true" update=":formAjust :formlistAjus"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{cierreInventarioControlador.editar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-clear"
+                                                         action="#{cierreInventarioControlador.prepareEliminar()}" 
+                                                         ajax="true" update=":formAjust :formlistAjus"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{cierreInventarioControlador.eliminar}"></p:commandButton>
+                                    </div>
+                                    <!--<div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-insert-drive-file"
+                                                         action="{cierreInventarioControlador.reporte() }" 
+                                                         style="background-color: #939393" 
+                                                         ajax="true" update=":formAjust :formlistAjus "
+                                                         disabled="{cierreInventarioControlador.reporte}"
+                                                         oncomplete="trigger()"></p:commandButton>                                              
+
+                                    </div>-->
+
+                                </div>
+                            </div>
+                            <p:tabView >
+                                <p:tab title="General">
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Inventario :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:selectOneMenu value="#{cierreInventarioControlador.objCierreInventario.nro_inventario}" disabled="#{cierreInventarioControlador.aceptar}" > 
+                                                    <p:ajax 
+                                                        listener="#{cierreInventarioControlador.setCurrentInventario(cierreInventarioControlador.objCierreInventario.nro_inventario)}" 
+                                                        update="cod_emp date_inv obs_inv listArti" />
+                                                    <f:selectItem itemValue="0" itemLabel="Seleccione"/>
+                                                    <f:selectItems value="#{cierreInventarioControlador.listInventario}" var="inv" itemValue="#{inv.nro_inventario}" itemLabel="#{inv.nro_inventario}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Empresa :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-8">
+                                                <p:inputText id="cod_emp" value="#{cierreInventarioControlador.objCierreInventario.cod_emp}" 
+                                                             readonly="true">
+                                                </p:inputText>
+                                            </div>                                             
+                                        </div>
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-2 ui-md-4">
+                                                <h:outputText value="Fecha :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-8">
+                                                <p:calendar id="date_inv" value="#{cierreInventarioControlador.objCierreInventario.fec_inv}" 
+                                                            readonlyInput="true" locale="de" navigator="true" pattern="dd/MM/yyyy" />
+                                            </div>                                          
+
+                                            <div class="ui-g-2 ui-md-4">
+                                                <h:outputText value="Observacion :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-8">
+                                                <p:inputTextarea id="obs_inv" value="#{cierreInventarioControlador.objCierreInventario.observacion}" 
+                                                                 readonly="true"></p:inputTextarea>
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+
+                                    <p:dataTable id="listArti" var="articulos" value="#{cierreInventarioControlador.listProDatosDT}">
+
+                                        <p:column headerText="Proceso" style="width: 35%">
+                                            <h:outputText value="#{articulos.nro_proceso}" />
+                                        </p:column>
+
+                                        <p:column headerText="Codigo Articulo" style="width: 35%">
+                                            <h:outputText value="#{articulos.cod_articulo}" />
+                                        </p:column>
+
+                                        <p:column headerText="Articulo" style="width: 35%">
+                                            <h:outputText value="#{articulos.nombre}" />
+                                        </p:column>
+
+                                        <p:column headerText="Stock" style="width: 35%">
+                                            <h:outputText value="#{articulos.stock}" />
+                                        </p:column>
+
+                                        <p:column headerText="Cantidad" style="width: 35%">
+                                            <h:outputText value="#{articulos.cantidad}" />
+                                        </p:column>
+
+                                        <p:column headerText="Ajuste" style="width: 35%">
+                                            <h:outputText value="#{articulos.ajuste}" />
+                                        </p:column>
+
+                                        <!--<p:column headerText="Operaciones" style="width: 10%">
+                                            <center>
+                                                <p:commandButton icon="ui-icon-clear" style="background-color: red" 
+                                                                 action="{cierreInventarioControlador.eliminarArticuloGrilla(articulos)}"
+                                                            ajax="true" update="listArti"> </p:commandButton>
+                                            </center>
+                                        </p:column>-->
+
+
+                                    </p:dataTable> 
+                                </p:tab>
+                                <p:tab title="Log">
+                                    <p:dataTable var="log" value="#{cierreInventarioControlador.objCierreInventario.logs}">
+                                        <p:column headerText="Proceso" style="width: 20%">
+                                            <h:outputText value="#{log.proceso}" />
+                                        </p:column>
+
+                                        <p:column headerText="Usuario" style="width: 20%">
+                                            <h:outputText value="#{log.usuario}" />
+                                        </p:column>
+                                        <p:column headerText="Operacion" style="width: 20%">
+                                            <h:outputText value="#{log.operacion}" />
+                                        </p:column>
+                                        <p:column headerText="Fecha" style="width: 20%">
+                                            <h:outputText value="#{log.fecha}" />
+                                        </p:column>
+
+
+                                    </p:dataTable>  
+                                </p:tab>
+                            </p:tabView>
+                        </h:form>
+                        <h:form id="formAjustT">
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3"></div>
+                                <div class="ui-g-12 ui-md-4"></div>
+                                <div class="ui-g-12 ui-md-5">
+                                    <div class="ui-g-0 ui-md-4"></div>
+
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Aceptar"  actionListener="#{cierreInventarioControlador.transaccion()}" 
+                                                         ajax="true" update=":formAjust  :formlistAjus"
+                                                         style="background-color: #939393" 
+                                                         oncomplete="trigger()">
+                                        </p:commandButton>
+
+                                               
+                                    </div>
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Cancelar" action="#{cierreInventarioControlador.cancelarEventos()}" 
+                                                         ajax="true" update=":formAjust :formlistAjus"
+                                                         style="background-color: #939393" > </p:commandButton>
+                                    </div></div>
+                            </div>
+                        </h:form>
+                        <h:form id="formAjustR" >
+                        </h:form>
+
+                    </p:panel>     
+                    <br/>
+                    <p:panel id="toggleable" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">   
+                        <h:form id="formlistAjus">
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-12">
+                                    <div class="ui-g-12 ui-md-12">
+                                        <div class="ui-g-12 ui-md-1">
+                                            Busqueda :
+                                        </div>
+                                        <div class="ui-g-12 ui-md-5">
+                                            <p:inputText value="#{cierreInventarioControlador.valorBusqueda}" >
+                                            </p:inputText>
+                                        </div>
+                                        <div class="ui-g-12 ui-md-2">
+                                            <p:commandButton icon="ui-icon-search"
+                                                             action="#{cierreInventarioControlador.busquedaDatos()}" 
+                                                             ajax="true" update=":formlistAjus"
+                                                             style="background-color: #939393"></p:commandButton>
+
+                                            <p:commandButton  icon="ui-icon-clear"
+                                                              action="#{cierreInventarioControlador.limpiarDatos()}" 
+                                                              ajax="true" update=":formlistAjus"
+                                                              style="background-color: #939393"></p:commandButton>
+
+                                        </div>
+
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12">
+                                        <p:dataTable var="cierre" value="#{cierreInventarioControlador.listCierreInventario}" 
+                                                     rows="10"
+                                                     paginator="true"
+                                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                                     rowsPerPageTemplate="5,10,15">
+                                            <f:facet name="header">
+                                                Lista Ajustes de Stock
+                                            </f:facet>
+                                            <p:column headerText="Codigo" style="width: 10%">
+                                                <h:outputText value="#{cierre.nro_inventario}" />
+                                            </p:column>
+
+                                            <p:column headerText="Empresa" style="width:40%">
+                                                <h:outputText value="#{cierre.cod_emp}" />
+                                            </p:column>
+                                            <p:column headerText="Fecha" style="width: 15%">
+                                                <h:outputText value="#{cierre.fec_inv}" />
+                                            </p:column>
+                                            <p:column headerText="Fecha Cierre" style="width: 15%">
+                                                <h:outputText value="#{cierre.fec_cierre}" />
+                                            </p:column>
+                                            <p:column headerText="Observacion" style="width: 15%">
+                                                <h:outputText value="#{cierre.observacion}" />
+                                            </p:column>
+                                            <p:column headerText="Operaciones" style="width: 20%">
+                                                <center>
+                                                    <p:commandButton icon="ui-icon-create" styleClass="SubirPanel"  style="background-color: #939393" 
+                                                                     action="#{cierreInventarioControlador.prepareCrud(ajuste, 1)}" ajax="true" update=":formAjust"> </p:commandButton>
+                                                    <p:commandButton icon="ui-icon-clear" styleClass="SubirPanel" style="background-color: #939393" 
+                                                                     action="#{cierreInventarioControlador.prepareCrud(ajuste, 2)}"  ajax="true" update=":formAjust"> </p:commandButton>
+                                                    <p:commandButton icon="ui-icon-remove-red-eye" styleClass="SubirPanel"  style="background-color: #939393" 
+                                                                     action="#{cierreInventarioControlador.prepareCrud(ajuste, 3)}"  ajax="true" update=":formAjust"> </p:commandButton>
+                                                </center>
+                                            </p:column>
+
+
+                                        </p:dataTable>  
+                                    </div>
+                                </div>
+                            </div>
+                        </h:form>
+                    </p:panel>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+
+

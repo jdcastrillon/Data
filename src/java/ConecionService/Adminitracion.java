@@ -27,7 +27,7 @@ public class Adminitracion implements Serializable {
 
     Gson gson = new Gson();
 
-    public String jsonTrans(java.lang.String json) {
+     public String jsonTrans(java.lang.String json) {
         DataService.Start_Service service = new DataService.Start_Service();
         DataService.Start port = service.getStartPort();
         return port.jsonTrans(json);
