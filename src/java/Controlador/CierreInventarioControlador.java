@@ -344,13 +344,13 @@ public class CierreInventarioControlador {
                     listCierreInventario.clear();
                     listCierreInventario = (List<CierreInventario>) Resulta[1];
                 } else {
+                    setObjCierreInventario(null);
                     FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", mns));
                     lista(2);
-                    setObjCierreInventario(null);
                     this.evento = "inicio";
                     controlEventos(evento);
                 }
-            } else {
+            } else {             
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Info", (String) Resulta[1]));
             }
         }
@@ -553,12 +553,14 @@ public class CierreInventarioControlador {
                 if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
                     ProcesoDatosDT prdDt = new ProcesoDatosDT();
                     Map<String, Object> map = ObjIni.fromJson(jsonElement);
-                    prdDt.setNro_detalle_pro(new BigDecimal(map.get("nro_detalle_pro").toString()).intValue());
                     prdDt.setNro_proceso(new BigDecimal(map.get("nro_proceso").toString()).intValue());
+                    prdDt.setBodega(map.get("bodega").toString());
+                    prdDt.setCategoria(map.get("categoria").toString());
+                    prdDt.setSub_categoria(map.get("sub_categoria").toString());
                     prdDt.setCod_articulo(new BigDecimal(map.get("cod_articulo").toString()).intValue());
-                    prdDt.setNombre(map.get("nombre").toString());
-                    prdDt.setStock(new BigDecimal(map.get("stock").toString()).intValue());
+                    prdDt.setNom_articulo(map.get("nom_articulo").toString());
                     prdDt.setCantidad(new BigDecimal(map.get("cantidad").toString()).intValue());
+                    prdDt.setConteo(new BigDecimal(map.get("conteo").toString()).intValue());
                     prdDt.setAjuste(new BigDecimal(map.get("ajuste").toString()).intValue());
                     prdDt.setLinea(new BigDecimal(map.get("linea").toString()).intValue());
                     listProDatosDT.add(prdDt);

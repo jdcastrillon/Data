@@ -85,8 +85,7 @@ public class ProcesoDatosService implements Serializable {
 
             //Detalle
             int linea = 1;
-            for (ProcesoDatosDT proDatosDT : obj.getDetalleProDatos()) {
-                proDatosDT.setNro_detalle_pro(ObjIni.numerador("nro_detalle_pro"));
+            for (ProcesoDatosDT proDatosDT : obj.getDetalleProDatos()) {               
                 proDatosDT.setLinea(linea);
                 objsql o2 = new objsql();
                 o2.setAccion(accion);

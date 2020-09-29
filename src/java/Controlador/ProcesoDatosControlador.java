@@ -190,27 +190,26 @@ public class ProcesoDatosControlador {
                 Iterator<Row> rowIterator = sheet.rowIterator();
                 while (rowIterator.hasNext()) {
                     Row row = rowIterator.next();
-                    if (row.getRowNum() > 0) {
+                    if (row.getRowNum() > 2) {
                         StringBuilder sb = new StringBuilder();
                         // For each row, iterate through each columns
                         Iterator<Cell> cellIterator = row.cellIterator();
                         while (cellIterator.hasNext()) {
                             Cell cell = cellIterator.next();
-                            System.out.println("Tipo :" + cell.getCellType());
-//                            switch (cell.getCellType()) {
-//
-//                                case Cell.CELL_TYPE_BOOLEAN:
-//                                    System.out.print(cell.getBooleanCellValue());
-//                                    break;
-//                                case Cell.CELL_TYPE_NUMERIC:
-////                                System.out.print(Integer.toString((int) cell.getNumericCellValue()));
-//                                    sb.append(Integer.toString((int) cell.getNumericCellValue())).append(",");
-//                                    break;
-//                                case Cell.CELL_TYPE_STRING:
-////                                System.out.print(cell.getStringCellValue());
-//                                    sb.append(cell.getStringCellValue().trim()).append(",");
-//                                    break;
-//                            }
+//                            System.out.println("Tipo :" + cell.getCellType());
+                            switch (cell.getCellType()) {
+                                case Cell.CELL_TYPE_BOOLEAN:
+                                    System.out.print(cell.getBooleanCellValue());
+                                    break;
+                                case Cell.CELL_TYPE_NUMERIC:
+//                                System.out.print(Integer.toString((int) cell.getNumericCellValue()));
+                                    sb.append(Integer.toString((int) cell.getNumericCellValue())).append(",");
+                                    break;
+                                case Cell.CELL_TYPE_STRING:
+//                                System.out.print(cell.getStringCellValue());
+                                    sb.append(cell.getStringCellValue().trim()).append(",");
+                                    break;
+                            }
                         }
                         if (!sb.toString().equals("")) {
                             lista.add(sb.toString().substring(0, sb.toString().length() - 1));
@@ -219,12 +218,12 @@ public class ProcesoDatosControlador {
 
                 }
             }
-
             lista.forEach((next) -> {
                 System.out.println("next " + next);
-                String datos[] = next.split(",");//                                                        int nro_proceso, int codigo, String nombre, int stock, int cantidad, int ajuste
-                ProcesoDatosDT obj = new ProcesoDatosDT(objProDatos.getNro_proceso(), Integer.parseInt(datos[0]), datos[1],
-                        Integer.parseInt(datos[2]), Integer.parseInt(datos[3]), (Integer.parseInt(datos[3]) - Integer.parseInt(datos[2])));
+                String datos[] = next.split(",");
+                ProcesoDatosDT obj = new ProcesoDatosDT(objProDatos.getNro_proceso(), datos[0], datos[1],
+                        datos[2], Integer.parseInt(datos[3]), datos[4], Integer.parseInt(datos[5]),
+                        Integer.parseInt(datos[6]), (Integer.parseInt(datos[6]) - Integer.parseInt(datos[5])));
                 objProDatos.getDetalleProDatos().add(obj);
             });
 

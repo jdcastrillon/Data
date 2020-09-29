@@ -137,15 +137,15 @@
                                         </p:column>
 
                                         <p:column headerText="Articulo" style="width: 35%">
-                                            <h:outputText value="#{articulos.nombre}" />
+                                            <h:outputText value="#{articulos.nom_articulo}" />
                                         </p:column>
 
                                         <p:column headerText="Stock" style="width: 35%">
-                                            <h:outputText value="#{articulos.stock}" />
+                                            <h:outputText value="#{articulos.cantidad}" />
                                         </p:column>
 
                                         <p:column headerText="Cantidad" style="width: 35%">
-                                            <h:outputText value="#{articulos.cantidad}" />
+                                            <h:outputText value="#{articulos.conteo}" />
                                         </p:column>
 
                                         <p:column headerText="Ajuste" style="width: 35%">
@@ -195,7 +195,7 @@
                                         <p:commandButton value="Aceptar"  actionListener="#{cierreInventarioControlador.transaccion()}" 
                                                          ajax="true" update=":formAjust  :formlistAjus"
                                                          style="background-color: #939393" 
-                                                         oncomplete="trigger()">
+                                                         >
                                         </p:commandButton>
 
                                                

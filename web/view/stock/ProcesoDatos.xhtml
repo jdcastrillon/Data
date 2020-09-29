@@ -218,19 +218,19 @@
                                     <p:dataTable id="listArti" var="detalle" value="#{procesoDatosControlador.objProcesoDatos.detalleProDatos}">
 
                                         <p:column headerText="Codigo" style="width: 15%">
-                                            <h:outputText value="#{detalle.codigo}" />
+                                            <h:outputText value="#{detalle.cod_articulo}" />
                                         </p:column>
 
                                         <p:column headerText="Nombre" style="width: 35%">
-                                            <h:outputText value="#{detalle.nombre}" />
+                                            <h:outputText value="#{detalle.nom_articulo}" />
                                         </p:column>
 
                                         <p:column headerText="Stock" style="width: 15%">
-                                            <h:outputText value="#{detalle.stock}" />
+                                            <h:outputText value="#{detalle.cantidad}" />
                                         </p:column>
 
                                         <p:column headerText="Cantidad" style="width: 15%">
-                                            <h:outputText value="#{detalle.cantidad}" />
+                                            <h:outputText value="#{detalle.conteo}" />
                                         </p:column>
 
                                         <p:column headerText="Ajuste" style="width: 15%">

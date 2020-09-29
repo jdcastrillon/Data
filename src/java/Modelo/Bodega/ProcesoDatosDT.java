@@ -13,29 +13,34 @@ import java.io.Serializable;
  */
 public class ProcesoDatosDT implements Serializable {
 
-    private int nro_detalle_pro;
     private int nro_proceso;
+    private String bodega;
+    private String categoria;
+    private String sub_categoria;
     private int cod_articulo;
     private String nom_articulo;
-    private int stock;
     private int cantidad;
+    private int conteo;
     private int ajuste;
     private int linea;
-
-
-    
 
     public ProcesoDatosDT() {
     }
 
-    public ProcesoDatosDT(int nro_proceso, int cod_articulo, String nombre, int stock, int cantidad, int ajuste) {
+    public ProcesoDatosDT(int nro_proceso, String bodega, String categoria, String sub_categoria, int cod_articulo, String nom_articulo, int cantidad, int conteo, int ajuste) {
         this.nro_proceso = nro_proceso;
+        this.bodega = bodega;
+        this.categoria = categoria;
+        this.sub_categoria = sub_categoria;
         this.cod_articulo = cod_articulo;
-        this.nom_articulo = nombre;
-        this.stock = stock;
+        this.nom_articulo = nom_articulo;
         this.cantidad = cantidad;
+        this.conteo = conteo;
         this.ajuste = ajuste;
     }
+
+    
+    
 
     public String getNom_articulo() {
         return nom_articulo;
@@ -44,14 +49,7 @@ public class ProcesoDatosDT implements Serializable {
     public void setNom_articulo(String nom_articulo) {
         this.nom_articulo = nom_articulo;
     }
-      
-    public int getStock() {
-        return stock;
-    }
 
-    public void setStock(int stock) {
-        this.stock = stock;
-    }
 
     public int getCantidad() {
         return cantidad;
@@ -67,14 +65,6 @@ public class ProcesoDatosDT implements Serializable {
 
     public void setAjuste(int ajuste) {
         this.ajuste = ajuste;
-    }
-
-    public int getNro_detalle_pro() {
-        return nro_detalle_pro;
-    }
-
-    public void setNro_detalle_pro(int nro_detalle_pro) {
-        this.nro_detalle_pro = nro_detalle_pro;
     }
 
     public int getLinea() {
@@ -101,5 +91,36 @@ public class ProcesoDatosDT implements Serializable {
         this.cod_articulo = cod_articulo;
     }
 
-  
+    public String getBodega() {
+        return bodega;
+    }
+
+    public void setBodega(String bodega) {
+        this.bodega = bodega;
+    }
+
+    public String getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
+    }
+
+    public String getSub_categoria() {
+        return sub_categoria;
+    }
+
+    public void setSub_categoria(String sub_categoria) {
+        this.sub_categoria = sub_categoria;
+    }
+
+    public int getConteo() {
+        return conteo;
+    }
+
+    public void setConteo(int conteo) {
+        this.conteo = conteo;
+    }
+
 }
