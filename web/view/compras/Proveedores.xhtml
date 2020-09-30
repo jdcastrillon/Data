@@ -64,7 +64,7 @@
         <div class="ui-g">
             <div class="ui-g-12">
                 <div class="card card-w-title">
-                    <p:panel id="panelProv" header="Proveedores" toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+                    <p:panel id="panelProv" header="Proveedores" collapsed="true" toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
                         <h:form id="formProv">
                             <p:growl id="growl" showDetail="true" life="5000" />  
 
@@ -217,7 +217,7 @@
                                                 <p:inputText value="#{proveedorControlador.objProveedor.telefono}" disabled="#{proveedorControlador.aceptar}"> </p:inputText>
                                             </div>
                                             <div class="ui-g-2 ui-md-3">
-                                                <h:outputText value="Estado :"></h:outputText>                                                
+                                                <h:outputText value="Activo :"></h:outputText>                                                
                                             </div>
                                             <div class="ui-g-10 ui-md-9">
                                                 <p:inputSwitch value="#{proveedorControlador.objProveedor.activoB}" disabled="#{proveedorControlador.aceptar}" style="color: black"/>                                                
@@ -373,20 +373,20 @@
                                                 <h:outputText value="#{pro.cod_tipodoc}" />
                                             </p:column>
 
-                                            <p:column headerText="Codigo" style="width: 10%">
+                                            <p:column headerText="Numero" style="width: 10%">
                                                 <h:outputText value="#{pro.cod_documento}" />
                                             </p:column>
 
-                                            <p:column headerText="Descripcion" style="width: 60%">
+                                            <p:column headerText="Proveedor" style="width: 60%">
                                                 <h:outputText value="#{pro.razon_social}" />
                                             </p:column>
                                             <p:column headerText="Descripcion" style="width: 20%">
                                                 <center>
-                                                    <p:commandButton icon="ui-icon-create"   style="background-color: #939393" 
+                                                    <p:commandButton icon="ui-icon-create"  styleClass="SubirPanel"   style="background-color: #939393" 
                                                                      action="#{proveedorControlador.prepareCrud(pro, 1)}" ajax="true" update=":formProv"> </p:commandButton>
-                                                    <p:commandButton icon="ui-icon-clear" style="background-color: #939393" 
+                                                    <p:commandButton icon="ui-icon-clear" styleClass="SubirPanel"   style="background-color: #939393" 
                                                                      action="#{proveedorControlador.prepareCrud(pro, 2)}"  ajax="true" update=":formProv"> </p:commandButton>
-                                                    <p:commandButton icon="ui-icon-remove-red-eye" style="background-color: #939393" 
+                                                    <p:commandButton icon="ui-icon-remove-red-eye"  styleClass="SubirPanel"  style="background-color: #939393" 
                                                                      action="#{proveedorControlador.prepareCrud(pro, 3)}"  ajax="true" update=":formProv"> </p:commandButton>
                                                 </center>
                                             </p:column>

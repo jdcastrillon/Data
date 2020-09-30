@@ -1,0 +1,295 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templet/template.xhtml">
+
+    <ui:define name="title">Dashboard</ui:define>
+
+    <ui:define name="head">
+        <script type="text/javascript">
+            //<![CDATA[
+            function skinChart() {
+                this.cfg.shadow = false;
+                this.cfg.title = '';
+                this.cfg.seriesColors = ['#FFC107', '#03A9F4'];
+                this.cfg.grid = {
+                    background: '#ffffff',
+                    borderColor: '#ffffff',
+                    gridLineColor: '#EEEEEE',
+                    shadow: false
+                };
+                this.cfg.axesDefaults = {
+                    rendererOptions: {
+                        textColor: '#212121'
+                    }
+                };
+                this.cfg.seriesDefaults = {
+                    shadow: false,
+                    lineWidth: 1,
+                    markerOptions: {
+                        shadow: false,
+                        size: 7,
+                        style: 'circle'
+                    }
+                }
+            }
+
+            //]]>  
+        </script>
+        <style type="text/css">
+            .main-content {
+                padding: 0;
+            }
+        </style>
+        <style type="text/css">
+            .knob-container {
+                display: inline-block;
+                padding: 10px;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card card-w-title">
+                    <p:panel id="paneldoc" header="Reporte Traslados Vs Recepcion" toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+                        <h:form id="RepDispo">
+                            <p:growl id="growl" showDetail="true" life="5000" />  
+                            <p:tabView >
+                                <p:tab title="Filtros Generales">
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Empresa :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:selectOneMenu value="#{reporte_TrasladoVsRec.objStock.cod_emp}" > 
+                                                    <f:selectItems value="#{reporte_TrasladoVsRec.listEmpresas}" var="emp" itemValue="#{emp.cod_emp}" itemLabel="#{emp.nom_emp}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Fecha Inicial :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:calendar id="fec_ini" value="#{reporte_TrasladoVsRec.objStock.fec_ini}" 
+                                                            readonlyInput="true" locale="de" navigator="true" pattern="dd/MM/yyyy" />
+                                            </div>  
+
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Bodega Origen :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:selectOneMenu id="Depositos" value="#{reporte_TrasladoVsRec.objStock.deposito}" >                                                   
+                                                    <f:selectItem itemLabel="Todos" itemValue="0" />
+                                                    <f:selectItems value="#{reporte_TrasladoVsRec.listDepositos}" var="depo" itemValue="#{depo.cod_deposito}" itemLabel="#{depo.nom_deposito}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+
+                                        </div>
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Aplica Fechas :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:selectOneMenu id="ApFechas" value="#{reporte_TrasladoVsRec.objStock.aplicaFechas}" >                                                   
+                                                    <f:selectItem itemLabel="Si" itemValue="S" />
+                                                    <f:selectItem itemLabel="No" itemValue="N" />
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Fecha Final :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:calendar id="fec_fin" value="#{reporte_TrasladoVsRec.objStock.fec_fin}" 
+                                                            readonlyInput="true" locale="de" navigator="true" pattern="dd/MM/yyyy" />
+                                            </div>  
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Bodega Destino :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:selectOneMenu id="Depositos2" value="#{reporte_TrasladoVsRec.objStock.deposito2}" >                                                   
+                                                    <f:selectItem itemLabel="Todos" itemValue="0" />
+                                                    <f:selectItems value="#{reporte_TrasladoVsRec.listDepositos}" var="depo" itemValue="#{depo.cod_deposito}" itemLabel="#{depo.nom_deposito}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </p:tab>
+                                <p:tab title="Articulos">
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-10">
+                                            <div class="ui-g-2 ui-md-1">
+                                                <h:outputText value="Articulo"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-8">                                                
+                                                <p:autoComplete id="articulo" value="#{reporte_TrasladoVsRec.objArticulo}" 
+                                                                completeMethod="#{reporte_TrasladoVsRec.articulos}" 
+                                                                var="articulo" itemLabel="#{articulo.nom_articulo}" 
+                                                                itemValue="#{articulo}" forceSelection="true"
+                                                                converter="converarticulos"
+                                                                dropdown="true" style="color: black">
+                                                    <p:ajax event="itemSelect" listener="#{reporte_TrasladoVsRec.cargaArticulo()}" update="listArti,articulo" />
+                                                </p:autoComplete>
+                                            </div>
+                                        </div>
+                                        <div class="ui-g-12 ui-md-5"></div>
+                                    </div>  
+                                    <p:dataTable id="listArti" var="articulos" value="#{reporte_TrasladoVsRec.objStock.listArticulos}">
+
+                                        <p:column headerText="Codigo" style="width: 15%">
+                                            <h:outputText value="#{articulos.codigo}" />
+                                        </p:column>
+
+                                        <p:column headerText="Nombre" style="width: 35%">
+                                            <h:outputText value="#{articulos.nom_articulo}" />
+                                        </p:column>
+
+                                        <p:column headerText="Operaciones" style="width: 10%">
+                                            <center>
+                                                <p:commandButton icon="ui-icon-clear" style="background-color: red" 
+                                                                 action="#{reporte_TrasladoVsRec.eliminarArticuloGrilla(articulos)}"  ajax="true" update="listArti"> </p:commandButton>
+                                            </center>
+                                        </p:column>
+
+
+                                    </p:dataTable> 
+                                </p:tab>
+
+                            </p:tabView>
+
+
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3"> </div>
+                                <div class="ui-g-12 ui-md-6"></div>
+                                <div class="ui-g-12 ui-md-3">
+                                    <div class="ui-g-0 ui-md-4"></div>
+
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Aceptar"  action="#{reporte_TrasladoVsRec.transaccion()}" 
+                                                         ajax="true" update=":RepDispo :formlistAjus"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{Reporte_StockDisponible.aceptar}"> </p:commandButton>
+                                    </div>
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Cancelar" action="#{reporte_TrasladoVsRec.cancelarEventos()}" 
+                                                         ajax="true" update=":RepDispo :formlistAjus"
+                                                         style="background-color: #939393" > </p:commandButton>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:form>
+                    </p:panel> 
+                    <br/>
+                    <p:panel id="toggleable" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">   
+                        <h:form id="formlistAjus">
+                            <p:tabView >
+                                <p:tab title="General">
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-12">
+                                            <!--      <div class="ui-g-12 ui-md-12">
+      
+                                                      <p:commandButton value="Export as Excel" ajax="false">
+                                                          <p:dataExporter type="xls" target="disponible" fileName="Reporte Stock Disponible" />
+                                                      </p:commandButton>
+                                                  </div>-->
+                                            <div class="ui-g-12 ui-md-12">
+                                                <p:dataTable id="traslado" var="traslado" value="#{reporte_TrasladoVsRec.list_Stock_Traslados}" 
+                                                             rows="20"
+                                                             paginator="true"
+                                                             paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                                             rowsPerPageTemplate="5,10,15,20">
+
+                                                    <p:column headerText="Bod. Origen" style="width: 20%" >
+                                                        <h:outputText value="#{traslado.deposito}" />
+                                                    </p:column>
+                                                    <p:column headerText="Bod. Destino" style="width: 20%" >
+                                                        <h:outputText value="#{traslado.deposito2}" />
+                                                    </p:column>
+                                                    <p:column headerText="Nro. Traslado" style="width: 10%" >
+                                                        <h:outputText value="#{traslado.nro_traslado}" />
+                                                    </p:column>
+                                                    <p:column headerText="Fec. Traslado" style="width: 10%" >
+                                                        <h:outputText value="#{traslado.fec_ini2}" />
+                                                    </p:column>
+                                                    <p:column headerText="Cant. Enviada" style="width: 10%" >
+                                                        <h:outputText value="#{traslado.cant_enviada}" />
+                                                    </p:column>
+                                                    <p:column headerText="Fec. Recepcion" style="width:10%">
+                                                        <h:outputText value="#{traslado.fec_fin2}" />
+                                                    </p:column>
+                                                    <p:column headerText="Cant. Recibida" style="width:10%">
+                                                        <h:outputText value="#{traslado.cant_recibidad}" />
+                                                    </p:column>
+                                                    <p:column headerText="Pendientes" style="width:10%">
+                                                        <h:outputText value="#{traslado.pendientes}" />
+                                                    </p:column>
+                                                </p:dataTable>  
+                                            </div>
+                                        </div>
+                                    </div>
+                                </p:tab>
+                                <p:tab title="Detallado">
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-12">
+                                            <!--      <div class="ui-g-12 ui-md-12">
+      
+                                                      <p:commandButton value="Export as Excel" ajax="false">
+                                                          <p:dataExporter type="xls" target="disponible" fileName="Reporte Stock Disponible" />
+                                                      </p:commandButton>
+                                                  </div>-->
+                                            <div class="ui-g-12 ui-md-12">
+                                                <p:dataTable id="traslado2" var="traslado" value="#{reporte_TrasladoVsRec.listDT_Stock_Traslados}" 
+                                                             rows="20"
+                                                             paginator="true"
+                                                             paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                                             rowsPerPageTemplate="5,10,15,20">
+
+                                                    <p:column headerText="Bod. Origen" style="width: 20%" >
+                                                        <h:outputText value="#{traslado.deposito}" />
+                                                    </p:column>
+                                                    <p:column headerText="Bod. Destino" style="width: 20%" >
+                                                        <h:outputText value="#{traslado.deposito2}" />
+                                                    </p:column>
+                                                    <p:column headerText="Nro. Traslado" style="width: 10%" >
+                                                        <h:outputText value="#{traslado.nro_traslado}" />
+                                                    </p:column>
+                                                    <p:column headerText="Articulo" style="width: 10%" >
+                                                        <h:outputText value="#{traslado.cod_articulo}" />
+                                                    </p:column>
+                                                    <p:column headerText="Descripcion" style="width: 10%" >
+                                                        <h:outputText value="#{traslado.nom_articulo}" />
+                                                    </p:column>
+                                                    <p:column headerText="Unidad" style="width: 10%" >
+                                                        <h:outputText value="#{traslado.cod_unidad}" />
+                                                    </p:column>
+                                                    <p:column headerText="Cant. Enviada" style="width: 10%" >
+                                                        <h:outputText value="#{traslado.cant_enviada}" />
+                                                    </p:column>
+                                                    <p:column headerText="Cant. Recibida" style="width:10%">
+                                                        <h:outputText value="#{traslado.cant_recibidad}" />
+                                                    </p:column>
+                                                    <p:column headerText="Pendientes" style="width:10%">
+                                                        <h:outputText value="#{traslado.pendientes}" />
+                                                    </p:column>
+                                                </p:dataTable>  
+                                            </div>
+                                        </div>
+                                    </div>
+                                </p:tab>
+                            </p:tabView>
+
+                        </h:form>
+                    </p:panel>
+
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+
+

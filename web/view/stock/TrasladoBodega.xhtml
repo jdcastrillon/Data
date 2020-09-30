@@ -86,11 +86,12 @@
                                                          disabled="#{trasladoBodegaControlador.eliminar}"></p:commandButton>
                                     </div>
                                     <div class="ui-g-2 ui-md-2">
-                                        <p:commandButton icon="ui-icon-search"
+                                        <p:commandButton icon="ui-icon-insert-drive-file"
                                                          action="#{trasladoBodegaControlador.prepareReporte()}" 
-                                                         ajax="true" update=":formTrasl :formlistTrasl"
+                                                         ajax="true" update=":formTrasl :formlistTrasl :formTraslT:print"
                                                          style="background-color: #939393" 
-                                                         disabled="#{trasladoBodegaControlador.nuevo}"></p:commandButton>
+                                                         disabled="#{trasladoBodegaControlador.reporte}"
+                                                         oncomplete="trigger()"></p:commandButton>
                                     </div>
 
                                 </div>
@@ -137,7 +138,7 @@
                                                 <h:outputText value="Fecha :"></h:outputText>
                                             </div>
                                             <div class="ui-g-10 ui-md-9">
-                                                <p:calendar id="button" value="#{trasladoBodegaControlador.objTraldoBodega.fecha}" showOn="button" disabled="#{stockAjusteControlador.aceptar}"
+                                                <p:calendar id="button" value="#{trasladoBodegaControlador.objTraldoBodega.fecha}" showOn="button" disabled="#{trasladoBodegaControlador.aceptar}"
                                                             locale="de" navigator="true" pattern="dd/MM/yyyy" />
                                             </div>
                                             <div class="ui-g-2 ui-md-3">
@@ -227,7 +228,8 @@
                                     </p:dataTable>  
                                 </p:tab>
                             </p:tabView>
-
+                        </h:form>
+                        <h:form id="formTraslT">
 
                             <div class="ui-g ui-fluid form-group">
                                 <div class="ui-g-12 ui-md-3"></div>
@@ -236,20 +238,35 @@
                                     <div class="ui-g-0 ui-md-4"></div>
 
                                     <div class="ui-g-5 ui-md-4">
-                                        <p:commandButton value="Aceptar"  action="#{trasladoBodegaControlador.transaccion()}" ajax="true" update=":formTrasl :formlistTrasl"
+                                        <p:commandButton value="Aceptar"  actionListener="#{trasladoBodegaControlador.transaccion()}" 
+                                                         ajax="true" update=":formTrasl :formlistTrasl :formTraslT:print"
                                                          style="background-color: #939393" 
-                                                         disabled="#{trasladoBodegaControlador.aceptar}"> </p:commandButton>
+                                                         oncomplete="trigger()">
+                                        </p:commandButton>
+
+
+
+                                        <p:commandLink style="display:none"    
+                                                       id="print" 
+                                                       styleClass="print"   
+                                                       ajax="#{(trasladoBodegaControlador.executeReport) ? 'false' : 'true'}" process="@this"
+                                                       partialSubmit="false"
+                                                       value="Generar Reporte"
+                                                       action="#{trasladoBodegaControlador.prepareReporte(trasladoBodegaControlador.executeReport)}"	
+                                                       target="#{(trasladoBodegaControlador.executeReport) ? '_blank' : '_self'}"
+                                                       />          
                                     </div>
                                     <div class="ui-g-5 ui-md-4">
-                                        <p:commandButton value="Cancelar" action="#{trasladoBodegaControlador.cancelarEventos()}" ajax="true" update=":formTrasl :formlistTrasl"
+                                        <p:commandButton value="Cancelar" action="#{trasladoBodegaControlador.cancelarEventos()}" 
+                                                         ajax="true" update=":formTrasl :formlistTrasl"
                                                          style="background-color: #939393" > </p:commandButton>
-                                    </div>
-
-
-                                </div>
+                                    </div></div>
                             </div>
                         </h:form>
                     </p:panel>     
+
+
+
                     <br/>
                     <p:panel id="toggleable" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">   
                         <h:form id="formlistTrasl">
