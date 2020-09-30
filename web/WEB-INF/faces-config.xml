@@ -137,6 +137,10 @@
             <from-outcome>/view/stock/ProcesoDatos</from-outcome>
             <to-view-id>/view/stock/ProcesoDatos.xhtml</to-view-id>
         </navigation-case>
+        <navigation-case>
+            <from-outcome>/view/stock/Reporte_TrasladoVsRecep</from-outcome>
+            <to-view-id>/view/stock/Reporte_TrasladoVsRecep.xhtml</to-view-id>
+        </navigation-case>
         
         
         

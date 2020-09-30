@@ -256,7 +256,48 @@ public class ProveedorService implements Serializable {
                 Resulta[1] = ciudad;
 
             }
+        }
 
+        //Vendedores
+        obj.getList_vend().clear();
+        String respuesta3 = dao.QueryObj("SELECT cod_proveedor, cod_tipodoc, cod_documento, nombre, telefono\n"
+                + "FROM public.td_provevendedor where cod_proveedor=" + obj.getCod_provedor());
+
+        JsonArray jsonVendedor = parser.parse(respuesta3).getAsJsonArray();
+        for (JsonElement jsonElement : jsonVendedor) {
+            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
+                Prove_Vendedor proveedor = new Prove_Vendedor();
+                Map<String, Object> mapVendedor = gson.fromJson(jsonElement.getAsString(), new TypeToken<Map<String, Object>>() {
+                }.getType());
+                proveedor.setCod_proveedor(obj.getCod_provedor());
+                proveedor.setCod_tipodoc(mapVendedor.get("cod_tipodoc").toString());
+                proveedor.setCod_documento(mapVendedor.get("cod_documento").toString());
+                proveedor.setNombre(mapVendedor.get("nombre").toString());
+                proveedor.setTelefono(mapVendedor.get("telefono").toString());
+                obj.getList_vend().add(proveedor);
+            }
+        }
+
+        //Bancos
+        obj.getList_Bancos().clear();
+        String respuesta4 = dao.QueryObj("SELECT cod_proveedor, A.cod_banco, cod_cta, tipo_cta,B.descripcion\n"
+                + "FROM public.td_provebancos A inner join m_bancos B\n"
+                + "on A.cod_banco=B.cod_banco where cod_proveedor=" + obj.getCod_provedor());
+
+        JsonArray jsonBanco = parser.parse(respuesta4).getAsJsonArray();
+        for (JsonElement jsonElement : jsonBanco) {
+            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
+                Provee_Bancos banco = new Provee_Bancos();
+                Map<String, Object> mapBanco = gson.fromJson(jsonElement.getAsString(), new TypeToken<Map<String, Object>>() {
+                }.getType());
+                banco.setCod_proveedor(obj.getCod_provedor());
+                banco.setCod_banco(new BigDecimal(mapBanco.get("cod_banco").toString()).intValue());
+                banco.setCod_cta(mapBanco.get("cod_cta").toString());
+                banco.setTipo_cta(mapBanco.get("tipo_cta").toString());
+                banco.setNom_banco(mapBanco.get("descripcion").toString());
+
+                obj.getList_Bancos().add(banco);
+            }
         }
 
         return Resulta;

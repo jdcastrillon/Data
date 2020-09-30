@@ -56,7 +56,7 @@ public class TrasladoBodegaService implements Serializable {
 
     public Object[] Transaccion(TrasladoBodega obj, String accion) {
         System.out.println("Entro a Servicio " + obj.toString());
-        Object Resulta[] = new Object[2];
+        Object Resulta[] = new Object[3];
         try {
             List<objsql> transacciones = new ArrayList();
 
@@ -118,9 +118,11 @@ public class TrasladoBodegaService implements Serializable {
             System.out.println(":" + map.get("mns").toString());
             Resulta[0] = map.get("estado");
             Resulta[1] = map.get("mns").toString().indexOf("#imp") > 0 ? map.get("mns").toString().substring(12, 100) : map.get("mns");
+            Resulta[2] = obj.getTrans();
         } catch (JsonSyntaxException ex) {
             Resulta[0] = "Error";
             Resulta[1] = "Comuniquese con soporte";
+            Resulta[2] = 0;
         }
 
         return Resulta;

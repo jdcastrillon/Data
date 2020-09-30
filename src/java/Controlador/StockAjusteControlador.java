@@ -270,7 +270,7 @@ public class StockAjusteControlador {
         Object Resulta[] = new Object[2];
         Resulta = AJService.recuperarInfo(objecto);
         setObjAjuste((AjusteStock) Resulta[0]);
-        lista(2);
+//        lista(2);
         //Condiciones
         setExecuteReport(true);
         switch (condicion) {

@@ -559,6 +559,7 @@ public class CierreInventarioControlador {
                     prdDt.setSub_categoria(map.get("sub_categoria").toString());
                     prdDt.setCod_articulo(new BigDecimal(map.get("cod_articulo").toString()).intValue());
                     prdDt.setNom_articulo(map.get("nom_articulo").toString());
+                    prdDt.setStock(new BigDecimal(map.get("stock").toString()).intValue());
                     prdDt.setCantidad(new BigDecimal(map.get("cantidad").toString()).intValue());
                     prdDt.setConteo(new BigDecimal(map.get("conteo").toString()).intValue());
                     prdDt.setAjuste(new BigDecimal(map.get("ajuste").toString()).intValue());
