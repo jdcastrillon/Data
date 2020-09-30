@@ -4,8 +4,11 @@ import Modelo.Bodega.*;
 import Modelo.Empresa;
 import Servicios.Sistema.*;
 import Servicios.TrasladoBodegaService;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,6 +22,11 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperRunManager;
+import net.sf.jasperreports.engine.data.JsonDataSource;
 
 /**
  *
@@ -61,6 +69,7 @@ public class TrasladoBodegaControlador {
     private boolean reporte;
     private String evento;
     private String valorBusqueda;
+    private boolean executeReport = false;
 
     @PostConstruct
     public void init() {
@@ -203,7 +212,8 @@ public class TrasladoBodegaControlador {
         Object Resulta[] = new Object[2];
         Resulta = TrasladoService.recuperarInfo(objecto);
         setObjTraldoBodega((TrasladoBodega) Resulta[0]);
-        lista(2);
+//        lista(2);
+        setExecuteReport(true);
         //Condiciones
         switch (condicion) {
             case 1:
@@ -233,8 +243,9 @@ public class TrasladoBodegaControlador {
 
     public void transaccion() {
 
-        Object Resulta[] = new Object[1];
+        Object Resulta[] = new Object[3];
         String mns = "";
+        setExecuteReport(false);
         if (validaciones()) {
             switch (this.evento) {
                 case "Nuevo":
@@ -274,6 +285,12 @@ public class TrasladoBodegaControlador {
                     FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", mns));
                     lista(2);
                     setObjTraldoBodega(null);
+                    getObjTraldoBodega();
+                    if (evento.equalsIgnoreCase("Nuevo")) {
+                        objTraldoBodega.setTrans((int) Resulta[2]);
+                        System.out.println("Trans : " + objTraldoBodega.getTrans());
+                        setExecuteReport(true);
+                    }
                     this.evento = "inicio";
                     controlEventos(evento);
                 }
@@ -317,6 +334,46 @@ public class TrasladoBodegaControlador {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Info", mns));
         }
         return mns.length() <= 0;
+    }
+
+    public void prepareReporte(boolean reporte) throws JRException, IOException {
+
+        System.out.println("reporte = " + reporte);
+        if (reporte) {
+            File jasper = new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Reportes/TrasladoBod.jasper"));
+//            String datos = "[{\"trans\":86,\"cod_emp\":\"Data\",\"nom_emp\":\"DataPyme\",\"fec_doc\":\"2020-05-15\",\"nro_docum\":109,\"cod_estado\":\"Stock\",\"cod_deposito\":\"1\",\"nom_deposito\":\"Bodega Principal\",\"observacion\":\"Sistema\",\"case\":\"Ingreso\",\"cod_articulo\":100,\"nom_articulo\":\"Invictus\",\"cantidad\":100}]";
+            String rawJsonData = SelService.ConsultaIreport("select D.nom_emp,A.fec_Doc,E.nom_deposito,F.nom_deposito as nom_deposito2,A.observacion,\n"
+                    + "C.codigo as cod_articulo,C.nom_articulo,B.cant_enviada as cantidad\n"
+                    + "from t_trasladobodega A inner join td_trasladobodega B\n"
+                    + "on a.trans=b.trans left join m_articulos C \n"
+                    + "on B.cod_articulo=C.cod_articulo left join m_empresa D on A.cod_emp=D.cod_emp\n"
+                    + "left join m_depositos E on A.cod_deposito=E.cod_deposito\n"
+                    + "left join m_depositos F on A.cod_deposito2=F.cod_deposito\n"
+                    + "where A.trans=" + objTraldoBodega.getTrans());
+            System.out.println("*************************");
+            System.out.println("" + rawJsonData);
+            System.out.println("" + rawJsonData.replace("\\", "").replace("\"[", "[").replace("]\"", "]"));
+
+//            Reporte_AjusteStock[] stock = gson.fromJson(rawJsonData.replace("\\", ""), Reporte_AjusteStock[].class);
+            //System.out.println(rawJsonData);
+            String json = new Gson().toJson(rawJsonData.replace("\\", "").replace("\"[", "[").replace("]\"", "]"));
+
+            ByteArrayInputStream jsonDataStream = new ByteArrayInputStream(rawJsonData.replace("\\", "").replace("\"[", "[").replace("]\"", "]").getBytes());
+//            System.out.println(json);
+            JsonDataSource ds = new JsonDataSource(jsonDataStream);
+
+            byte[] jp = JasperRunManager.runReportToPdf(jasper.getPath(), null, ds);
+            HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
+            response.setContentType("application/pdf");
+            response.setContentLength(jp.length);
+            try (ServletOutputStream outStream = response.getOutputStream()) {
+                outStream.write(jp, 0, jp.length);
+                outStream.flush();
+                outStream.close();
+            }
+            FacesContext.getCurrentInstance().responseComplete();
+        }
+        setExecuteReport(true);
     }
 
     public void cargarDepositos() {
@@ -393,6 +450,10 @@ public class TrasladoBodegaControlador {
             }
         }
         return valor;
+    }
+
+    public void reporte() {
+        this.executeReport = true;
     }
 
     public void busquedaDatos() {
@@ -587,6 +648,14 @@ public class TrasladoBodegaControlador {
 
     public void setValorBusqueda(String valorBusqueda) {
         this.valorBusqueda = valorBusqueda;
+    }
+
+    public boolean isExecuteReport() {
+        return executeReport;
+    }
+
+    public void setExecuteReport(boolean executeReport) {
+        this.executeReport = executeReport;
     }
 
 }

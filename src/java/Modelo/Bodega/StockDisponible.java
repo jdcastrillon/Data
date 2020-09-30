@@ -12,6 +12,7 @@ import java.util.List;
 /**
  *
  * @author LENOVO
+ * Clase Para reportes
  */
 public class StockDisponible implements Serializable {
 
