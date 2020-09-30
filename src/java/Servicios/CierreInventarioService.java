@@ -91,6 +91,7 @@ public class CierreInventarioService implements Serializable {
             o3.setTabla("imp_inventario");
             o3.setBase(login.getBase());
             o3.setDatos(gson.toJson(param));
+            System.out.println("Json   : " + gson.toJson(param));
 
             transacciones.add(o3);
 

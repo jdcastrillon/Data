@@ -3,7 +3,8 @@
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
-                template="/templet/template.xhtml">
+                template="/templet/template.xhtml"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
     <ui:define name="title">Dashboard</ui:define>
 
@@ -226,7 +227,7 @@
                                         </p:column>
 
                                         <p:column headerText="Cantidad" style="width: 20%" >
-                                            <h:inputText value="#{articulos.cantidad}" disabled="#{stockAjusteControlador.aceptar}">
+                                            <h:inputText pt:autofocus="true" value="#{articulos.cantidad}" disabled="#{stockAjusteControlador.aceptar}">
                                                 <f:ajax execute="@this" rendered="listArti"></f:ajax>
                                             </h:inputText>
                                         </p:column>

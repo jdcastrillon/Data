@@ -3,6 +3,7 @@
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
+                xmlns:pt="http://java.sun.com/jsf/passthrough"
                 template="/templet/template.xhtml">
 
     <ui:define name="title">Dashboard</ui:define>
@@ -289,9 +290,10 @@
                                                        styleClass="print"
                                                        ajax="#{(conteoControlador.executeReport) ? 'false' : 'true'}" process="@this"
                                                        partialSubmit="false"
-                                                       value="Generar Reporte"
+                                                       value="Generar Reporte #{conteoControlador.executeReport}"
                                                        action="#{conteoControlador.exportarExcel(conteoControlador.executeReport)}"	
-                                                       target="_self" />                  
+                                                       target="_self"
+                                                       />                  
 
                                     </div>
                                     <div class="ui-g-5 ui-md-4">

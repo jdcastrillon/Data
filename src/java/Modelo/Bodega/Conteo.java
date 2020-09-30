@@ -121,4 +121,9 @@ public class Conteo implements Serializable {
         this.cod_emp = cod_emp;
     }
 
+    @Override
+    public String toString() {
+        return "{" + "nro_conteo=" + nro_conteo + ", nro_inventario=" + nro_inventario + ", cod_categoria=" + cod_categoria + ", cod_subcategoria=" + cod_subcategoria + ", cod_deposito=" + cod_deposito + ", cod_log=" + cod_log + ", fec_doc=" + fec_doc + ", fecha=" + fecha + ", DetalleCont=" + DetalleCont + ", logs=" + logs + ", cod_emp=" + cod_emp + '}';
+    }    
+
 }

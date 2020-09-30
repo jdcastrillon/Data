@@ -186,14 +186,11 @@ public class ConteoControlador {
         controlEventos(evento);
     }
 
-    public void reporte() {
-        this.executeReport = true;
-    }
-
     public void exportarExcel(boolean reporte) throws IOException, JRException {
 
         if (reporte) {
-            File jasper = new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Reportes/ProcesoConteo.jasper"));
+            File jasper = new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Reportes/Inventario.jasper"));
+
             String consulta = "select 'Inventario '||D.nom_emp as titulo,'" + tituloReporte + "' as titulo2,C.nom_deposito,E.nom_Categoria,F.nom_subcategoria,B.codigo as cod_articulo,B.nom_articulo,A.cantidad \n"
                     + "from s_stkdepositos A INNER JOIN m_articulos B on A.cod_Articulo=B.cod_Articulo\n"
                     + "left join m_depositos C on A.cod_tit=C.cod_deposito\n"
@@ -233,9 +230,12 @@ public class ConteoControlador {
             exporter.exportReport();
             stream.flush();
 
+            setObjConteo(null);
+            setExecuteReport(false);
+            
+
             FacesContext.getCurrentInstance().responseComplete();
         }
-        setObjConteo(null);
 
     }
 
@@ -338,19 +338,22 @@ public class ConteoControlador {
         System.out.println(" eliminar : " + eliminar);
         System.out.println(" nuevo : " + nuevo);
         System.out.println(" buscar : " + buscar);
-
+        System.out.println("objConteo " + objConteo);
         if (this.nuevo == false) {
+            if (objConteo.getCod_deposito().equals("0")) {
+                mns = "Debe seleccionar una bodega";
+            }
             //Validaciones
 //            if (ObjVal.ValPrimaryKey("select count(*) from m_tipodocumentos where cod_tipodoc='" + objConteo.getCod_tipodoc() + "'")) {
 //                mns = "El codigo del documento ya existe";
 //            }
         }
-
         System.out.println("mns : " + mns);
         if (mns.length() > 0) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Info", mns));
         }
         return mns.length() <= 0;
+
     }
 
     public void cargarDepositos() {
