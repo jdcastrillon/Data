@@ -62,6 +62,7 @@ public class ConteoControlador {
     private Articulos objArticulo;
 
     Object acciones[] = new Object[6];
+    Object titulos_reporte[] = new Object[8];
     private boolean aceptar;
     private boolean editar;
     private boolean eliminar;
@@ -70,7 +71,6 @@ public class ConteoControlador {
     private boolean reporte;
     private String evento;
     private String eventJavascrtipt = "";
-    private String tituloReporte;
     private boolean executeReport = false;
 
     @PostConstruct
@@ -162,10 +162,12 @@ public class ConteoControlador {
         }
         //Variables
         objConteo.setCod_emp(listEmpresas.get(0).getCod_emp());
+        objConteo.setCod_deposito(listDepositos.get(0).getCod_deposito());
         this.evento = "Nuevo";
         objConteo.setFecha(new Date());
         controlEventos(evento);
-        tituloReporte = "";
+        titulos_reporte = null;
+        getTitulos_reporte();
         System.out.println("Inventarios : " + listInventario.size());
     }
 
@@ -189,15 +191,23 @@ public class ConteoControlador {
     public void exportarExcel(boolean reporte) throws IOException, JRException {
 
         if (reporte) {
-            File jasper = new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Reportes/Inventario.jasper"));
+            File jasper = new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Reportes/ProcesoConteo.jasper"));
 
-            String consulta = "select 'Inventario '||D.nom_emp as titulo,'" + tituloReporte + "' as titulo2,C.nom_deposito,E.nom_Categoria,F.nom_subcategoria,B.codigo as cod_articulo,B.nom_articulo,A.cantidad \n"
+            String consulta = "select 'Inventario '||D.nom_emp as titulo,'"+titulos_reporte[2]+"' as tit_inventario,'"+titulos_reporte[3]+"' as tit_descarga, \n"
+                    + "'Bodega : '||A.cod_tit as tit_bodega,C.nom_deposito as tit_nombodega,\n"
+                    + "'"+titulos_reporte[4]+"' as tit_categoria,'"+titulos_reporte[5]+"' as tit_nomcategoria,\n"
+                    + "'"+titulos_reporte[6]+"' as tit_subcategoria,'"+titulos_reporte[7]+"' as tit_nomsubcate,\n"
+                    + "A.cod_tit,\n"
+                    + "B.categoria,B.subcategoria,\n"
+                    + "B.codigo as cod_articulo,B.nom_articulo,A.cantidad,0 as cantidad2 \n"
                     + "from s_stkdepositos A INNER JOIN m_articulos B on A.cod_Articulo=B.cod_Articulo\n"
                     + "left join m_depositos C on A.cod_tit=C.cod_deposito\n"
                     + "left join m_empresa D on A.cod_emp=D.cod_emp\n"
                     + "left join m_categoria E on B.categoria=E.cod_Categoria\n"
                     + "left join m_subcategoria F on B.subcategoria=F.cod_subcategoria\n"
-                    + "where A.cod_emp='" + objConteo.getCod_emp() + "' and cod_estado='Disponible' ";
+                    + "where A.cod_emp='"+objConteo.getCod_emp()+"' and cod_estado='Disponible'"
+                    + " and A.cod_tit='"+objConteo.getCod_deposito()+"'";
+
             //Condiciones
 //            if (!objConteo.getCod_deposito().equalsIgnoreCase("0")) {
 //                consulta += " A.cod_tit='" + objConteo.getCod_deposito() + "'";
@@ -206,7 +216,6 @@ public class ConteoControlador {
 //            if (!objConteo.getCod_categoria().equalsIgnoreCase("0")) {
 //
 //            }
-
             String String_json = SelService.ConsultaIreport(consulta);
             System.out.println("" + String_json.replace("\\", "").replace("\"[", "[").replace("]\"", "]"));
 
@@ -232,7 +241,6 @@ public class ConteoControlador {
 
             setObjConteo(null);
             setExecuteReport(false);
-            
 
             FacesContext.getCurrentInstance().responseComplete();
         }
@@ -244,7 +252,7 @@ public class ConteoControlador {
         Object Resulta[] = new Object[2];
         Resulta = CService.recuperarInfo(objecto);
         setObjConteo((Conteo) Resulta[0]);
-        setTituloReporte((String) Resulta[1]);
+//        setTituloReporte((String) Resulta[1]);
         lista(2);
         setExecuteReport(true);
         //Condiciones
@@ -275,11 +283,13 @@ public class ConteoControlador {
     }
 
     public void transaccion() {
-        Object Resulta[] = new Object[3];
+        Object Resulta[] = new Object[8];
         String mns = "";
         if (validaciones()) {
             switch (this.evento) {
                 case "Nuevo":
+                    objConteo.setNom_Categoria("TODOS");
+                    objConteo.setNom_subcategoria("TODOS");
                     Resulta = CService.Transaccion(objConteo, "Nuevo");
                     mns = "Conteo Creado Cargando Excel";
                     break;
@@ -304,7 +314,7 @@ public class ConteoControlador {
                     lista(2);
 
                     if (evento.equalsIgnoreCase("Nuevo")) {
-                        setTituloReporte((String) Resulta[2]);
+                        titulos_reporte = Resulta;
                         setExecuteReport(true);
                     }
                     this.evento = "inicio";
@@ -645,12 +655,15 @@ public class ConteoControlador {
         this.listArticulos = listArticulos;
     }
 
-    public String getTituloReporte() {
-        return tituloReporte;
+    public Object[] getTitulos_reporte() {
+        if (titulos_reporte == null) {
+            titulos_reporte = new Object[8];
+        }
+        return titulos_reporte;
     }
 
-    public void setTituloReporte(String tituloReporte) {
-        this.tituloReporte = tituloReporte;
+    public void setTitulos_reporte(Object[] titulos_reporte) {
+        this.titulos_reporte = titulos_reporte;
     }
 
 }

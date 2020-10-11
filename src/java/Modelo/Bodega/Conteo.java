@@ -29,9 +29,11 @@ public class Conteo implements Serializable {
     transient List<ProConteoDT> DetalleCont = new ArrayList();
     transient List<Log_Transaccion> logs = new ArrayList();
     private transient String cod_emp;
+    private transient String nom_Categoria;
+    private transient String nom_subcategoria;
 
     public Conteo() {
-    }   
+    }
 
     public int getNro_conteo() {
         return nro_conteo;
@@ -121,9 +123,25 @@ public class Conteo implements Serializable {
         this.cod_emp = cod_emp;
     }
 
+    public String getNom_Categoria() {
+        return nom_Categoria;
+    }
+
+    public void setNom_Categoria(String nom_Categoria) {
+        this.nom_Categoria = nom_Categoria;
+    }
+
+    public String getNom_subcategoria() {
+        return nom_subcategoria;
+    }
+
+    public void setNom_subcategoria(String nom_subcategoria) {
+        this.nom_subcategoria = nom_subcategoria;
+    }
+
     @Override
     public String toString() {
         return "{" + "nro_conteo=" + nro_conteo + ", nro_inventario=" + nro_inventario + ", cod_categoria=" + cod_categoria + ", cod_subcategoria=" + cod_subcategoria + ", cod_deposito=" + cod_deposito + ", cod_log=" + cod_log + ", fec_doc=" + fec_doc + ", fecha=" + fecha + ", DetalleCont=" + DetalleCont + ", logs=" + logs + ", cod_emp=" + cod_emp + '}';
-    }    
+    }
 
 }

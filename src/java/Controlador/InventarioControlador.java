@@ -150,117 +150,45 @@ public class InventarioControlador {
         controlEventos(evento);
     }
 
-//    public void prepareReporte() throws JRException, IOException {
-//        File jasper = new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Reportes/Prueba.jasper"));
+//    public void exportarExcel() throws IOException, JRException {
+//
+//        File jasper = new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Reportes/PruebaExcel.jasper"));
 //
 //        System.out.println("Mauricio = " + jasper.getPath());
 //
-////        ReportePruebaDataSource rdatasource = new ReportePruebaDataSource();
-//        List<ReportePrueba> listReporte = new ArrayList();
-//
-//        for (int i = 0; i < 10; i++) {
-//            ReportePrueba r = new ReportePrueba(i, "Nombre" + i, "Apellido" + i, "Direccion" + i, "Telefono" + i);
-//            listReporte.add(r);
-//        }
-////        rdatasource.setListReporte(listReporte);
-//        String json = new Gson().toJson(listReporte);
-//
-//        System.out.println(json);
-//        ByteArrayInputStream jsonDataStream = new ByteArrayInputStream(json.getBytes());
-//
-//        JsonDataSource ds = new JsonDataSource(jsonDataStream);
-//
-//        byte[] jp = JasperRunManager.runReportToPdf(jasper.getPath(), null, ds);
-//        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-//        response.setContentType("application/pdf");
-//        response.setContentLength(jp.length);
-//        try (ServletOutputStream outStream = response.getOutputStream()) {
-//            outStream.write(jp, 0, jp.length);
-//            outStream.flush();
-//            outStream.close();
-//        }
-//        FacesContext.getCurrentInstance().responseComplete();
-//
-//    }
-//
-//    public void downloadReporte() throws JRException, IOException {
-//        File jasper = new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Reportes/Prueba.jasper"));
-//
-//        System.out.println("Mauricio = " + jasper.getPath());
-//
-////        ReportePruebaDataSource rdatasource = new ReportePruebaDataSource();
-//        List<ReportePrueba> listReporte = new ArrayList();
-//
-//        for (int i = 0; i < 10; i++) {
-//            ReportePrueba r = new ReportePrueba(i, "Nombre" + i, "Apellido" + i, "Direccion" + i, "Telefono" + i);
-//            listReporte.add(r);
-//        }
-////        rdatasource.setListReporte(listReporte);
-//        String json = new Gson().toJson(listReporte);
-//
-//        System.out.println(json);
-//        ByteArrayInputStream jsonDataStream = new ByteArrayInputStream(json.getBytes());
-//
-//        JsonDataSource ds = new JsonDataSource(jsonDataStream);
-//
-////        byte[] jp = JasperRunManager.runReportToPdf(jasper.getPath(), null, ds);
-////        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-////        response.setContentType("application/pdf");
-////        response.setContentLength(jp.length);
-////        try (ServletOutputStream outStream = response.getOutputStream()) {
-////            outStream.write(jp, 0, jp.length);
-////            outStream.flush();
-////            outStream.close();
+//// Ajustar Json
+////        List<ReportePrueba> listReporte = new ArrayList();
+////
+////        for (int i = 0; i < 10; i++) {
+////            ReportePrueba r = new ReportePrueba(i, "Nombre" + i, "Apellido" + i, "Direccion" + i, "Telefono" + i);
+////            listReporte.add(r);
 ////        }
-////        FacesContext.getCurrentInstance().responseComplete();
+////
+//        String json = new Gson().toJson("");
+//
+//        System.out.println(json);
+//        ByteArrayInputStream jsonDataStream = new ByteArrayInputStream(json.getBytes());
+//
+//        JsonDataSource ds = new JsonDataSource(jsonDataStream);
+//
 //        JasperPrint jp = JasperFillManager.fillReport(jasper.getPath(), null, ds);
 //        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-//        response.addHeader("Content-disposition", "attachment; filename=Reporte.pdf");
-//        try (ServletOutputStream stream = response.getOutputStream()) {
-//            JasperExportManager.exportReportToPdfStream(jp, stream);
-//        }
+//        response.addHeader("Content-disposition", "attachment; filename=PruebaExcel.xls");
+//
+//        ServletOutputStream stream = response.getOutputStream();
+//        JRXlsExporter exporter = new JRXlsExporter();
+//        exporter.setParameter(JRXlsExporterParameter.JASPER_PRINT, jp);
+//        exporter.setParameter(JRXlsExporterParameter.OUTPUT_STREAM, stream);
+//        exporter.setParameter(JRXlsExporterParameter.IS_ONE_PAGE_PER_SHEET, Boolean.FALSE);
+//        exporter.setParameter(JRXlsExporterParameter.IS_DETECT_CELL_TYPE, Boolean.TRUE);
+//        exporter.setParameter(JRXlsExporterParameter.IS_WHITE_PAGE_BACKGROUND, Boolean.FALSE);
+//        exporter.setParameter(JRXlsExporterParameter.IS_REMOVE_EMPTY_SPACE_BETWEEN_ROWS, Boolean.TRUE);
+//        exporter.exportReport();
+//        stream.flush();
+//
 //        FacesContext.getCurrentInstance().responseComplete();
 //
 //    }
-    public void exportarExcel() throws IOException, JRException {
-
-        File jasper = new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Reportes/PruebaExcel.jasper"));
-
-        System.out.println("Mauricio = " + jasper.getPath());
-
-// Ajustar Json
-//        List<ReportePrueba> listReporte = new ArrayList();
-//
-//        for (int i = 0; i < 10; i++) {
-//            ReportePrueba r = new ReportePrueba(i, "Nombre" + i, "Apellido" + i, "Direccion" + i, "Telefono" + i);
-//            listReporte.add(r);
-//        }
-//
-        String json = new Gson().toJson("");
-
-        System.out.println(json);
-        ByteArrayInputStream jsonDataStream = new ByteArrayInputStream(json.getBytes());
-
-        JsonDataSource ds = new JsonDataSource(jsonDataStream);
-
-        JasperPrint jp = JasperFillManager.fillReport(jasper.getPath(), null, ds);
-        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-        response.addHeader("Content-disposition", "attachment; filename=PruebaExcel.xls");
-
-        ServletOutputStream stream = response.getOutputStream();
-        JRXlsExporter exporter = new JRXlsExporter();
-        exporter.setParameter(JRXlsExporterParameter.JASPER_PRINT, jp);
-        exporter.setParameter(JRXlsExporterParameter.OUTPUT_STREAM, stream);
-        exporter.setParameter(JRXlsExporterParameter.IS_ONE_PAGE_PER_SHEET, Boolean.FALSE);
-        exporter.setParameter(JRXlsExporterParameter.IS_DETECT_CELL_TYPE, Boolean.TRUE);
-        exporter.setParameter(JRXlsExporterParameter.IS_WHITE_PAGE_BACKGROUND, Boolean.FALSE);
-        exporter.setParameter(JRXlsExporterParameter.IS_REMOVE_EMPTY_SPACE_BETWEEN_ROWS, Boolean.TRUE);
-        exporter.exportReport();
-        stream.flush();
-
-        FacesContext.getCurrentInstance().responseComplete();
-
-    }
 
     public void prepareCrud(Inventario objecto, int condicion) {
         setObjInventario(null);
@@ -302,30 +230,16 @@ public class InventarioControlador {
             switch (this.evento) {
                 case "Nuevo":
                     Resulta = InventarioService.Transaccion(objInventario, "Nuevo");
-                    mns = "Deposito Creado exitosamente";
+                    mns = "Inventario Creado Exisitosamente";
                     break;
                 case "Eliminar":
                     Resulta = InventarioService.Transaccion(objInventario, "Borrar");
-                    mns = "Deposito Eliminado exitosamente";
+                    mns = "Inventario Eliminado";
                     break;
                 case "Editar":
                     Resulta = InventarioService.Transaccion(objInventario, "Editar");
-                    mns = "Deposito Editado exitosamente";
+                    mns = "Inventario Editado";
                     break;
-                case "Reporte": {
-                    try {
-                        Resulta = SelService.PDFDescargar2("reporte");
-                    } catch (IOException ex) {
-                        System.out.println("Error reporte");
-                        Logger.getLogger(InventarioControlador.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-                mns = "Reporte";
-                break;
-//                case "Buscar":
-//                    Resulta = InventarioService.buscarDoc(objInventario);
-//                    break;
-
             }
             if (Resulta[0].equals("OK")) {
                 if (evento.equalsIgnoreCase("Buscar")) {

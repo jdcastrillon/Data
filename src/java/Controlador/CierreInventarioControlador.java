@@ -554,14 +554,14 @@ public class CierreInventarioControlador {
                     ProcesoDatosDT prdDt = new ProcesoDatosDT();
                     Map<String, Object> map = ObjIni.fromJson(jsonElement);
                     prdDt.setNro_proceso(new BigDecimal(map.get("nro_proceso").toString()).intValue());
-                    prdDt.setBodega(map.get("bodega").toString());
-                    prdDt.setCategoria(map.get("categoria").toString());
-                    prdDt.setSub_categoria(map.get("sub_categoria").toString());
+//                    prdDt.setBodega(map.get("bodega").toString());
+//                    prdDt.setCategoria(map.get("categoria").toString());
+//                    prdDt.setSub_categoria(map.get("sub_categoria").toString());
                     prdDt.setCod_articulo(new BigDecimal(map.get("cod_articulo").toString()).intValue());
                     prdDt.setNom_articulo(map.get("nom_articulo").toString());
+//                    prdDt.setStock(new BigDecimal(map.get("stock").toString()).intValue());
                     prdDt.setStock(new BigDecimal(map.get("stock").toString()).intValue());
                     prdDt.setCantidad(new BigDecimal(map.get("cantidad").toString()).intValue());
-                    prdDt.setConteo(new BigDecimal(map.get("conteo").toString()).intValue());
                     prdDt.setAjuste(new BigDecimal(map.get("ajuste").toString()).intValue());
                     prdDt.setLinea(new BigDecimal(map.get("linea").toString()).intValue());
                     listProDatosDT.add(prdDt);

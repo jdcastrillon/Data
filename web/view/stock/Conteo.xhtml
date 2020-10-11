@@ -63,7 +63,7 @@
         <div class="ui-g">
             <div class="ui-g-12">
                 <div class="card card-w-title">
-                    <p:panel  id="paneldoc" header="Conteo de Inventario" toggleable="true"
+                    <p:panel  id="paneldoc" header="Descarga Inventario" toggleable="true"
                               collapsed="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px"> 
                         <h:form id="formConteoD">
                             <p:dialog header="" widgetVar="inventario"  modal="true" width="600">
@@ -150,7 +150,7 @@
                                                 </center>
                                             </div>
                                             <div class="ui-g-2 ui-md-3">
-                                                <h:outputText value="Cod. Conteo :"></h:outputText>
+                                                <h:outputText value="Cod. Descarga :"></h:outputText>
                                             </div>
                                             <div class="ui-g-10 ui-md-9">
                                                 <p:inputText  value="#{conteoControlador.objConteo.nro_conteo}" disabled="true"></p:inputText>
@@ -171,7 +171,6 @@
                                             </div>
                                             <div class="ui-g-10 ui-md-9">
                                                 <p:selectOneMenu id="Depositos" value="#{conteoControlador.objConteo.cod_deposito}" disabled="#{conteoControlador.aceptar}">                                                   
-                                                    <f:selectItem itemLabel="Seleccione" itemValue="0" />
                                                     <f:selectItems value="#{conteoControlador.listDepositos}" var="depo" itemValue="#{depo.cod_deposito}" itemLabel="#{depo.nom_deposito}"></f:selectItems> 
                                                 </p:selectOneMenu>
                                             </div>  
@@ -208,46 +207,9 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="ui-g ui-fluid form-group">
-                                        <div class="ui-g-12 ui-md-10">
-                                            <div class="ui-g-2 ui-md-1">
-                                                <h:outputText value="Articulo"></h:outputText>
-                                            </div>
-                                            <div class="ui-g-10 ui-md-8">                                                
-                                                <p:autoComplete id="articulo" value="#{conteoControlador.objArticulo}" 
-                                                                completeMethod="#{conteoControlador.articulos}" 
-                                                                var="articulo" itemLabel="#{articulo.nom_articulo}" 
-                                                                itemValue="#{articulo}" forceSelection="true"
-                                                                converter="converarticulos"
-                                                                dropdown="true"
-                                                                disabled="#{conteoControlador.aceptar}" style="color: black">
-                                                    <p:ajax event="itemSelect" listener="#{conteoControlador.cargaArticulo()}" update="listArti,articulo" />
-                                                </p:autoComplete>
-                                            </div>
-                                        </div>
-                                        <div class="ui-g-12 ui-md-5"></div>
-                                    </div>  
+                                    
 
-                                    <p:dataTable id="listArti" var="articulos" value="#{conteoControlador.objConteo.detalleCont}">
-
-                                        <p:column headerText="Codigo" style="width: 15%">
-                                            <h:outputText value="#{articulos.cod_articulo}" />
-                                        </p:column>
-
-                                        <p:column headerText="Nombre" style="width: 35%">
-                                            <h:outputText value="#{articulos.nom_articulo}" />
-                                        </p:column>
-
-
-                                        <p:column headerText="Operaciones" style="width: 10%">
-                                            <center>
-                                                <p:commandButton icon="ui-icon-clear" style="background-color: red" 
-                                                                 action="#{conteoControlador.eliminarArticuloGrilla(articulos)}"  ajax="true" update="listArti"> </p:commandButton>
-                                            </center>
-                                        </p:column>
-
-
-                                    </p:dataTable> 
+                                   
                                 </p:tab>
                                 <p:tab title="Log">
                                     <p:dataTable var="log" value="#{conteoControlador.objConteo.logs}">

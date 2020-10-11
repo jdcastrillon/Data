@@ -21,6 +21,7 @@ public class Inventario implements Serializable {
     private String cod_emp;
     private String fec_doc;
     private String observacion;
+    private String estado_inventario;
     private int cod_log;
 
     transient Date fecha;
@@ -82,7 +83,6 @@ public class Inventario implements Serializable {
     public void setLogs(List<Log_Transaccion> logs) {
         this.logs = logs;
     }
-    
 
     public int getNro_conteo() {
         return nro_conteo;
@@ -90,6 +90,14 @@ public class Inventario implements Serializable {
 
     public void setNro_conteo(int nro_conteo) {
         this.nro_conteo = nro_conteo;
+    }
+
+    public String getEstado_inventario() {
+        return estado_inventario;
+    }
+
+    public void setEstado_inventario(String estado_inventario) {
+        this.estado_inventario = estado_inventario;
     }
 
 }

@@ -190,7 +190,7 @@ public class ProcesoDatosControlador {
                 Iterator<Row> rowIterator = sheet.rowIterator();
                 while (rowIterator.hasNext()) {
                     Row row = rowIterator.next();
-                    if (row.getRowNum() > 2) {
+                    if (row.getRowNum() > 5) {
                         StringBuilder sb = new StringBuilder();
                         // For each row, iterate through each columns
                         Iterator<Cell> cellIterator = row.cellIterator();
@@ -483,7 +483,6 @@ public class ProcesoDatosControlador {
         System.out.println("Orden de compra : " + objInvetario.toString());
         objProDatos.setCod_emp(objInvetario.getCod_emp());
         objProDatos.setNro_inventario(objInvetario.getNro_inventario());
-
         objProDatos.setNro_conteo(objInvetario.getNro_conteo());
         JsonArray conteo = ObjIni.listObjectos("select count(nro_proceso)+1 conteo from t_pro_datos where nro_inventario=" + objInvetario.getNro_inventario());
 

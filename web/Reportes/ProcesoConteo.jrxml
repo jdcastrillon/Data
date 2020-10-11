@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Prueba" language="groovy" pageWidth="571" pageHeight="752" columnWidth="571" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="f9d0f335-d265-4b03-ab95-6629691939c1">
-	<property name="ireport.zoom" value="5.0"/>
+	<property name="ireport.zoom" value="2.0"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
 	<queryString language="json">
@@ -8,17 +8,26 @@
 	</queryString>
 	<field name="cod_articulo" class="java.lang.String"/>
 	<field name="cantidad" class="java.lang.Integer"/>
-	<field name="nom_deposito" class="java.lang.String"/>
+	<field name="cod_tit" class="java.lang.String"/>
 	<field name="titulo" class="java.lang.String"/>
-	<field name="titulo2" class="java.lang.String"/>
+	<field name="tit_inventario" class="java.lang.String"/>
 	<field name="nom_articulo" class="java.lang.String"/>
-	<field name="nom_categoria" class="java.lang.String"/>
-	<field name="nom_subcategoria" class="java.lang.String"/>
+	<field name="categoria" class="java.lang.String"/>
+	<field name="subcategoria" class="java.lang.String"/>
+	<field name="tit_descarga" class="java.lang.String"/>
+	<field name="tit_conteo" class="java.lang.String"/>
+	<field name="tit_bodega" class="java.lang.String"/>
+	<field name="tit_nombodega" class="java.lang.String"/>
+	<field name="tit_categoria" class="java.lang.String"/>
+	<field name="tit_nomcategoria" class="java.lang.String"/>
+	<field name="tit_subcategoria" class="java.lang.String"/>
+	<field name="tit_nomsubcate" class="java.lang.String"/>
+	<field name="cantidad2" class="java.lang.Integer"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
 	<title>
-		<band height="39" splitType="Stretch">
+		<band height="100" splitType="Stretch">
 			<textField isBlankWhenNull="true">
 				<reportElement x="0" y="0" width="571" height="20" uuid="275d75b5-0d4e-4b8b-b841-90efc5179d35"/>
 				<textElement textAlignment="Center">
@@ -27,60 +36,110 @@
 				<textFieldExpression><![CDATA[$F{titulo}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="0" y="19" width="571" height="20" uuid="9ecaf3cb-6ad5-4245-b6f7-88ce8444ca8c"/>
+				<reportElement x="0" y="20" width="217" height="20" uuid="9ecaf3cb-6ad5-4245-b6f7-88ce8444ca8c"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{titulo2}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{tit_inventario}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="40" width="217" height="20" uuid="10ba2c2c-f16b-4741-9bfe-bdf8ea02d8e5"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tit_bodega}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="60" width="217" height="20" uuid="5ea02e6a-b75e-4ec9-954f-60e8bb8f7667"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tit_categoria}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="80" width="217" height="20" uuid="c7091a00-0db2-4c51-829f-73506a91ed8f"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tit_subcategoria}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="217" y="80" width="354" height="20" uuid="5400cdf8-f04c-41ff-80a0-28d901ea358d"/>
+				<textElement>
+					<font isBold="true"/>
+					<paragraph tabStopWidth="41"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tit_nomsubcate}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="217" y="60" width="354" height="20" uuid="88767184-9f3e-43f2-aa8d-7d356b1e29ff"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tit_nomcategoria}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="217" y="40" width="354" height="20" uuid="a303781e-97a0-432d-bad3-395563b5c823"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tit_nombodega}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="217" y="20" width="354" height="20" uuid="cff1da65-97dd-406c-8cbd-c17451cb1908"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tit_descarga}]]></textFieldExpression>
 			</textField>
 		</band>
 	</title>
 	<pageHeader>
 		<band height="20" splitType="Stretch">
 			<staticText>
-				<reportElement x="274" y="0" width="78" height="20" uuid="01309a0a-9721-4890-b35e-a07cc6c94968"/>
+				<reportElement x="217" y="0" width="78" height="20" uuid="01309a0a-9721-4890-b35e-a07cc6c94968"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Cod Articulo]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="351" y="0" width="134" height="20" uuid="1cc8bbe3-ae43-4e4f-aefa-2d7ed8cefe1e"/>
+				<reportElement x="295" y="0" width="160" height="20" uuid="1cc8bbe3-ae43-4e4f-aefa-2d7ed8cefe1e"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Descripcion]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="484" y="0" width="48" height="20" uuid="3a2e2db5-02a9-47fb-aaf8-64eaaaeff6c3"/>
+				<reportElement x="455" y="0" width="60" height="20" uuid="3a2e2db5-02a9-47fb-aaf8-64eaaaeff6c3"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Cantidad]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="531" y="0" width="40" height="20" uuid="acd427c0-8558-429f-bac1-f8e9c7ae7053"/>
+				<reportElement x="515" y="0" width="56" height="20" uuid="acd427c0-8558-429f-bac1-f8e9c7ae7053"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Conteo]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="198" y="0" width="77" height="20" uuid="18ab8659-cdac-403c-a5a3-81e41d0fc78b"/>
+				<reportElement x="130" y="0" width="87" height="20" uuid="18ab8659-cdac-403c-a5a3-81e41d0fc78b"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[SubCategoria]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="99" y="0" width="100" height="20" uuid="d8cc77b3-71f7-4570-bcb0-7e973f941cb0"/>
+				<reportElement x="67" y="0" width="63" height="20" uuid="d8cc77b3-71f7-4570-bcb0-7e973f941cb0"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Categoria]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="-1" y="0" width="101" height="20" uuid="6428c840-a58b-4705-a1d2-48395691f36d"/>
+				<reportElement x="0" y="0" width="67" height="20" uuid="6428c840-a58b-4705-a1d2-48395691f36d"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
@@ -91,42 +150,36 @@
 	<detail>
 		<band height="20" splitType="Stretch">
 			<textField isBlankWhenNull="true">
-				<reportElement x="0" y="0" width="100" height="20" uuid="19be0822-57e7-48a6-9329-0c88d5916384"/>
-				<textFieldExpression><![CDATA[$F{nom_deposito}]]></textFieldExpression>
+				<reportElement x="0" y="0" width="67" height="20" uuid="19be0822-57e7-48a6-9329-0c88d5916384"/>
+				<textFieldExpression><![CDATA[$F{cod_tit}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="351" y="0" width="134" height="20" uuid="8b884f80-8db8-4015-bf83-8930869e0656"/>
+				<reportElement x="295" y="0" width="160" height="20" uuid="8b884f80-8db8-4015-bf83-8930869e0656"/>
 				<textFieldExpression><![CDATA[$F{nom_articulo}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="484" y="0" width="48" height="20" uuid="2fa8a38e-494b-4bc3-8f89-93465932b829"/>
+				<reportElement x="455" y="0" width="60" height="20" uuid="2fa8a38e-494b-4bc3-8f89-93465932b829"/>
 				<textFieldExpression><![CDATA[$F{cantidad}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="99" y="0" width="100" height="20" uuid="88a4227c-2d38-41d0-88f1-c61efab2b0fd"/>
-				<textFieldExpression><![CDATA[$F{nom_categoria}]]></textFieldExpression>
+				<reportElement x="67" y="0" width="63" height="20" uuid="88a4227c-2d38-41d0-88f1-c61efab2b0fd"/>
+				<textFieldExpression><![CDATA[$F{categoria}]]></textFieldExpression>
 			</textField>
-			<staticText>
-				<reportElement x="198" y="0" width="77" height="20" uuid="a92b9f7b-2530-4d00-971d-7518bba40073"/>
-				<text><![CDATA[$F{nom_subcategoria}]]></text>
-			</staticText>
 			<textField isBlankWhenNull="true">
-				<reportElement x="274" y="0" width="78" height="20" uuid="c49a2f3a-3a9f-4ce8-8bef-6c9e0d4e1240"/>
+				<reportElement x="217" y="0" width="78" height="20" uuid="c49a2f3a-3a9f-4ce8-8bef-6c9e0d4e1240"/>
 				<textFieldExpression><![CDATA[$F{cod_articulo}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="531" y="0" width="40" height="20" uuid="7fa22cf8-4ab2-436e-b834-ad89f40a4d3f"/>
-				<textFieldExpression><![CDATA[$F{cantidad}]]></textFieldExpression>
+				<reportElement x="515" y="0" width="56" height="20" uuid="7fa22cf8-4ab2-436e-b834-ad89f40a4d3f"/>
+				<textFieldExpression><![CDATA[$F{cantidad2}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="130" y="0" width="87" height="20" uuid="6632ec77-812a-40a3-b0a9-3ae7e484b83e"/>
+				<textFieldExpression><![CDATA[$F{subcategoria}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>
-	<columnFooter>
-		<band height="28" splitType="Stretch"/>
-	</columnFooter>
-	<pageFooter>
-		<band height="22" splitType="Stretch"/>
-	</pageFooter>
 	<summary>
-		<band height="14" splitType="Stretch"/>
+		<band splitType="Stretch"/>
 	</summary>
 </jasperReport>

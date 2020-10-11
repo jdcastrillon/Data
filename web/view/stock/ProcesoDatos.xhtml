@@ -86,7 +86,7 @@
 
                                 <p:dataTable var="inven" value="#{procesoDatosControlador.listInventario}"
                                              selectionMode="single" 
-                                             selection="#{procesoDatosControlador.objInvetario}" rowKey="#{inven.nro_inventario}">
+                                             selection="#{procesoDatosControlador.objInvetario}" rowKey="#{inven.nro_conteo}">
                                     <f:facet name="header">
                                         Inventarios 
                                     </f:facet>
@@ -102,7 +102,7 @@
                                         <h:outputText value="#{inven.nro_inventario}" />
                                     </p:column>
 
-                                    <p:column headerText="Nro. Conteo" style="width: 20%">
+                                    <p:column headerText="Nro. Descarga" style="width: 20%">
                                         <h:outputText value="#{inven.nro_conteo}" />
                                     </p:column>
                                 </p:dataTable> 
@@ -195,7 +195,7 @@
 
                                         <div class="ui-g-12 ui-md-6">
                                             <div class="ui-g-2 ui-md-3">
-                                                <h:outputText value="Cod. Conteo :"></h:outputText>
+                                                <h:outputText value="Cod. Descarga :"></h:outputText>
                                             </div>
                                             <div class="ui-g-10 ui-md-9">
                                                 <p:inputText  value="#{procesoDatosControlador.objProcesoDatos.nro_conteo}" disabled="true"></p:inputText>
@@ -226,11 +226,11 @@
                                         </p:column>
 
                                         <p:column headerText="Stock" style="width: 15%">
-                                            <h:outputText value="#{detalle.cantidad}" />
+                                            <h:outputText value="#{detalle.stock}" />
                                         </p:column>
 
                                         <p:column headerText="Cantidad" style="width: 15%">
-                                            <h:outputText value="#{detalle.conteo}" />
+                                            <h:outputText value="#{detalle.cantidad}" />
                                         </p:column>
 
                                         <p:column headerText="Ajuste" style="width: 15%">

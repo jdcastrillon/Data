@@ -19,15 +19,15 @@ public class ProcesoDatosDT implements Serializable {
     private String sub_categoria;
     private int cod_articulo;
     private String nom_articulo;
+    private int stock;
     private int cantidad;
-    private int conteo;
     private int ajuste;
     private int linea;
 
     public ProcesoDatosDT() {
     }
 
-    public ProcesoDatosDT(int nro_proceso, String bodega, String categoria, String sub_categoria, int cod_articulo, String nom_articulo, int cantidad, int conteo, int ajuste) {
+    public ProcesoDatosDT(int nro_proceso, String bodega, String categoria, String sub_categoria, int cod_articulo, String nom_articulo, int stock, int cantidad, int ajuste) {
         this.nro_proceso = nro_proceso;
         this.bodega = bodega;
         this.categoria = categoria;
@@ -35,7 +35,7 @@ public class ProcesoDatosDT implements Serializable {
         this.cod_articulo = cod_articulo;
         this.nom_articulo = nom_articulo;
         this.cantidad = cantidad;
-        this.conteo = conteo;
+        this.stock = stock;
         this.ajuste = ajuste;
     }
 
@@ -115,12 +115,12 @@ public class ProcesoDatosDT implements Serializable {
         this.sub_categoria = sub_categoria;
     }
 
-    public int getConteo() {
-        return conteo;
+    public int getStock() {
+        return stock;
     }
 
-    public void setConteo(int conteo) {
-        this.conteo = conteo;
+    public void setStock(int stock) {
+        this.stock = stock;
     }
 
 }

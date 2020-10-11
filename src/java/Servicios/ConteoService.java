@@ -54,7 +54,7 @@ public class ConteoService implements Serializable {
 
     public Object[] Transaccion(Conteo obj, String accion) {
         System.out.println("Entro a Servicio " + obj.toString());
-        Object Resulta[] = new Object[3];
+        Object Resulta[] = new Object[8];
         try {
             List<objsql> transacciones = new ArrayList();
 
@@ -101,11 +101,22 @@ public class ConteoService implements Serializable {
             System.out.println(":" + map.get("mns").toString());
             Resulta[0] = map.get("estado");
             Resulta[1] = map.get("mns").toString().indexOf("#imp") > 0 ? map.get("mns").toString().substring(12, 100) : map.get("mns");
-            Resulta[2] = "Inventario:" + obj.getNro_inventario() + " Conteo:" + obj.getNro_conteo();
+            Resulta[2] = "Inventario :" + obj.getNro_inventario();
+            Resulta[3] = "Descarga :" + obj.getNro_conteo();
+            Resulta[4] = "Categoria :" + (obj.getCod_categoria().equalsIgnoreCase("0") ? "TODOS" : obj.getCod_categoria());
+            Resulta[5] = obj.getNom_Categoria();
+            Resulta[6] = "SubCategoria : " + (obj.getCod_subcategoria().equalsIgnoreCase("0") ? "TODOS" : obj.getCod_subcategoria());
+            Resulta[7] = obj.getNom_subcategoria();
+
         } catch (JsonSyntaxException ex) {
             Resulta[0] = "Error";
             Resulta[1] = "Comuniquese con soporte";
             Resulta[2] = "";
+            Resulta[3] = "";
+            Resulta[4] = "";
+            Resulta[5] = "";
+            Resulta[6] = "";
+            Resulta[7] = "";
         }
 
         return Resulta;
