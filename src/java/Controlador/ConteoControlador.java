@@ -193,10 +193,10 @@ public class ConteoControlador {
         if (reporte) {
             File jasper = new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Reportes/ProcesoConteo.jasper"));
 
-            String consulta = "select 'Inventario '||D.nom_emp as titulo,'"+titulos_reporte[2]+"' as tit_inventario,'"+titulos_reporte[3]+"' as tit_descarga, \n"
+            String consulta = "select 'Inventario '||D.nom_emp as titulo,'" + titulos_reporte[2] + "' as tit_inventario,'" + titulos_reporte[3] + "' as tit_descarga, \n"
                     + "'Bodega : '||A.cod_tit as tit_bodega,C.nom_deposito as tit_nombodega,\n"
-                    + "'"+titulos_reporte[4]+"' as tit_categoria,'"+titulos_reporte[5]+"' as tit_nomcategoria,\n"
-                    + "'"+titulos_reporte[6]+"' as tit_subcategoria,'"+titulos_reporte[7]+"' as tit_nomsubcate,\n"
+                    + "'" + titulos_reporte[4] + "' as tit_categoria,'" + titulos_reporte[5] + "' as tit_nomcategoria,\n"
+                    + "'" + titulos_reporte[6] + "' as tit_subcategoria,'" + titulos_reporte[7] + "' as tit_nomsubcate,\n"
                     + "A.cod_tit,\n"
                     + "B.categoria,B.subcategoria,\n"
                     + "B.codigo as cod_articulo,B.nom_articulo,A.cantidad,0 as cantidad2 \n"
@@ -205,17 +205,19 @@ public class ConteoControlador {
                     + "left join m_empresa D on A.cod_emp=D.cod_emp\n"
                     + "left join m_categoria E on B.categoria=E.cod_Categoria\n"
                     + "left join m_subcategoria F on B.subcategoria=F.cod_subcategoria\n"
-                    + "where A.cod_emp='"+objConteo.getCod_emp()+"' and cod_estado='Disponible'"
-                    + " and A.cod_tit='"+objConteo.getCod_deposito()+"'";
+                    + "where A.cod_emp='" + objConteo.getCod_emp() + "' and cod_estado='Disponible'"
+                    + " and A.cod_tit='" + objConteo.getCod_deposito() + "' AND ";
 
             //Condiciones
-//            if (!objConteo.getCod_deposito().equalsIgnoreCase("0")) {
-//                consulta += " A.cod_tit='" + objConteo.getCod_deposito() + "'";
-//            }
-//
-//            if (!objConteo.getCod_categoria().equalsIgnoreCase("0")) {
-//
-//            }
+            if (!objConteo.getCod_categoria().equalsIgnoreCase("0")) {
+                consulta += " B.categoria='" + objConteo.getCod_categoria() + "' AND";
+            }
+            if (!objConteo.getCod_subcategoria().equalsIgnoreCase("0")) {
+                consulta += " B.subcategoria='" + objConteo.getCod_subcategoria() + "' AND";
+            }
+
+            consulta += " 1=1 ";
+
             String String_json = SelService.ConsultaIreport(consulta);
             System.out.println("" + String_json.replace("\\", "").replace("\"[", "[").replace("]\"", "]"));
 
@@ -226,7 +228,7 @@ public class ConteoControlador {
 
             JasperPrint jp = JasperFillManager.fillReport(jasper.getPath(), null, ds);
             HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-            response.addHeader("Content-disposition", "attachment; filename=Inventario.xls");
+            response.addHeader("Content-disposition", "attachment; filename="+titulos_reporte[8]+".xls");
 
             ServletOutputStream stream = response.getOutputStream();
             JRXlsExporter exporter = new JRXlsExporter();
@@ -283,7 +285,7 @@ public class ConteoControlador {
     }
 
     public void transaccion() {
-        Object Resulta[] = new Object[8];
+        Object Resulta[] = new Object[9];
         String mns = "";
         if (validaciones()) {
             switch (this.evento) {
@@ -343,26 +345,37 @@ public class ConteoControlador {
     public boolean validaciones() {
         getObjConteo();
         String mns = "";
-        System.out.println(" aceptar : " + aceptar);
-        System.out.println(" editar : " + editar);
-        System.out.println(" eliminar : " + eliminar);
-        System.out.println(" nuevo : " + nuevo);
-        System.out.println(" buscar : " + buscar);
-        System.out.println("objConteo " + objConteo);
         if (this.nuevo == false) {
             if (objConteo.getCod_deposito().equals("0")) {
                 mns = "Debe seleccionar una bodega";
             }
             //Validaciones
-//            if (ObjVal.ValPrimaryKey("select count(*) from m_tipodocumentos where cod_tipodoc='" + objConteo.getCod_tipodoc() + "'")) {
-//                mns = "El codigo del documento ya existe";
-//            }
+            if (ObjVal.ValPrimaryKey("select count(*) from t_pro_conteo where nro_inventario=2\n"
+                    + "and cod_deposito='" + objConteo.getCod_deposito() + "' "
+                    + "and cod_categoria='0' "
+                    + "and cod_subcategoria='0'")) {
+                mns = "Ya se descargo el inventario para esa Bodega";
+            } else if (ObjVal.ValPrimaryKey("select count(*) from t_pro_conteo where nro_inventario=2\n"
+                    + "and cod_deposito='" + objConteo.getCod_deposito() + "' "
+                    + "and cod_categoria='" + objConteo.getCod_categoria() + "' "
+                    + "and cod_subcategoria='0'")) {
+                mns = "Ya se descargo el inventario para esa Bodega y Categoria";
+            } else if (ObjVal.ValPrimaryKey("select count(*) from t_pro_conteo where nro_inventario=2\n"
+                    + "and cod_deposito='" + objConteo.getCod_deposito() + "' "
+                    + "and cod_categoria='" + objConteo.getCod_categoria() + "' "
+                    + "and cod_subcategoria='" + objConteo.getCod_subcategoria() + "'")) {
+                mns = "Ya se descargo el inventario para esa Bodega,Categoria y subcategoria";
+            }
         }
+
         System.out.println("mns : " + mns);
-        if (mns.length() > 0) {
+        if (mns.length()
+                > 0) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Info", mns));
         }
-        return mns.length() <= 0;
+
+        return mns.length()
+                <= 0;
 
     }
 

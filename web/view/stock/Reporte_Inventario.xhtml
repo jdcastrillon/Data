@@ -1,0 +1,259 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templet/template.xhtml">
+
+    <ui:define name="title">Dashboard</ui:define>
+
+    <ui:define name="head">
+        <script type="text/javascript">
+            //<![CDATA[
+            function skinChart() {
+                this.cfg.shadow = false;
+                this.cfg.title = '';
+                this.cfg.seriesColors = ['#FFC107', '#03A9F4'];
+                this.cfg.grid = {
+                    background: '#ffffff',
+                    borderColor: '#ffffff',
+                    gridLineColor: '#EEEEEE',
+                    shadow: false
+                };
+                this.cfg.axesDefaults = {
+                    rendererOptions: {
+                        textColor: '#212121'
+                    }
+                };
+                this.cfg.seriesDefaults = {
+                    shadow: false,
+                    lineWidth: 1,
+                    markerOptions: {
+                        shadow: false,
+                        size: 7,
+                        style: 'circle'
+                    }
+                }
+            }
+
+            //]]>  
+        </script>
+        <style type="text/css">
+            .main-content {
+                padding: 0;
+            }
+        </style>
+        <style type="text/css">
+            .knob-container {
+                display: inline-block;
+                padding: 10px;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card card-w-title">
+                    <p:panel id="paneldoc" header="Reporte Inventario" toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+                        <h:form id="RepDispo">
+                            <p:growl id="growl" showDetail="true" life="5000" />  
+                            <p:tabView >
+                                <p:tab title="Filtros Generales">
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Empresa :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:selectOneMenu value="#{reporte_Inventario.objInventario.cod_emp}" > 
+                                                    <f:selectItems value="#{reporte_Inventario.listEmpresas}" var="emp" itemValue="#{emp.cod_emp}" itemLabel="#{emp.nom_emp}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Inventario :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:selectOneMenu id="Depositos" value="#{reporte_Inventario.objInventario.nro_inventario}" >                                                   
+                                                    <f:selectItem itemLabel="Todos" itemValue="0" />
+                                                    <f:selectItems value="#{reporte_Inventario.listInventario}" 
+                                                                   var="inve" itemValue="#{inve.nro_inventario}" itemLabel="#{inve.observacion}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Estado :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:selectOneMenu id="Estado" value="#{reporte_Inventario.objInventario.estado}" >                                                   
+                                                    <f:selectItem itemLabel="Todos" itemValue="0" />
+                                                    <f:selectItem itemLabel="Cerrado" itemValue="C" />
+                                                    <f:selectItem itemLabel="Abierto" itemValue="A" />
+                                                </p:selectOneMenu>
+                                            </div>
+                                        </div>
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-12 ui-md-4">
+                                                <h:outputText value="Bodega :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-8">                                                
+                                                <p:selectOneMenu value="#{reporte_Inventario.objInventario.cod_categoria}" >
+                                                    <p:ajax listener="#{reporte_Inventario.cargarSubCategorias()}" update="subcategoria" />
+                                                    <f:selectItem itemLabel="No Aplica" itemValue="0" />
+                                                    <f:selectItems value="#{reporte_Inventario.listDepositos}" var="depo" itemValue="#{depo.cod_deposito}" itemLabel="#{depo.nom_deposito}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>      
+                                            <div class="ui-g-12 ui-md-4">
+                                                <h:outputText value="Categoria :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-8">                                                
+                                                <p:selectOneMenu value="#{reporte_Inventario.objInventario.cod_categoria}" >
+                                                    <p:ajax listener="#{reporte_Inventario.cargarSubCategorias()}" update="subcategoria" />
+                                                    <f:selectItem itemLabel="No Aplica" itemValue="0" />
+                                                    <f:selectItems value="#{reporte_Inventario.listCategoria}" var="cat" itemValue="#{cat.cod_categoria}" itemLabel="#{cat.nom_categoria}" ></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>                                           
+                                            <div class="ui-g-12 ui-md-4">
+                                                <h:outputText value="SubCategoria :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-8">                                                
+                                                <p:selectOneMenu id="subcategoria" value="#{reporte_Inventario.objInventario.cod_subcategoria}">
+                                                    <f:selectItem itemLabel="No Aplica" itemValue="0" />
+                                                    <f:selectItems value="#{reporte_Inventario.listSubCategoria}" var="scat" itemValue="#{scat.cod_subcategoria}" itemLabel="#{scat.nom_subcategoria}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>   
+                                        </div>
+                                    </div>
+                                </p:tab>
+                                <p:tab title="Articulos">
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-10">
+                                            <div class="ui-g-2 ui-md-1">
+                                                <h:outputText value="Articulo"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-8">                                                
+                                                <p:autoComplete id="articulo" value="#{reporte_Inventario.objArticulo}" 
+                                                                completeMethod="#{reporte_Inventario.articulos}" 
+                                                                var="articulo" itemLabel="#{articulo.nom_articulo}" 
+                                                                itemValue="#{articulo}" forceSelection="true"
+                                                                converter="converarticulos"
+                                                                dropdown="true" style="color: black">
+                                                    <p:ajax event="itemSelect" listener="#{reporte_Inventario.cargaArticulo()}" update="listArti,articulo" />
+                                                </p:autoComplete>
+                                            </div>
+                                        </div>
+                                        <div class="ui-g-12 ui-md-5"></div>
+                                    </div>  
+                                    <p:dataTable id="listArti" var="articulos" value="#{reporte_Inventario.objInventario.listArticulos}">
+
+                                        <p:column headerText="Codigo" style="width: 15%">
+                                            <h:outputText value="#{articulos.codigo}" />
+                                        </p:column>
+
+                                        <p:column headerText="Nombre" style="width: 35%">
+                                            <h:outputText value="#{articulos.nom_articulo}" />
+                                        </p:column>
+
+                                        <p:column headerText="Operaciones" style="width: 10%">
+                                            <center>
+                                                <p:commandButton icon="ui-icon-clear" style="background-color: red" 
+                                                                 action="#{reporte_Inventario.eliminarArticuloGrilla(articulos)}"  ajax="true" update="listArti"> </p:commandButton>
+                                            </center>
+                                        </p:column>
+
+
+                                    </p:dataTable> 
+                                </p:tab>
+
+                            </p:tabView>
+
+
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3"> </div>
+                                <div class="ui-g-12 ui-md-6"></div>
+                                <div class="ui-g-12 ui-md-3">
+                                    <div class="ui-g-0 ui-md-4"></div>
+
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Aceptar"  action="#{reporte_Inventario.transaccion()}" 
+                                                         ajax="true" update=":RepDispo :formlistAjus"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{Reporte_StockDisponible.aceptar}"> </p:commandButton>
+                                    </div>
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Cancelar" action="#{reporte_Inventario.cancelarEventos()}" 
+                                                         ajax="true" update=":RepDispo :formlistAjus"
+                                                         style="background-color: #939393" > </p:commandButton>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:form>
+                    </p:panel> 
+                    <br/>
+                    <p:panel id="toggleable" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">   
+                        <h:form id="formlistAjus">
+                            <p:tabView >
+                                <p:tab title="Consulta">
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-12">
+                                            <!--      <div class="ui-g-12 ui-md-12">
+      
+                                                      <p:commandButton value="Export as Excel" ajax="false">
+                                                          <p:dataExporter type="xls" target="disponible" fileName="Reporte Stock Disponible" />
+                                                      </p:commandButton>
+                                                  </div>-->
+                                            <div class="ui-g-12 ui-md-12">
+                                                <p:dataTable id="disponible" var="disponible" value="#{reporte_Inventario.list_ReporteInventario}" 
+                                                             rows="20"
+                                                             paginator="true"
+                                                             paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                                             rowsPerPageTemplate="5,10,15,20">
+
+                                                    <p:column headerText="Bodega" style="width: 20%" >
+                                                        <h:outputText value="#{disponible.nro_inventario}" />
+                                                    </p:column>
+                                                    <p:column headerText="Categoria" style="width: 20%" >
+                                                        <h:outputText value="#{disponible.deposito}" />
+                                                    </p:column>
+                                                    <p:column headerText="Sub Categoria" style="width: 20%" >
+                                                        <h:outputText value="#{disponible.nro_proceso}" />
+                                                    </p:column>
+                                                    <p:column headerText="Estado" style="width: 20%" >
+                                                        <h:outputText value="#{disponible.fec_doc}" />
+                                                    </p:column>
+                                                    <p:column headerText="Cod. Articulo" style="width: 10%" >
+                                                        <h:outputText value="#{disponible.cod_articulo}" />
+                                                    </p:column>
+                                                    <p:column headerText="Descripcion" style="width:40%">
+                                                        <h:outputText value="#{disponible.nom_articulo}" />
+                                                    </p:column>
+                                                    <p:column headerText="Cant 1" style="width:10%">
+                                                        <h:outputText value="#{disponible.cantidad}" />
+                                                    </p:column>
+                                                    <p:column headerText="Cant 2" style="width:10%">
+                                                        <h:outputText value="#{disponible.conteo}" />
+                                                    </p:column>
+                                                    <p:column headerText="Diferencia" style="width:10%">
+                                                        <h:outputText value="#{disponible.ajuste}" />
+                                                    </p:columna
+
+                                                </p:dataTable>  
+                                            </div>
+                                        </div>
+                                    </div>
+                                </p:tab>
+                                <p:tab title="Reporte">
+
+                                </p:tab>
+                            </p:tabView>
+
+                        </h:form>
+                    </p:panel>
+
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+
+

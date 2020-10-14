@@ -54,7 +54,7 @@ public class ConteoService implements Serializable {
 
     public Object[] Transaccion(Conteo obj, String accion) {
         System.out.println("Entro a Servicio " + obj.toString());
-        Object Resulta[] = new Object[8];
+        Object Resulta[] = new Object[9];
         try {
             List<objsql> transacciones = new ArrayList();
 
@@ -107,6 +107,7 @@ public class ConteoService implements Serializable {
             Resulta[5] = obj.getNom_Categoria();
             Resulta[6] = "SubCategoria : " + (obj.getCod_subcategoria().equalsIgnoreCase("0") ? "TODOS" : obj.getCod_subcategoria());
             Resulta[7] = obj.getNom_subcategoria();
+            Resulta[8] = "Inventario("+obj.getNro_inventario()+"_"+obj.getNro_conteo()+")";
 
         } catch (JsonSyntaxException ex) {
             Resulta[0] = "Error";
@@ -117,6 +118,7 @@ public class ConteoService implements Serializable {
             Resulta[5] = "";
             Resulta[6] = "";
             Resulta[7] = "";
+            Resulta[8] = "";
         }
 
         return Resulta;
