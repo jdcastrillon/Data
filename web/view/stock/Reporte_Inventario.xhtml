@@ -96,7 +96,7 @@
                                                 <h:outputText value="Bodega :"></h:outputText>
                                             </div>
                                             <div class="ui-g-12 ui-md-8">                                                
-                                                <p:selectOneMenu value="#{reporte_Inventario.objInventario.cod_categoria}" >
+                                                <p:selectOneMenu value="#{reporte_Inventario.objInventario.deposito}" >
                                                     <p:ajax listener="#{reporte_Inventario.cargarSubCategorias()}" update="subcategoria" />
                                                     <f:selectItem itemLabel="No Aplica" itemValue="0" />
                                                     <f:selectItems value="#{reporte_Inventario.listDepositos}" var="depo" itemValue="#{depo.cod_deposito}" itemLabel="#{depo.nom_deposito}"></f:selectItems> 
@@ -208,16 +208,16 @@
                                                              paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
                                                              rowsPerPageTemplate="5,10,15,20">
 
-                                                    <p:column headerText="Bodega" style="width: 20%" >
+                                                    <p:column headerText="Nro. Inventario" style="width: 10%" >
                                                         <h:outputText value="#{disponible.nro_inventario}" />
                                                     </p:column>
-                                                    <p:column headerText="Categoria" style="width: 20%" >
+                                                    <p:column headerText="Bodega" style="width: 20%" >
                                                         <h:outputText value="#{disponible.deposito}" />
                                                     </p:column>
-                                                    <p:column headerText="Sub Categoria" style="width: 20%" >
+                                                    <p:column headerText="Proceso" style="width: 10%" >
                                                         <h:outputText value="#{disponible.nro_proceso}" />
                                                     </p:column>
-                                                    <p:column headerText="Estado" style="width: 20%" >
+                                                    <p:column headerText="Fecha" style="width: 10%" >
                                                         <h:outputText value="#{disponible.fec_doc}" />
                                                     </p:column>
                                                     <p:column headerText="Cod. Articulo" style="width: 10%" >
@@ -234,7 +234,7 @@
                                                     </p:column>
                                                     <p:column headerText="Diferencia" style="width:10%">
                                                         <h:outputText value="#{disponible.ajuste}" />
-                                                    </p:columna
+                                                    </p:column>
 
                                                 </p:dataTable>  
                                             </div>

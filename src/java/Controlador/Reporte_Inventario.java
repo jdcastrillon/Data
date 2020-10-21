@@ -188,7 +188,7 @@ public class Reporte_Inventario implements Serializable {
         String articulos = "";
 
 //        if (objInventario.getDeposito().equalsIgnoreCase("0")) {
-        consulta = " select A.nro_inventario,E.nom_deposito,B.nro_proceso,A.fec_doc,C.cod_articulo,C.nom_articulo,C.stock,C.cantidad,C.ajuste from t_inventario A inner join t_pro_datos B\n"
+        consulta = " select A.nro_inventario,E.nom_deposito,B.nro_proceso,A.fec_doc,F.codigo,C.nom_articulo,C.stock,C.cantidad,C.ajuste from t_inventario A inner join t_pro_datos B\n"
                 + " on A.nro_inventario=B.nro_inventario\n"
                 + " inner join td_pro_datos C on B.nro_proceso=C.nro_proceso\n"
                 + " inner join t_pro_conteo D on B.nro_conteo=D.nro_conteo\n"
@@ -217,7 +217,7 @@ public class Reporte_Inventario implements Serializable {
             System.out.println("Entro condicion de Estado");
         }
 
-        if (objInventario.getDeposito().equalsIgnoreCase("0")) {
+        if (!objInventario.getDeposito().equalsIgnoreCase("0")) {
             consulta += " D.cod_deposito='" + objInventario.getDeposito() + "' AND ";
             System.out.println("Entro condicion de inventario");
         }
@@ -247,14 +247,14 @@ public class Reporte_Inventario implements Serializable {
                 ReporteInventario stock = new ReporteInventario();
                 Map<String, Object> map = ObjIni.fromJson(jsonElement);
                 stock.setNro_inventario(new BigDecimal(map.get("nro_inventario").toString()).intValue());
-                stock.setDeposito(map.get("nom_categoria").toString());
-                stock.setNro_proceso(new BigDecimal(map.get("cantidad").toString()).intValue());
-                stock.setFec_doc(map.get("codigo").toString());
+                stock.setDeposito(map.get("nom_deposito").toString());
+                stock.setNro_proceso(new BigDecimal(map.get("nro_proceso").toString()).intValue());
+                stock.setFec_doc(map.get("fec_doc").toString());
                 stock.setCod_articulo(map.get("codigo").toString());
                 stock.setNom_articulo(map.get("nom_articulo").toString());
-                stock.setCantidad(new BigDecimal(map.get("cantidad").toString()).intValue());
+                stock.setCantidad(new BigDecimal(map.get("stock").toString()).intValue());
                 stock.setConteo(new BigDecimal(map.get("cantidad").toString()).intValue());
-                stock.setAjuste(new BigDecimal(map.get("cantidad").toString()).intValue());
+                stock.setAjuste(new BigDecimal(map.get("ajuste").toString()).intValue());
 //                stock.setEstado(map.get("cod_estado").toString());
                 list_ReporteInventario.add(stock);
             }

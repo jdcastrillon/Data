@@ -29,6 +29,7 @@ import javax.enterprise.context.ApplicationScoped;
 public class Inicializacion {
 
     ObjectoDao objIni = new ObjectoImp();
+    JsonParser parser = new JsonParser();
     Gson gson = new Gson();
 
     public Inicializacion() {
@@ -39,7 +40,6 @@ public class Inicializacion {
         String respuesta = objIni.QueryObj("SELECT nextval('" + secuencia + "')");
         System.out.println("Respuesta de Secuencia " + respuesta);
         BigDecimal codigoSecuencia = null;
-        JsonParser parser = new JsonParser();
         JsonArray Jelementos = parser.parse(respuesta).getAsJsonArray();
         for (JsonElement jsonElement : Jelementos) {
             Map<String, Object> map = gson.fromJson(jsonElement.getAsString(), new TypeToken<Map<String, Object>>() {
@@ -52,11 +52,10 @@ public class Inicializacion {
         return codigoSecuencia.intValue();
     }
 
-    public int numerador_Controlado(String Empresa,String secuencia) {
-        String respuesta = objIni.QueryObj("select numerador('"+Empresa+"','"+secuencia+"')");
+    public int numerador_Controlado(String Empresa, String secuencia) {
+        String respuesta = objIni.QueryObj("select numerador('" + Empresa + "','" + secuencia + "')");
         System.out.println("Respuesta de Secuencia " + respuesta);
         BigDecimal codigoSecuencia = null;
-        JsonParser parser = new JsonParser();
         JsonArray Jelementos = parser.parse(respuesta).getAsJsonArray();
         for (JsonElement jsonElement : Jelementos) {
             Map<String, Object> map = gson.fromJson(jsonElement.getAsString(), new TypeToken<Map<String, Object>>() {
@@ -73,7 +72,6 @@ public class Inicializacion {
         System.out.println("Consulta : " + consulta);
         String respuesta = objIni.QueryObj(consulta);
         System.out.println("Respuesta : " + respuesta);
-        JsonParser parser = new JsonParser();
         JsonArray Jelementos = parser.parse(respuesta).getAsJsonArray();
         return Jelementos;
     }
@@ -108,7 +106,7 @@ public class Inicializacion {
         BigDecimal codigoSecuencia = BigDecimal.ZERO;
         if (!respuesta.equalsIgnoreCase("[\"No hay Datos\"]")) {
             System.out.println("Entro a no hay datos");
-            JsonParser parser = new JsonParser();
+
             JsonArray Jelementos = parser.parse(respuesta).getAsJsonArray();
             for (JsonElement jsonElement : Jelementos) {
                 Map<String, Object> map = gson.fromJson(jsonElement.getAsString(), new TypeToken<Map<String, Object>>() {
@@ -122,36 +120,29 @@ public class Inicializacion {
         return codigoSecuencia.intValue();
     }
 
-    public double iniCostoArt(String cod_emp, String Provedor, int Articulo) {
-        double costo = 0;
-        List<String> Consultas = new ArrayList();
-        Consultas.add("select imp_costo from sp_costoart where cod_emp='Data' and cod_proveedor='11'\n"
-                + "  and cod_articulo='30'");
-        Consultas.add("select imp_costo from sp_costoart where cod_emp='Data' and cod_proveedor='11'\n"
-                + "  and cod_articulo='30'");
-        System.out.println("Consultas : " + gson.toJson(Consultas));
-        String respuesta = objIni.QueryMultiObj(gson.toJson(Consultas));
-        System.out.println("Respuesta de iniCostoArt " + respuesta);
-        ConsultaMult[] listaObj = gson.fromJson(respuesta, ConsultaMult[].class);
+    public Object[] Compras_Art(String cod_emp, int cod_articulo, String AplicaBodega, String Bodega, int proveedor) {
+        Object Resulta[] = new Object[3];
+        String Consulta = "select stock,costo,impuesto from art_compras('" + cod_emp + "'," + cod_articulo + ",'" + AplicaBodega + "','" + Bodega + "'," + proveedor + ")";
 
-        for (ConsultaMult consultaMult : listaObj) {
-            System.out.println(" - " + consultaMult.toString());
-        }
+        String respuesta = objIni.QueryObj(Consulta);
+        System.out.println("Respuesta de Secuencia " + respuesta);
         BigDecimal codigoSecuencia = BigDecimal.ZERO;
         if (!respuesta.equalsIgnoreCase("[\"No hay Datos\"]")) {
-            System.out.println("Entro a no hay datos");
-            JsonParser parser = new JsonParser();
             JsonArray Jelementos = parser.parse(respuesta).getAsJsonArray();
             for (JsonElement jsonElement : Jelementos) {
                 Map<String, Object> map = gson.fromJson(jsonElement.getAsString(), new TypeToken<Map<String, Object>>() {
                 }.getType());
-                System.out.println("Costo : " + map.get("imp_costo"));
-                //palabra = palabra.substring(0, palabra.indexOf("."));
-                String substring = map.get("imp_costo").toString().substring(0, map.get("imp_costo").toString().indexOf("."));
-                codigoSecuencia = new BigDecimal(substring);
+                System.out.println("Secuencia : " + map.get("cantidad"));
+                Resulta[0] = new BigDecimal(map.get("stock").toString()).intValue();
+                Resulta[1] = new BigDecimal(map.get("costo").toString()).doubleValue();
+                Resulta[2] = new BigDecimal(map.get("impuesto").toString()).intValue();
             }
+        } else {
+            Resulta[0] = 0;
+            Resulta[1] = 0;
+            Resulta[2] = 0;
         }
-        return costo;
+        return Resulta;
     }
 
     public Object[] eventos(String accion) {
@@ -221,6 +212,30 @@ public class Inicializacion {
         acciones[5] = reporte;
 
         return acciones;
+    }
+
+    public ObjectoDao getObjIni() {
+        return objIni;
+    }
+
+    public void setObjIni(ObjectoDao objIni) {
+        this.objIni = objIni;
+    }
+
+    public JsonParser getParser() {
+        return parser;
+    }
+
+    public void setParser(JsonParser parser) {
+        this.parser = parser;
+    }
+
+    public Gson getGson() {
+        return gson;
+    }
+
+    public void setGson(Gson gson) {
+        this.gson = gson;
     }
 
 }

@@ -71,24 +71,24 @@
                                 <div class="ui-g-12 ui-md-3">
                                     <div class="ui-g-2 ui-md-2">
                                         <p:commandButton icon="ui-icon-add"
-                                                         action="#{comprasControlador.prepareNuevo() }" 
+                                                         action="#{comprasDirectControlador.prepareNuevo() }" 
                                                          ajax="true" update=":formocompra :formlistComp"
                                                          style="background-color: #939393" 
-                                                         disabled="#{comprasControlador.nuevo}"></p:commandButton>
+                                                         disabled="#{comprasDirectControlador.nuevo}"></p:commandButton>
                                     </div>
                                     <div class="ui-g-2 ui-md-2">
                                         <p:commandButton icon="ui-icon-create"
-                                                         action="#{comprasControlador.prepareEdit() }" 
+                                                         action="#{comprasDirectControlador.prepareEdit() }" 
                                                          ajax="true" update=":formocompra :formlistComp"
                                                          style="background-color: #939393" 
-                                                         disabled="#{comprasControlador.editar}"></p:commandButton>
+                                                         disabled="#{comprasDirectControlador.editar}"></p:commandButton>
                                     </div>
                                     <div class="ui-g-2 ui-md-2">
                                         <p:commandButton icon="ui-icon-clear"
-                                                         action="#{comprasControlador.prepareEliminar()}" 
+                                                         action="#{comprasDirectControlador.prepareEliminar()}" 
                                                          ajax="true" update=":formocompra :formlistComp"
                                                          style="background-color: #939393" 
-                                                         disabled="#{comprasControlador.eliminar}"></p:commandButton>
+                                                         disabled="#{comprasDirectControlador.eliminar}"></p:commandButton>
                                     </div>
                                 </div>
                             </div>
@@ -100,8 +100,8 @@
                                                 <h:outputText value="Empresa :"></h:outputText>
                                             </div>                                              
                                             <div class="ui-g-10 ui-md-9">                                                
-                                                <p:selectOneMenu value="#{comprasControlador.objCompra.cod_emp}" disabled="#{comprasControlador.aceptar}">
-                                                    <f:selectItems value="#{comprasControlador.listEmpresas}" var="emp" 
+                                                <p:selectOneMenu value="#{comprasDirectControlador.objCompra.cod_emp}" disabled="#{comprasDirectControlador.aceptar}">
+                                                    <f:selectItems value="#{comprasDirectControlador.listEmpresas}" var="emp" 
                                                                    itemValue="#{emp.cod_emp}" itemLabel="#{emp.nom_emp}"></f:selectItems> 
                                                 </p:selectOneMenu>
                                             </div>
@@ -109,10 +109,10 @@
                                                 <h:outputText value="Proveedor :"></h:outputText>
                                             </div>                                              
                                             <div class="ui-g-10 ui-md-9">                                                
-                                                <p:selectOneMenu value="#{comprasControlador.objCompra.cod_provedor}" disabled="#{comprasControlador.aceptar}">
-                                                    <p:ajax listener="#{comprasControlador.cargarPagos()}" update=":formocompra:TabOC:OcPagos" />
+                                                <p:selectOneMenu value="#{comprasDirectControlador.objCompra.cod_provedor}" disabled="#{comprasDirectControlador.aceptar}">
+                                                    <p:ajax listener="#{comprasDirectControlador.cargarPagos()}" update=":formocompra:TabOC:OcPagos" />
                                                     <f:selectItem itemLabel="Seleccione Proveedor" itemValue="0"></f:selectItem>
-                                                    <f:selectItems value="#{comprasControlador.listProveedor}" 
+                                                    <f:selectItems value="#{comprasDirectControlador.listProveedor}" 
                                                                    var="prov" itemValue="#{prov.cod_provedor}" 
                                                                    itemLabel="#{prov.razon_social}"></f:selectItems> 
                                                 </p:selectOneMenu>
@@ -121,10 +121,20 @@
                                                 <h:outputText value="Pago :"></h:outputText>
                                             </div>                                              
                                             <div class="ui-g-10 ui-md-9">                                                
-                                                <p:selectOneMenu id="OcPagos" value="#{comprasControlador.objCompra.cod_fpago}"
-                                                                 disabled="#{comprasControlador.aceptar}">
-                                                    <f:selectItems value="#{comprasControlador.listPagos}" 
+                                                <p:selectOneMenu id="OcPagos" value="#{comprasDirectControlador.objCompra.cod_fpago}"
+                                                                 disabled="#{comprasDirectControlador.aceptar}">
+                                                    <f:selectItems value="#{comprasDirectControlador.listPagos}" 
                                                                    var="pago" itemValue="#{pago.cod_pago}" itemLabel="#{pago.descripcion}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-3">
+                                                <h:outputText value="Bodega :"></h:outputText>
+                                            </div>                                              
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:selectOneMenu value="#{comprasDirectControlador.objCompra.cod_deposito}" disabled="#{comprasDirectControlador.aceptar}">
+                                                    <p:ajax event="change" listener="#{comprasDirectControlador.datosBean()}"></p:ajax>
+                                                    <f:selectItem itemLabel="Seleccione Bodega" itemValue="0"></f:selectItem>
+                                                    <f:selectItems value="#{comprasDirectControlador.listDepositos}" var="depo" itemValue="#{depo.cod_deposito}" itemLabel="#{depo.nom_deposito}"></f:selectItems> 
                                                 </p:selectOneMenu>
                                             </div>
 
@@ -135,20 +145,20 @@
                                                 <h:outputText value="Fecha :"></h:outputText>
                                             </div>
                                             <div class="ui-g-10 ui-md-8">
-                                                <p:calendar id="button" value="#{comprasControlador.objCompra.d_fec_doc}" showOn="button" disabled="#{comprasControlador.aceptar}"
+                                                <p:calendar id="button" value="#{comprasDirectControlador.objCompra.d_fec_doc}" showOn="button" disabled="#{comprasDirectControlador.aceptar}"
                                                             locale="de" navigator="true" pattern="dd/MM/yyyy" />
                                             </div>
                                             <div class="ui-g-2 ui-md-4">
                                                 <h:outputText value="Orden Compra :"></h:outputText>
                                             </div>
                                             <div class="ui-g-10 ui-md-8">
-                                                <p:inputText  value="#{comprasControlador.objCompra.nro_docum}" disabled="true" style="color:  black"></p:inputText>
+                                                <p:inputText  value="#{comprasDirectControlador.objCompra.nro_docum}" disabled="true" style="color:  black"></p:inputText>
                                             </div>
                                             <div class="ui-g-2 ui-md-4">
                                                 <h:outputText value="Observacion :"></h:outputText>
                                             </div>
                                             <div class="ui-g-10 ui-md-8">
-                                                <p:inputTextarea value="#{comprasControlador.objCompra.observaciones}" disabled="#{comprasControlador.aceptar}"></p:inputTextarea>
+                                                <p:inputTextarea value="#{comprasDirectControlador.objCompra.observaciones}" disabled="#{comprasDirectControlador.aceptar}"></p:inputTextarea>
                                             </div>
 
                                         </div>
@@ -160,15 +170,15 @@
                                                 <h:outputText value="Articulo"></h:outputText>
                                             </div>
                                             <div class="ui-g-10 ui-md-8">                                                
-                                                <p:autoComplete id="articulo" value="#{comprasControlador.objArticulo}" 
-                                                                completeMethod="#{comprasControlador.articulos}" 
+                                                <p:autoComplete id="articulo" value="#{comprasDirectControlador.objArticulo}" 
+                                                                completeMethod="#{comprasDirectControlador.articulos}" 
                                                                 var="articulo" itemLabel="#{articulo.nom_articulo}" 
                                                                 itemValue="#{articulo}" forceSelection="true"
                                                                 converter="converarticulos"
                                                                 dropdown="true" title="Codigo Articulo ó Nombre Articulo"
-                                                                disabled="#{comprasControlador.aceptar}" style="color: black">
+                                                                disabled="#{comprasDirectControlador.aceptar}" style="color: black">
 
-                                                    <p:ajax event="itemSelect" listener="#{comprasControlador.cargaArticulo()}" 
+                                                    <p:ajax event="itemSelect" listener="#{comprasDirectControlador.cargaArticulo()}" 
                                                             update="listArti,articulo" />
                                                 </p:autoComplete>
                                             </div>
@@ -178,7 +188,7 @@
 
                                     <div class="ui-g ui-fluid form-group">
                                         <div class="ui-g-12 ui-md-12">
-                                            <p:dataTable id="listArti" var="articulos" value="#{comprasControlador.objCompra.comprasDt}">
+                                            <p:dataTable id="listArti" var="articulos" value="#{comprasDirectControlador.objCompra.comprasDt}">
 
                                                 <p:columnGroup type="header">
                                                     <p:row>
@@ -210,8 +220,8 @@
 
                                                 <p:column id="Cant" headerText="Cantidad" style="width: 15%" >
                                                     <center> <p:inputText value="#{articulos.cantidad}" style="width: 95px" 
-                                                                          disabled="#{comprasControlador.aceptar}"  >   
-                                                            <p:ajax listener="#{comprasControlador.totalesGrilla(articulos)}" 
+                                                                          disabled="#{comprasDirectControlador.aceptar}"  >   
+                                                            <p:ajax listener="#{comprasDirectControlador.totalesGrilla(articulos)}" 
                                                                     update="
                                                                     formocompra:TabOC:OCNetos , formocompra:TabOC:OCImps , 
                                                                     formocompra:TabOC:OCtots, Neto"></p:ajax>  
@@ -221,8 +231,8 @@
 
                                                 <p:column id="Costo" headerText="Costo" style="width: 15%" >
                                                     <center> <p:inputText id="InputCosto"  value="#{articulos.imp_costo}"  style="width: 95px" 
-                                                                          disabled="#{comprasControlador.aceptar}">
-                                                            <p:ajax listener="#{comprasControlador.totalesGrilla(articulos)}" 
+                                                                          disabled="#{comprasDirectControlador.aceptar}">
+                                                            <p:ajax listener="#{comprasDirectControlador.totalesGrilla(articulos)}" 
                                                                     update="formocompra:TabOC:OCNetos , formocompra:TabOC:OCImps ,
                                                                     formocompra:TabOC:OCtots,Neto"></p:ajax>
                                                         </p:inputText>
@@ -232,10 +242,10 @@
                                                 <p:column id="IVA" headerText="IVA" style="width: 5%" >
                                                     <center> 
                                                         <p:selectOneMenu value="#{articulos.porc_imp}" >
-                                                            <p:ajax event="change" listener="#{comprasControlador.totalesGrilla(articulos)}" 
+                                                            <p:ajax event="change" listener="#{comprasDirectControlador.totalesGrilla(articulos)}" 
                                                                     update="formocompra:TabOC:OCNetos , formocompra:TabOC:OCImps ,
                                                                     formocompra:TabOC:OCtots,Neto"></p:ajax>
-                                                            <f:selectItems value="#{comprasControlador.listImpuestos}" var="imp" 
+                                                            <f:selectItems value="#{comprasDirectControlador.listImpuestos}" var="imp" 
                                                                            itemValue="#{imp.porc_imp}" itemLabel="#{imp.porc_imp}"></f:selectItems> 
                                                         </p:selectOneMenu>
                                                     </center>
@@ -255,7 +265,7 @@
                                                 <p:column headerText="Operaciones" style="width: 10%">
                                                     <center>
                                                         <p:commandButton icon="ui-icon-clear" style="background-color: red" 
-                                                                         action="#{comprasControlador.eliminarArticuloGrilla(articulos)}"
+                                                                         action="#{comprasDirectControlador.eliminarArticuloGrilla(articulos)}"
                                                                          ajax="true" update="listArti"> </p:commandButton>
                                                     </center>
                                                 </p:column>
@@ -275,26 +285,26 @@
                                                 <h:outputText id="OCNeto" value="SUB TOTAL :" style="font-weight: bold"></h:outputText>
                                             </div>
                                             <div class="ui-g-10 ui-md-7">
-                                                <h:outputText id="OCNetos" value="#{comprasControlador.totales[3]}" style="font-weight: bold"> </h:outputText>
+                                                <h:outputText id="OCNetos" value="#{comprasDirectControlador.totales[3]}" style="font-weight: bold"> </h:outputText>
                                             </div>
                                             <div class="ui-g-2 ui-md-5">
                                                 <h:outputText id="OCImp" value="IMPUESTO :" style="font-weight: bold"></h:outputText>
                                             </div>
                                             <div class="ui-g-10 ui-md-7">
-                                                <h:outputText id="OCImps" value="#{comprasControlador.totales[6]}" style="font-weight: bold" > </h:outputText>
+                                                <h:outputText id="OCImps" value="#{comprasDirectControlador.totales[6]}" style="font-weight: bold" > </h:outputText>
                                             </div>
                                             <div class="ui-g-2 ui-md-5">
                                                 <h:outputText id="OCtot" value="TOTAL :" style="font-weight: bold"></h:outputText>
                                             </div>
                                             <div class="ui-g-10 ui-md-7">
-                                                <h:outputText id="OCtots" value="#{comprasControlador.totales[4]}" style="font-weight: bold"> </h:outputText>
+                                                <h:outputText id="OCtots" value="#{comprasDirectControlador.totales[4]}" style="font-weight: bold"> </h:outputText>
                                             </div>
                                         </div>
                                     </div>
 
                                 </p:tab>
                                 <p:tab title="Log">
-                                    <p:dataTable var="log" value="#{comprasControlador.objCompra.logs}">
+                                    <p:dataTable var="log" value="#{comprasDirectControlador.objCompra.logs}">
                                         <p:column headerText="Proceso" style="width: 20%">
                                             <h:outputText value="#{log.proceso}" />
                                         </p:column>
@@ -322,12 +332,12 @@
                                     <div class="ui-g-0 ui-md-4"></div>
 
                                     <div class="ui-g-5 ui-md-4">
-                                        <p:commandButton value="Aceptar"  action="#{comprasControlador.transaccion()}" ajax="true" update=":formocompra :formlistComp"
+                                        <p:commandButton value="Aceptar"  action="#{comprasDirectControlador.transaccion()}" ajax="true" update=":formocompra :formlistComp"
                                                          style="background-color: #939393" 
-                                                         disabled="#{comprasControlador.aceptar}"> </p:commandButton>
+                                                         disabled="#{comprasDirectControlador.aceptar}"> </p:commandButton>
                                     </div>
                                     <div class="ui-g-5 ui-md-4">
-                                        <p:commandButton value="Cancelar" action="#{comprasControlador.cancelarEventos()}" ajax="true" update=":formocompra :formlistComp"
+                                        <p:commandButton value="Cancelar" action="#{comprasDirectControlador.cancelarEventos()}" ajax="true" update=":formocompra :formlistComp"
                                                          style="background-color: #939393" > </p:commandButton>
                                     </div>
                                 </div>
@@ -344,17 +354,17 @@
                                             Busqueda :
                                         </div>
                                         <div class="ui-g-12 ui-md-5">
-                                            <p:inputText value="#{comprasControlador.valorBusqueda}" title="NIT Proveedor ò Codigo de OC">
+                                            <p:inputText value="#{comprasDirectControlador.valorBusqueda}" title="NIT Proveedor ò Codigo de OC">
                                             </p:inputText>
                                         </div>
                                         <div class="ui-g-12 ui-md-2">
                                             <p:commandButton icon="ui-icon-search"
-                                                             action="#{comprasControlador.busquedaDatos()}" 
+                                                             action="#{comprasDirectControlador.busquedaDatos()}" 
                                                              ajax="true" update=":formlistComp"
                                                              style="background-color: #939393"></p:commandButton>
 
                                             <p:commandButton  icon="ui-icon-clear"
-                                                              action="#{comprasControlador.limpiarDatos()}" 
+                                                              action="#{comprasDirectControlador.limpiarDatos()}" 
                                                               ajax="true" update=":formlistComp"
                                                               style="background-color: #939393"></p:commandButton>
 
@@ -363,7 +373,7 @@
                                     </div>
                                     <div class="ui-g-12 ui-md-12">
 
-                                        <p:dataTable var="ocompra" value="#{comprasControlador.listCompra}" 
+                                        <p:dataTable var="ocompra" value="#{comprasDirectControlador.listCompra}" 
                                                      rows="10"
                                                      paginator="true"
                                                      paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
@@ -385,11 +395,11 @@
                                             <p:column headerText="Descripcion" style="width: 20%">
                                                 <center>
                                                     <p:commandButton icon="ui-icon-create"   style="background-color: #939393" 
-                                                                     action="#{comprasControlador.prepareCrud(ocompra, 1)}" ajax="true" update=":formocompra"> </p:commandButton>
+                                                                     action="#{comprasDirectControlador.prepareCrud(ocompra, 1)}" ajax="true" update=":formocompra"> </p:commandButton>
                                                     <p:commandButton icon="ui-icon-clear" style="background-color: #939393" 
-                                                                     action="#{comprasControlador.prepareCrud(ocompra, 2)}"  ajax="true" update=":formocompra"> </p:commandButton>
+                                                                     action="#{comprasDirectControlador.prepareCrud(ocompra, 2)}"  ajax="true" update=":formocompra"> </p:commandButton>
                                                     <p:commandButton icon="ui-icon-remove-red-eye" style="background-color: #939393" 
-                                                                     action="#{comprasControlador.prepareCrud(ocompra, 3)}"  ajax="true" update=":formocompra"> </p:commandButton>
+                                                                     action="#{comprasDirectControlador.prepareCrud(ocompra, 3)}"  ajax="true" update=":formocompra"> </p:commandButton>
                                                 </center>
                                             </p:column>
 

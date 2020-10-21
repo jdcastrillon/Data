@@ -1,20 +1,14 @@
 package Controlador;
 
 import Modelo.Bodega.Articulos;
-import Modelo.Compras.Compras;
-import Modelo.Compras.ComprasDT;
-import Modelo.Compras.Pagos;
-import Modelo.Compras.Proveedores;
+import Modelo.Compras.*;
 import Modelo.Empresa;
-import ModeloService.ConsultaMult;
 import Servicios.ComprasService;
 import Servicios.Sistema.Inicializacion;
 import Servicios.Sistema.Seleccion;
 import Servicios.Sistema.Validaciones;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -55,6 +49,7 @@ public class ComprasControlador {
     NumberFormat formatter = NumberFormat.getCurrencyInstance();
 
     private List<Empresa> listEmpresas = new ArrayList();
+    private List<Impuestos> listImpuestos = new ArrayList();
     private List<Proveedores> listProveedor = new ArrayList();
     private List<Articulos> listArticulos = new ArrayList();
     private List<Pagos> ListPagos = new ArrayList();
@@ -113,7 +108,7 @@ public class ComprasControlador {
 
             //Proveedores
             JsonArray Jelementos2 = ObjIni.listObjectos("select cod_provedor,cod_documento,razon_social from m_proveedores");
-       
+
             for (JsonElement jsonElement : Jelementos2) {
                 if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
                     Proveedores obj = new Proveedores();
@@ -134,6 +129,7 @@ public class ComprasControlador {
         listEmpresas.clear();
         listArticulos.clear();
         listProveedor.clear();
+        listImpuestos.clear();
 
         //Numerador
         objCompra.setNro_docum(ObjIni.numerador("compra"));
@@ -163,9 +159,23 @@ public class ComprasControlador {
             }
         }
 
+        //Impuestos
+        JsonArray Jelementos3 = ObjIni.listObjectos("select cod_impuesto,porc_imp from m_impuestos where cod_impuesto='IVA' and cod_emp='" + listEmpresas.get(0).getCod_emp() + "'");
+
+        for (JsonElement jsonElement : Jelementos3) {
+            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
+                Impuestos obj = new Impuestos();
+                Map<String, Object> map = ObjIni.fromJson(jsonElement);
+                obj.setCod_impuesto(map.get("cod_impuesto").toString());
+                obj.setPorc_imp(new BigDecimal(map.get("porc_imp").toString()).intValue());
+                listImpuestos.add(obj);
+            }
+        }
+
         //Variables
         System.out.println("Size Empresa : " + listEmpresas.size());
         objCompra.setCod_emp(listEmpresas.get(0).getCod_emp());
+        objCompra.setPorcentaje(listImpuestos.get(0).getPorc_imp());
 //        objCompra.setCod_provedor(listProveedor.get(0).getCod_provedor());
         objCompra.setD_fec_doc(new Date());
         resetTotales();
@@ -236,33 +246,17 @@ public class ComprasControlador {
         if (validaciones()) {
             switch (this.evento) {
                 case "Nuevo":
-                    Resulta = Compra_service.Transaccion(objCompra, "Nuevo");
-                    mns = "Deposito Creado exitosamente";
+                    Resulta = Compra_service.Transaccion(objCompra, "Nuevo","OC");
+                    mns = "O.C Realizada exitosamente";
                     break;
                 case "Eliminar":
-                    Resulta = Compra_service.Transaccion(objCompra, "Borrar");
-                    mns = "Deposito Eliminado exitosamente";
+                    Resulta = Compra_service.Transaccion(objCompra, "Borrar","OC");
+                    mns = "O.C Eliminada exitosamente";
                     break;
                 case "Editar":
-                    Resulta = Compra_service.Transaccion(objCompra, "Editar");
-                    mns = "Deposito Editado exitosamente";
+                    Resulta = Compra_service.Transaccion(objCompra, "Editar","OC");
+                    mns = "O.C Editado exitosamente";
                     break;
-                case "Reporte": {
-                    try {
-                        Resulta = SelService.PDFDescargar2("reporte");
-                    } catch (IOException ex) {
-                        System.out.println("Error reporte");
-                        Logger.getLogger(ComprasControlador.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-                mns = "Reporte";
-                break;
-//                case "Buscar":
-//                    Resulta = Compra_service.buscarDoc(objCompra);
-//                    break;//                case "Buscar":
-//                    Resulta = Compra_service.buscarDoc(objCompra);
-//                    break;
-
             }
             if (Resulta[0].equals("OK")) {
                 if (evento.equalsIgnoreCase("Buscar")) {
@@ -295,14 +289,12 @@ public class ComprasControlador {
     public boolean validaciones() {
         getObjCompra();
         String mns = "";
-        System.out.println(" aceptar : " + aceptar);
-        System.out.println(" editar : " + editar);
-        System.out.println(" eliminar : " + eliminar);
-        System.out.println(" nuevo : " + nuevo);
-        System.out.println(" buscar : " + buscar);
 
         if (this.nuevo == false) {
             //Validaciones
+            if (objCompra.getCod_provedor() == 0) {
+                mns = "Debe Selecionar un Proveedor";
+            }
 //            if (ObjVal.ValPrimaryKey("select count(*) from m_tipodocumentos where cod_tipodoc='" + objCompra.getCod_tipodoc() + "'")) {
 //                mns = "El codigo del documento ya existe";
 //            }
@@ -344,42 +336,12 @@ public class ComprasControlador {
 
     public void cargaArticulo() {
         System.out.println("Carga Estado : " + objArticulo.toString());
+        Object Resulta[] = new Object[3];
         ComprasDT obj = new ComprasDT(objArticulo.getCod_articulo(), objArticulo.getCodigo(), objArticulo.getNom_articulo());
-        obj.setStock(ObjIni.StockDisponible(objCompra.getCod_emp(), objArticulo.getCod_articulo(), "N", ""));
-//        obj.setImp_costo(ObjIni.iniCostoArt(objCompra.getCod_emp(), "", objArticulo.getCod_articulo()));
-//        List<String> Consultas = new ArrayList();
-//        Consultas.add("select cantidad from s_stkestados where cod_emp='" + objCompra.getCod_emp() + "' "
-//                + "and cod_articulo=" + objArticulo.getCod_articulo() + " and cod_estado='Disponible'");
-//        Consultas.add("select imp_costo from sp_costoart where cod_emp='" + objCompra.getCod_emp() + "'");
-////        Consultas.add("select imp_costo from sp_costoart where cod_emp='" + objCompra.getCod_emp() + "' "
-////                + "and cod_proveedor=" + objCompra.getCod_provedor() + "\n"
-////                + "  and cod_articulo=" + objArticulo.getCod_articulo() + "");
-//        ConsultaMult[] listaObj = ObjIni.listObjMulti(Consultas);
-//        JsonParser parser = new JsonParser();
-//        BigDecimal codigoSecuencia = BigDecimal.ZERO;
-//        String substring = "";
-//        for (ConsultaMult consultaMult : listaObj) {
-//            System.out.println("Respuesta Multiple : " + consultaMult.getRespuesta().get(0));
-//            JsonArray Jelementos = parser.parse("["+consultaMult.getRespuesta().get(0).toString()+"]").getAsJsonArray();
-//            for (JsonElement jsonElement : Jelementos) {
-//                if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-//                    Map<String, Object> map = ObjIni.fromJson(jsonElement);
-//                    substring = "";
-//                    switch (consultaMult.getConsulta()) {
-//                        case "1":
-//                            substring = map.get("cantidad").toString().substring(0, map.get("cantidad").toString().indexOf("."));
-//                            codigoSecuencia = new BigDecimal(substring);
-//                            obj.setStock(codigoSecuencia.intValue());
-//                            break;
-//                        case "2":
-//                            substring = map.get("imp_costo").toString().substring(0, map.get("imp_costo").toString().indexOf("."));
-//                            codigoSecuencia = new BigDecimal(substring);
-//                            obj.setImp_costo(codigoSecuencia.doubleValue());
-//                            break;
-//                    }
-//                }
-//            }
-//        }
+        Resulta = ObjIni.Compras_Art(objCompra.getCod_emp(), objArticulo.getCod_articulo(), "N", "", objCompra.getCod_provedor());
+        obj.setPorc_imp((int) Resulta[2]);
+        obj.setStock((int) Resulta[0]);
+        obj.setImp_costo((double) Resulta[1]);
 
         if (buscarElemento(obj) == false) {
             objCompra.getComprasDt().add(0, obj);
@@ -408,13 +370,15 @@ public class ComprasControlador {
 
     public void totalesGrilla(ComprasDT obj) {
         System.out.println("TotalGrilla");
-
+        System.out.println("Impuesto IVA " + obj.getPorc_imp());
         for (ComprasDT comprasDT : objCompra.getComprasDt()) {
             if (obj.getCod_articulo() == comprasDT.getCod_articulo()) {
+                System.out.println("Objecto" + comprasDT.toString());
                 comprasDT.setImp_neto(comprasDT.getImp_costo() * comprasDT.getCantidad());
                 comprasDT.setImp_total(comprasDT.getImp_neto() + (comprasDT.getImp_neto() * (comprasDT.getPorc_imp() / 100)));
                 comprasDT.setImp_impuesto(comprasDT.getImp_neto() * (comprasDT.getPorc_imp() / 100));
                 System.out.println("Neto : " + comprasDT.getImp_neto());
+                System.out.println("Neto : " + comprasDT.getPorc_imp());
                 break;
             }
         }
@@ -654,6 +618,14 @@ public class ComprasControlador {
 
     public void setValorBusqueda(String valorBusqueda) {
         this.valorBusqueda = valorBusqueda;
+    }
+
+    public List<Impuestos> getListImpuestos() {
+        return listImpuestos;
+    }
+
+    public void setListImpuestos(List<Impuestos> listImpuestos) {
+        this.listImpuestos = listImpuestos;
     }
 
 }

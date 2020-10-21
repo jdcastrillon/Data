@@ -141,4 +141,9 @@ public class ComprasDT implements Serializable {
         this.codigo = codigo;
     }
 
+    @Override
+    public String toString() {
+        return "ComprasDT{" + "trans=" + trans + ", cod_articulo=" + cod_articulo + ", stock=" + stock + ", cantidad=" + cantidad + ", imp_costo=" + imp_costo + ", impuesto=" + impuesto + ", porc_imp=" + porc_imp + ", imp_impuesto=" + imp_impuesto + ", imp_neto=" + imp_neto + ", imp_total=" + imp_total + ", linea=" + linea + ", codigo=" + codigo + ", nom_articulo=" + nom_articulo + '}';
+    }
+
 }

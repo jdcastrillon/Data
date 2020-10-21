@@ -30,7 +30,7 @@
         <div class="ui-g">
             <div class="ui-g-12">
                 <div class="card card-w-title">
-                    <p:panel id="panleRecep" header="Recepcion" toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+                    <p:panel id="panleRecep" header="Recepcion de O.C" toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
                         <h:form id="formrecepD">
                             <p:dialog header="" widgetVar="ocompra"  modal="true" width="600">
 
@@ -61,7 +61,8 @@
                             </p:dialog>
                         </h:form>
 
-                        <h:form id="formrecep">
+                        <h:form id="formrecep" onkeypress="if (event.keyCode == 13)
+                                    event.returnValue = false;">
                             <p:growl id="growl" showDetail="true" life="5000" />  
 
                             <div class="ui-g ui-fluid form-group">
@@ -156,7 +157,7 @@
                                             </div>
 
                                             <div class="ui-g-2 ui-md-4">
-                                                <h:outputText value="Obsrvacion :"></h:outputText>
+                                                <h:outputText value="Observacion :"></h:outputText>
                                             </div>
                                             <div class="ui-g-10 ui-md-8">
                                                 <p:inputTextarea value="#{recepcionControlador.objRecepcion.observaciones}" disabled="#{recepcionControlador.aceptar}"></p:inputTextarea>
@@ -185,114 +186,121 @@
                                         </div>
                                         <div class="ui-g-12 ui-md-5"></div>
                                     </div> 
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-12">
+                                            <p:dataTable id="listArtRecep" var="articulos" value="#{recepcionControlador.objRecepcion.recepcionDT}">
 
-                                    <p:dataTable id="listArtRecep" var="articulos" value="#{recepcionControlador.objRecepcion.recepcionDT}">
+                                                <p:columnGroup type="header">
+                                                    <p:row>
+                                                        <p:column colspan="3" headerText="Articulo" />
+                                                        <p:column colspan="6" headerText="Importes" />
+                                                    </p:row>
+                                                    <p:row>
+                                                        <p:column headerText="Codigo" />
+                                                        <p:column headerText="Codigo Nuevo" />
+                                                        <p:column headerText="Nombre" />
+                                                        <p:column headerText="Cantidad" />
+                                                        <p:column headerText="Costo" />
+                                                        <p:column headerText="Iva" />
+                                                        <p:column headerText="Neto" />
+                                                        <p:column headerText="Total" />
+                                                        <p:column headerText="-" />
+                                                    </p:row>
+                                                </p:columnGroup>
+                                                <p:column style="width: 10%">
+                                                    <h:outputText value="#{articulos.codigo}" />
+                                                </p:column>
 
-                                        <p:columnGroup type="header">
-                                            <p:row>
-                                                <p:column colspan="3" headerText="Articulo" />
-                                                <p:column colspan="6" headerText="Importes" />
-                                            </p:row>
-                                            <p:row>
-                                                <p:column headerText="Codigo" />
-                                                <p:column headerText="Codigo Nuevo" />
-                                                <p:column headerText="Nombre" />
-                                                <p:column headerText="Cantidad" />
-                                                <p:column headerText="Costo" />
-                                                <p:column headerText="Iva" />
-                                                <p:column headerText="Neto" />
-                                                <p:column headerText="Total" />
-                                                <p:column headerText="-" />
-                                            </p:row>
-                                        </p:columnGroup>
-                                        <p:column style="width: 10%">
-                                            <h:outputText value="#{articulos.codigo}" />
-                                        </p:column>
+                                                <p:column style="width: 10%">
+                                                    <h:inputText value="#{articulos.codigonew}" style="width: 95px" disabled="#{recepcionControlador.aceptar}"></h:inputText>
+                                                </p:column>
 
-                                        <p:column style="width: 10%">
-                                            <h:inputText value="#{articulos.codigonew}" style="width: 95px" disabled="#{recepcionControlador.aceptar}"></h:inputText>
-                                        </p:column>
+                                                <p:column style="width: 15%">
+                                                    <h:outputText value="#{articulos.nom_articulo}" />
+                                                </p:column>
 
-                                        <p:column style="width: 15%">
-                                            <h:outputText value="#{articulos.nom_articulo}" />
-                                        </p:column>
+                                                <p:column id="Cant" headerText="Cantidad" style="width: 15%" >
+                                                    <center> <h:inputText value="#{articulos.cantidad}" style="width: 95px" disabled="#{recepcionControlador.aceptar}">                                                            
+                                                            <p:ajax listener="#{recepcionControlador.totalesGrilla(articulos)}" 
+                                                                    update="formrecep:RecepTap:OCNetos
+                                                                    , formrecep:RecepTap:OCImps , 
+                                                                    formrecep:RecepTap:OCtots, Neto"></p:ajax>  
+                                                        </h:inputText>
+                                                    </center>
+                                                </p:column>
 
-                                        <p:column id="Cant" headerText="Cantidad" style="width: 15%" >
-                                            <center> <h:inputText value="#{articulos.cantidad}" style="width: 95px" disabled="#{recepcionControlador.aceptar}">
-                                                    <f:ajax event="blur" listener="#{recepcionControlador.totalesGrilla(articulos)}" execute="@this" render="listArtRecep" />
-                                                </h:inputText>
-                                            </center>
-                                        </p:column>
+                                                <p:column id="Costo" headerText="Costo" style="width: 15%" >
+                                                    <center> <h:inputText value="#{articulos.imp_costo}"  style="width: 95px" disabled="#{recepcionControlador.aceptar}">
+                                                            <p:ajax listener="#{recepcionControlador.totalesGrilla(articulos)}" 
+                                                                    update="formrecep:RecepTap:OCNetos
+                                                                    , formrecep:RecepTap:OCImps , 
+                                                                    formrecep:RecepTap:OCtots, Neto"></p:ajax> 
+                                                        </h:inputText>
+                                                    </center>
+                                                </p:column>
 
-                                        <p:column id="Costo" headerText="Costo" style="width: 15%" >
-                                            <center> <h:inputText value="#{articulos.imp_costo}"  style="width: 95px" disabled="#{recepcionControlador.aceptar}">
-                                                    <f:ajax event="blur" listener="#{recepcionControlador.totalesGrilla(articulos)}" execute="@this" render="listArtRecep" /></h:inputText>
-                                            </center>
-                                        </p:column>
+                                                <p:column id="IVA" headerText="IVA" style="width: 5%" >
+                                                    <center> 
+                                                        <p:selectOneMenu value="#{articulos.porc_imp}" >
+                                                            <p:ajax event="change" listener="#{recepcionControlador.totalesGrilla(articulos)}" 
+                                                                    update="formrecep:RecepTap:OCNetos
+                                                                    , formrecep:RecepTap:OCImps , 
+                                                                    formrecep:RecepTap:OCtots, Neto"></p:ajax>
+                                                            <f:selectItems value="#{recepcionControlador.listImpuestos}" var="imp" 
+                                                                           itemValue="#{imp.porc_imp}" itemLabel="#{imp.porc_imp}"></f:selectItems> 
+                                                        </p:selectOneMenu>
+                                                    </center>
+                                                </p:column>
 
-                                        <p:column id="IVA" headerText="IVA" style="width: 5%" >
-                                            <center> <h:inputText style="width: 95px" value="#{articulos.porc_imp}" disabled="#{recepcionControlador.aceptar}">
-                                                    <f:ajax event="blur" listener="#{recepcionControlador.totalesGrilla(articulos)}" execute="@this" render="listArtRecep" />
-                                                </h:inputText>
-                                            </center>
-                                        </p:column>
+                                                <p:column  headerText="Neto" style="width: 15%" >
+                                                    <center> <p:outputLabel id="Neto" value="#{articulos.imp_neto}">
+                                                            <f:convertNumber type="currency" currencySymbol="$"></f:convertNumber></p:outputLabel> </center>
+                                                </p:column>
 
-                                        <p:column  headerText="Neto" style="width: 15%" >
-                                            <center> <p:outputLabel id="Neto" value="#{articulos.imp_neto}">
-                                                    <f:convertNumber type="currency" currencySymbol="$"></f:convertNumber></p:outputLabel> </center>
-                                        </p:column>
+                                                <p:column headerText="Total" style="width: 15%" >
+                                                    <center> <p:outputLabel id="Total" value="#{articulos.imp_total}">
+                                                            <f:convertNumber type="currency" currencySymbol="$"></f:convertNumber></p:outputLabel> </center>
 
-                                        <p:column headerText="Total" style="width: 15%" >
-                                            <center> <p:outputLabel id="Total" value="#{articulos.imp_total}">
-                                                    <f:convertNumber type="currency" currencySymbol="$"></f:convertNumber></p:outputLabel> </center>
+                                                </p:column>
 
-                                        </p:column>
-
-                                        <p:column id="ReceOperacion" headerText="Operaciones" style="width: 10%">
-                                            <center>
-                                                <p:commandButton icon="ui-icon-clear" style="background-color: red" ajax="true" 
-                                                                 action="#{recepcionControlador.eliminarArticuloGrilla(articulos)}">
-
-
-                                                </p:commandButton>
-                                            </center>
-                                        </p:column>
-
-                                        <p:columnGroup id="FooterTot" type="footer">
-                                            <p:row>
-                                                <p:column colspan="3" style="text-align:right" footerText="Totales :" />
-                                                <p:column footerText="#{recepcionControlador.totales[1]}" ></p:column>
-                                                <p:column footerText="#{recepcionControlador.totales[2]}" ></p:column>
-                                                <p:column footerText="" ></p:column>
-                                                <p:column footerText="#{recepcionControlador.totales[3]}"></p:column>
-                                                <p:column footerText="#{recepcionControlador.totales[4]}" ></p:column>
-                                                <p:column footerText="" ></p:column>
-                                            </p:row>
-                                            <p:row>
-                                                <p:column colspan="9" style="text-align:right" footerText="" />
-                                            </p:row>
-                                            <p:row>
-                                                <p:column colspan="6" style="text-align:right" footerText="" />
-                                                <p:column footerText="SUB TOTAL " ></p:column>
-                                                <p:column footerText="#{recepcionControlador.totales[5]}" ></p:column>
-                                                <p:column footerText="" ></p:column>
-                                            </p:row>
-                                            <p:row>
-                                                <p:column colspan="6" style="text-align:right" footerText="" />
-                                                <p:column footerText="IMPUESTO " ></p:column>
-                                                <p:column footerText="#{recepcionControlador.totales[6]}" ></p:column>
-                                                <p:column footerText="" ></p:column>
-                                            </p:row>
-                                            <p:row>
-                                                <p:column colspan="6" style="text-align:right" footerText="" />
-                                                <p:column footerText="TOTAL " ></p:column>
-                                                <p:column footerText="#{recepcionControlador.totales[4]}" ></p:column>
-                                                <p:column footerText="" ></p:column>
-                                            </p:row>
-                                        </p:columnGroup>
+                                                <p:column id="ReceOperacion" headerText="Operaciones" style="width: 10%">
+                                                    <center>
+                                                        <p:commandButton icon="ui-icon-clear" style="background-color: red" ajax="true" 
+                                                                         action="#{recepcionControlador.eliminarArticuloGrilla(articulos)}">
 
 
-                                    </p:dataTable> 
+                                                        </p:commandButton>
+                                                    </center>
+                                                </p:column>                                              
+
+                                            </p:dataTable> 
+                                        </div>
+                                    </div>
+
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-4"></div>
+                                        <div class="ui-g-12 ui-md-4"></div>
+                                        <div class="ui-g-12 ui-md-4">
+                                            <div class="ui-g-2 ui-md-5">
+                                                <h:outputText id="OCNeto" value="SUB TOTAL :" style="font-weight: bold"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-7">
+                                                <h:outputText id="OCNetos" value="#{recepcionControlador.totales[3]}" style="font-weight: bold"> </h:outputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-5">
+                                                <h:outputText id="OCImp" value="IMPUESTO :" style="font-weight: bold"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-7">
+                                                <h:outputText id="OCImps" value="#{recepcionControlador.totales[6]}" style="font-weight: bold" > </h:outputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-5">
+                                                <h:outputText id="OCtot" value="TOTAL :" style="font-weight: bold"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-7">
+                                                <h:outputText id="OCtots" value="#{recepcionControlador.totales[4]}" style="font-weight: bold"> </h:outputText>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                 </p:tab>
 
@@ -346,7 +354,7 @@
                                          paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
                                          rowsPerPageTemplate="5,10,15">
 
-                               
+
                                 <p:column headerText="Trans" style="width: 10%">
                                     <h:outputText value="#{ocompra.trans}" />
                                 </p:column>

@@ -65,6 +65,32 @@
                         <h:form id="formPago">
                             <p:growl id="growl" showDetail="true" life="5000" />  
 
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3">
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-add"
+                                                         action="#{pagosControlador.prepareNuevo() }" 
+                                                         ajax="true" update=":formPago :formlistPagos"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{pagosControlador.nuevo}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-create"
+                                                         action="#{pagosControlador.prepareEdit() }" 
+                                                         ajax="true" update=":formPago :formlistPagos"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{pagosControlador.editar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-clear"
+                                                         action="#{pagosControlador.prepareEliminar()}" 
+                                                         ajax="true" update=":formPago :formlistPagos"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{pagosControlador.eliminar}"></p:commandButton>
+                                    </div>
+                                </div>
+                            </div>
+
                             <p:tabView >
                                 <p:tab title="General">
                                     <div class="ui-g ui-fluid form-group">
@@ -115,37 +141,7 @@
 
 
                             <div class="ui-g ui-fluid form-group">
-                                <div class="ui-g-12 ui-md-3">
-                                    <div class="ui-g-2 ui-md-2">
-                                        <p:commandButton icon="ui-icon-add"
-                                                         action="#{pagosControlador.prepareNuevo() }" 
-                                                         ajax="true" update=":formPago :formlistPagos"
-                                                         style="background-color: #939393" 
-                                                         disabled="#{pagosControlador.nuevo}"></p:commandButton>
-                                    </div>
-                                    <div class="ui-g-2 ui-md-2">
-                                        <p:commandButton icon="ui-icon-create"
-                                                         action="#{pagosControlador.prepareEdit() }" 
-                                                         ajax="true" update=":formPago :formlistPagos"
-                                                         style="background-color: #939393" 
-                                                         disabled="#{pagosControlador.editar}"></p:commandButton>
-                                    </div>
-                                    <div class="ui-g-2 ui-md-2">
-                                        <p:commandButton icon="ui-icon-clear"
-                                                         action="#{pagosControlador.prepareEliminar()}" 
-                                                         ajax="true" update=":formPago :formlistPagos"
-                                                         style="background-color: #939393" 
-                                                         disabled="#{pagosControlador.eliminar}"></p:commandButton>
-                                    </div>
-                                    <div class="ui-g-2 ui-md-2">
-                                        <p:commandButton icon="ui-icon-search"
-                                                         action="#{pagosControlador.prepareBuscar()}" 
-                                                         ajax="true" update=":formPago :formlistPagos"
-                                                         style="background-color: #939393" 
-                                                         disabled="#{pagosControlador.buscar}"></p:commandButton>
-                                    </div>
-
-                                </div>
+                                <div class="ui-g-12 ui-md-3"></div>
                                 <div class="ui-g-12 ui-md-4"></div>
                                 <div class="ui-g-12 ui-md-5">
                                     <div class="ui-g-0 ui-md-4"></div>

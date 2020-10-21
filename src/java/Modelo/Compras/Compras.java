@@ -31,10 +31,12 @@ public class Compras implements Serializable {
     private double imp_impuesto;
     private double imp_descuento;
     private double imp_total;
+    private String cod_deposito;
 
     transient private Date D_fec_doc;
     transient private Date D_fec_entrega;
     transient private String razon_social;
+    transient private int porcentaje;
     transient List<ComprasDT> comprasDt = new ArrayList();
     transient List<Log_Transaccion> logs = new ArrayList();
 
@@ -192,6 +194,23 @@ public class Compras implements Serializable {
     public void setRazon_social(String razon_social) {
         this.razon_social = razon_social;
     }
+
+    public int getPorcentaje() {
+        return porcentaje;
+    }
+
+    public void setPorcentaje(int porcentaje) {
+        this.porcentaje = porcentaje;
+    }
+
+    public String getCod_deposito() {
+        return cod_deposito;
+    }
+
+    public void setCod_deposito(String cod_deposito) {
+        this.cod_deposito = cod_deposito;
+    }
+        
 
     @Override
     public String toString() {

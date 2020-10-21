@@ -50,7 +50,7 @@ public class ComprasService implements Serializable {
     public ComprasService() {
     }
 
-    public Object[] Transaccion(Compras obj, String accion) {
+    public Object[] Transaccion(Compras obj, String accion, String proceso) {
         System.out.println("Entro a Servicio " + obj.toString());
         Object Resulta[] = new Object[2];
         try {
@@ -72,6 +72,10 @@ public class ComprasService implements Serializable {
             obj.setCod_docum("Compra");
             obj.setFec_doc("@fecha" + obj.getD_fec_doc().getTime());
             obj.setFec_entrega(obj.getFec_doc());
+            
+            if(proceso.equalsIgnoreCase("OC")){
+                obj.setCod_deposito("0");
+            }
 
             objsql o1 = new objsql();
             o1.setAccion(accion);
@@ -102,7 +106,7 @@ public class ComprasService implements Serializable {
             param.setAccion(accion);
             objsql o3 = new objsql();
             o3.setAccion("Impacto");
-            o3.setTabla("imp_compra");
+            o3.setTabla(proceso.equalsIgnoreCase("OC") ? "imp_compra" : "imp_compraDirecta");
             o3.setBase(login.getBase());
             o3.setDatos(gson.toJson(param));
 

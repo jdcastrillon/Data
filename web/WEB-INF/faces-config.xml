@@ -145,8 +145,11 @@
             <from-outcome>/view/stock/Reporte_Inventario</from-outcome>
             <to-view-id>/view/stock/Reporte_Inventario.xhtml</to-view-id>
         </navigation-case>
-        
-        
+        <navigation-case>
+            <from-outcome>/view/compras/compraDirecta</from-outcome>
+            <to-view-id>/view/compras/compraDirecta.xhtml</to-view-id>
+        </navigation-case>
+       
         
         
         

@@ -142,7 +142,7 @@ public class ProveedorService implements Serializable {
 
     public List<Proveedores> Lista() {
         String respuesta = dao.QueryObj("SELECT cod_provedor, cod_tipodoc, cod_documento, razon_social, \n"
-                + " telefono, email, cod_ciudad, direccion, activo, cod_log\n"
+                + " telefono, email, cod_ciudad, direccion, activo, cod_log,cod_fpago \n"
                 + " FROM public.m_proveedores");
         JsonArray Jelementos = parser.parse(respuesta).getAsJsonArray();
         List<Proveedores> listProveedores = new ArrayList();
@@ -163,7 +163,7 @@ public class ProveedorService implements Serializable {
                 obj.setDireccion(map.get("direccion").toString());
                 obj.setActivo(map.get("activo").toString());
                 obj.setCod_log(new BigDecimal(map.get("cod_log").toString()).intValue());
-
+                obj.setCod_fpago(new BigDecimal(map.get("cod_fpago").toString()).intValue());
                 obj.setActivoB(obj.getActivo().equalsIgnoreCase("S"));
 
                 listProveedores.add(obj);

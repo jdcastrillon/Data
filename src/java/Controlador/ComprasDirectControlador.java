@@ -1,21 +1,15 @@
 package Controlador;
 
 import Modelo.Bodega.Articulos;
-import Modelo.Compras.Compras;
-import Modelo.Compras.RecepcionDT;
-import Modelo.Compras.Pagos;
-import Modelo.Compras.Proveedores;
-import Modelo.Compras.Recepcion;
 import Modelo.Bodega.Depositos;
-import Modelo.Compras.Impuestos;
+import Modelo.Compras.*;
 import Modelo.Empresa;
-import Servicios.RecepcionService;
+import Servicios.ComprasService;
 import Servicios.Sistema.Inicializacion;
 import Servicios.Sistema.Seleccion;
 import Servicios.Sistema.Validaciones;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -37,10 +31,10 @@ import javax.inject.Inject;
  */
 @ManagedBean
 @ViewScoped
-public class RecepcionControlador {
+public class ComprasDirectControlador {
 
     @Inject
-    private RecepcionService recepcion_service;
+    private ComprasService Compra_service;
 
     @Inject
     private Inicializacion ObjIni;
@@ -51,18 +45,15 @@ public class RecepcionControlador {
     @Inject
     private Seleccion SelService;
 
-    private Recepcion objRecepcion;
-    private List<Recepcion> ListRecepcion = new ArrayList();
+    private Compras objCompra;
+    private List<Compras> ListCompra = new ArrayList();
     NumberFormat formatter = NumberFormat.getCurrencyInstance();
-
+    private List<Depositos> listDepositos = new ArrayList();
     private List<Empresa> listEmpresas = new ArrayList();
+    private List<Impuestos> listImpuestos = new ArrayList();
     private List<Proveedores> listProveedor = new ArrayList();
     private List<Articulos> listArticulos = new ArrayList();
-    private List<Depositos> listDepositos = new ArrayList();
     private List<Pagos> ListPagos = new ArrayList();
-    private List<Compras> listOcompras = new ArrayList();
-    private List<Impuestos> listImpuestos = new ArrayList();
-    private Compras CompraSelect;
 
     private Articulos objArticulo;
 
@@ -75,38 +66,37 @@ public class RecepcionControlador {
     private boolean buscar;
     private boolean reporte;
     private String evento;
+    private String valorBusqueda;
 
     @PostConstruct
     public void init() {
         try {
-            getObjRecepcion();
+            getObjCompra();
             getObjArticulo();
             lista(1);
             this.evento = "inicio";
             controlEventos(evento);
+            resetTotales();
         } catch (Exception ex) {
             Logger.getLogger(SessionControlador.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    public RecepcionControlador() {
+    public ComprasDirectControlador() {
     }
 
     public void lista(int condicion) {
         //1: Carga Inicial
         //2: Carga Despues de Transaccion
-        ListRecepcion.clear();
-        resetTotales();
-        ListRecepcion = recepcion_service.Lista();
+        ListCompra.clear();
+        listDepositos.clear();
+        ListCompra = Compra_service.Lista();
 
         if (condicion == 1) {
-            //Empresas
             listEmpresas.clear();
-            listArticulos.clear();
-            ListPagos.clear();
-            listOcompras.clear();
-            listDepositos.clear();
+            listProveedor.clear();
 
+            //Empresas
             JsonArray Jelementos = ObjIni.listObjectos("select cod_emp,nom_emp from m_empresa");
             for (JsonElement jsonElement : Jelementos) {
                 if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
@@ -120,6 +110,7 @@ public class RecepcionControlador {
 
             //Proveedores
             JsonArray Jelementos2 = ObjIni.listObjectos("select cod_provedor,cod_documento,razon_social from m_proveedores");
+
             for (JsonElement jsonElement : Jelementos2) {
                 if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
                     Proveedores obj = new Proveedores();
@@ -131,42 +122,20 @@ public class RecepcionControlador {
                 }
             }
 
-            //Pagos
-            JsonArray Jelementos3 = ObjIni.listObjectos("SELECT cod_pago, descripcion FROM public.m_pagos where activo='S'");
-            for (JsonElement jsonElement : Jelementos3) {
-                if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-                    Map<String, Object> map = ObjIni.fromJson(jsonElement);
-                    System.out.println("cod_tipodoc : " + map.get("cod_tipodoc"));
-                    Pagos obj = new Pagos(new BigDecimal(map.get("cod_pago").toString()).intValue(),
-                            map.get("descripcion").toString());
-                    ListPagos.add(obj);
-                }
-            }
-
-            //Depositos
-            JsonArray Jelementos5 = ObjIni.listObjectos("select cod_deposito,nom_deposito from m_depositos where cod_emp='" + listEmpresas.get(0).getCod_emp() + "' and activo='S'");
-            for (JsonElement jsonElement : Jelementos5) {
-                if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-                    Depositos obj = new Depositos();
-                    Map<String, Object> map = ObjIni.fromJson(jsonElement);
-                    obj.setCod_deposito(map.get("cod_deposito").toString());
-                    obj.setNom_deposito(map.get("nom_deposito").toString());
-                    listDepositos.add(obj);
-                }
-            }
         }
     }
 
     public void prepareNuevo() {
-        setObjRecepcion(null);
-        getObjRecepcion();
-        getObjArticulo();
+        setObjCompra(null);
+        getObjCompra();
         listEmpresas.clear();
         listArticulos.clear();
-        ListPagos.clear();
-        listOcompras.clear();
-        listDepositos.clear();
+        listProveedor.clear();
         listImpuestos.clear();
+        listDepositos.clear();
+
+        //Numerador
+        objCompra.setNro_docum(ObjIni.numerador("compra"));
 
         //Empresas
         JsonArray Jelementos = ObjIni.listObjectos("select cod_emp,nom_emp from m_empresa");
@@ -193,48 +162,18 @@ public class RecepcionControlador {
             }
         }
 
-        //Pagos
-        JsonArray Jelementos3 = ObjIni.listObjectos("SELECT cod_pago, descripcion FROM public.m_pagos where activo='S'");
+        //Impuestos
+        JsonArray Jelementos3 = ObjIni.listObjectos("select cod_impuesto,porc_imp from m_impuestos where cod_impuesto='IVA' and cod_emp='" + listEmpresas.get(0).getCod_emp() + "'");
+
         for (JsonElement jsonElement : Jelementos3) {
             if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
+                Impuestos obj = new Impuestos();
                 Map<String, Object> map = ObjIni.fromJson(jsonElement);
-                System.out.println("cod_tipodoc : " + map.get("cod_tipodoc"));
-                Pagos obj = new Pagos(new BigDecimal(map.get("cod_pago").toString()).intValue(),
-                        map.get("descripcion").toString());
-                ListPagos.add(obj);
+                obj.setCod_impuesto(map.get("cod_impuesto").toString());
+                obj.setPorc_imp(new BigDecimal(map.get("porc_imp").toString()).intValue());
+                listImpuestos.add(obj);
             }
         }
-
-        //Compras
-        JsonArray Jelementos4 = ObjIni.listObjectos("SELECT trans,cod_emp, A.cod_provedor, cod_docum, nro_docum, A.cod_fpago, \n"
-                + " fec_doc, fec_entrega, imp_neto, imp_impuesto, imp_descuento, \n"
-                + " imp_total, observaciones, B.razon_social\n"
-                + " FROM public.t_compras A INNER JOIN m_proveedores B ON\n"
-                + "A.cod_provedor=B.cod_provedor "
-                + "WHERE nro_docum not in (select nro_doca from t_recepcion where nro_doca=A.nro_docum)");
-        for (JsonElement jsonElement : Jelementos4) {
-            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-                Map<String, Object> map = ObjIni.fromJson(jsonElement);
-                Compras obj = new Compras();
-
-                obj.setTrans(new BigDecimal(map.get("trans").toString()).intValue());
-                obj.setCod_emp(map.get("cod_emp").toString());
-                obj.setCod_provedor(new BigDecimal(map.get("cod_provedor").toString()).intValue());
-                obj.setCod_docum(map.get("cod_docum").toString());
-                obj.setNro_docum(new BigDecimal(map.get("nro_docum").toString()).intValue());
-                obj.setCod_fpago(new BigDecimal(map.get("cod_fpago").toString()).intValue());
-                obj.setFec_doc(map.get("fec_doc").toString());
-                obj.setFec_doc(map.get("fec_entrega").toString());
-                obj.setImp_neto(new BigDecimal(map.get("imp_neto").toString()).doubleValue());
-                obj.setImp_impuesto(new BigDecimal(map.get("imp_neto").toString()).doubleValue());
-                obj.setImp_total(new BigDecimal(map.get("imp_neto").toString()).doubleValue());
-                obj.setObservaciones(map.get("observaciones").toString());
-                obj.setRazon_social(map.get("razon_social").toString());
-
-                listOcompras.add(obj);
-            }
-        }
-
         //Depositos
         JsonArray Jelementos5 = ObjIni.listObjectos("select cod_deposito,nom_deposito from m_depositos where cod_emp='" + listEmpresas.get(0).getCod_emp() + "' and activo='S'");
         for (JsonElement jsonElement : Jelementos5) {
@@ -247,24 +186,12 @@ public class RecepcionControlador {
             }
         }
 
-        //Impuestos
-        JsonArray Jelementos6 = ObjIni.listObjectos("select cod_impuesto,porc_imp from m_impuestos where cod_impuesto='IVA' and cod_emp='" + listEmpresas.get(0).getCod_emp() + "'");
-
-        for (JsonElement jsonElement : Jelementos6) {
-            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-                Impuestos obj = new Impuestos();
-                Map<String, Object> map = ObjIni.fromJson(jsonElement);
-                obj.setCod_impuesto(map.get("cod_impuesto").toString());
-                obj.setPorc_imp(new BigDecimal(map.get("porc_imp").toString()).intValue());
-                listImpuestos.add(obj);
-            }
-        }
-
         //Variables
         System.out.println("Size Empresa : " + listEmpresas.size());
-        objRecepcion.setCod_emp(listEmpresas.get(0).getCod_emp());
-        objRecepcion.setCod_provedor(listProveedor.get(0).getCod_provedor());
-        objRecepcion.setD_fec_doc(new Date());
+        objCompra.setCod_emp(listEmpresas.get(0).getCod_emp());
+        objCompra.setPorcentaje(listImpuestos.get(0).getPorc_imp());
+//        objCompra.setCod_provedor(listProveedor.get(0).getCod_provedor());
+        objCompra.setD_fec_doc(new Date());
         resetTotales();
 
         this.evento = "Nuevo";
@@ -282,9 +209,9 @@ public class RecepcionControlador {
     }
 
     public void prepareBuscar() {
-        ListRecepcion.clear();
+        ListCompra.clear();
         this.evento = "Buscar";
-        setObjRecepcion(null);
+        setObjCompra(null);
         controlEventos(evento);
     }
 
@@ -293,11 +220,11 @@ public class RecepcionControlador {
         controlEventos(evento);
     }
 
-    public void prepareCrud(Recepcion objecto, int condicion) {
-        setObjRecepcion(null);
+    public void prepareCrud(Compras objecto, int condicion) {
+        setObjCompra(null);
         Object Resulta[] = new Object[2];
-        Resulta = recepcion_service.recuperarInfo(objecto);
-        setObjRecepcion((Recepcion) Resulta[0]);
+        Resulta = Compra_service.recuperarInfo(objecto);
+        setObjCompra((Compras) Resulta[0]);
         lista(2);
         //Condiciones
         switch (condicion) {
@@ -323,7 +250,8 @@ public class RecepcionControlador {
         }
         this.evento = "inicio";
         controlEventos(evento);
-        setObjRecepcion(null);
+        setObjCompra(null);
+        resetTotales();
     }
 
     public void transaccion() {
@@ -332,46 +260,26 @@ public class RecepcionControlador {
         if (validaciones()) {
             switch (this.evento) {
                 case "Nuevo":
-                    Resulta = recepcion_service.Transaccion(objRecepcion, "Nuevo");
-                    mns = "Deposito Creado exitosamente";
+                    Resulta = Compra_service.Transaccion(objCompra, "Nuevo", "Compra");
+                    mns = "O.C Realizada exitosamente";
                     break;
                 case "Eliminar":
-                    Resulta = recepcion_service.Transaccion(objRecepcion, "Borrar");
-                    mns = "Deposito Eliminado exitosamente";
+                    Resulta = Compra_service.Transaccion(objCompra, "Borrar", "Compra");
+                    mns = "O.C Eliminada exitosamente";
                     break;
                 case "Editar":
-                    Resulta = recepcion_service.Transaccion(objRecepcion, "Editar");
-                    mns = "Deposito Editado exitosamente";
+                    Resulta = Compra_service.Transaccion(objCompra, "Editar", "Compra");
+                    mns = "O.C Editado exitosamente";
                     break;
-                case "Reporte": {
-                    try {
-                        Resulta = SelService.PDFDescargar2("reporte");
-                    } catch (IOException ex) {
-                        System.out.println("Error reporte");
-                        Logger.getLogger(RecepcionControlador.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-                mns = "Reporte";
-                break;
-//                case "Buscar":
-//                    Resulta = recepcion_service.buscarDoc(objRecepcion);
-//                    break;//                case "Buscar":
-//                    Resulta = recepcion_service.buscarDoc(objRecepcion);
-//                    break;//                case "Buscar":
-//                    Resulta = recepcion_service.buscarDoc(objRecepcion);
-//                    break;//                case "Buscar":
-//                    Resulta = recepcion_service.buscarDoc(objRecepcion);
-//                    break;
-
             }
             if (Resulta[0].equals("OK")) {
                 if (evento.equalsIgnoreCase("Buscar")) {
-                    ListRecepcion.clear();
-                    ListRecepcion = (List<Recepcion>) Resulta[1];
+                    ListCompra.clear();
+                    ListCompra = (List<Compras>) Resulta[1];
                 } else {
                     FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", mns));
                     lista(2);
-                    setObjRecepcion(null);
+                    setObjCompra(null);
                     this.evento = "inicio";
                     controlEventos(evento);
                 }
@@ -393,12 +301,15 @@ public class RecepcionControlador {
     }
 
     public boolean validaciones() {
-        getObjRecepcion();
+        getObjCompra();
         String mns = "";
 
         if (this.nuevo == false) {
             //Validaciones
-//            if (ObjVal.ValPrimaryKey("select count(*) from m_tipodocumentos where cod_tipodoc='" + objRecepcion.getCod_tipodoc() + "'")) {
+            if (objCompra.getCod_provedor() == 0) {
+                mns = "Debe Selecionar un Proveedor";
+            }
+//            if (ObjVal.ValPrimaryKey("select count(*) from m_tipodocumentos where cod_tipodoc='" + objCompra.getCod_tipodoc() + "'")) {
 //                mns = "El codigo del documento ya existe";
 //            }
         }
@@ -410,15 +321,22 @@ public class RecepcionControlador {
         return mns.length() <= 0;
     }
 
-    public void resetTotales() {
-        //Totales
-        totales[0] = 0;
-        totales[1] = 0;
-        totales[2] = 0;
-        totales[3] = 0;
-        totales[4] = 0;
-        totales[5] = 0;
-        totales[6] = 0;
+    public void cargarPagos() {
+        System.out.println("Cargando cargarDepositos " + objCompra.getCod_provedor());
+        ListPagos.clear();
+        //Pagos
+        JsonArray Jelementos3 = ObjIni.listObjectos("SELECT A.cod_pago, descripcion FROM public.m_pagos A INNER JOIN \n"
+                + "m_proveedores B on A.cod_pago=B.cod_fpago\n"
+                + "where A.activo='S' and B.cod_provedor=" + objCompra.getCod_provedor());
+        for (JsonElement jsonElement : Jelementos3) {
+            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
+                Map<String, Object> map = ObjIni.fromJson(jsonElement);
+                System.out.println("cod_tipodoc : " + map.get("cod_tipodoc"));
+                Pagos obj = new Pagos(new BigDecimal(map.get("cod_pago").toString()).intValue(),
+                        map.get("descripcion").toString());
+                ListPagos.add(obj);
+            }
+        }
     }
 
     public List<Articulos> articulos(String query) {
@@ -432,27 +350,30 @@ public class RecepcionControlador {
 
     public void cargaArticulo() {
         System.out.println("Carga Estado : " + objArticulo.toString());
-        RecepcionDT obj = new RecepcionDT(objArticulo.getCod_articulo(), objArticulo.getCodigo(), objArticulo.getNom_articulo());
-        obj.setStock(ObjIni.StockDisponible(objRecepcion.getCod_emp(), objArticulo.getCod_articulo(), "N", ""));
+        Object Resulta[] = new Object[3];
+        ComprasDT obj = new ComprasDT(objArticulo.getCod_articulo(), objArticulo.getCodigo(), objArticulo.getNom_articulo());
+        Resulta = ObjIni.Compras_Art(objCompra.getCod_emp(), objArticulo.getCod_articulo(), "S", objCompra.getCod_deposito(), objCompra.getCod_provedor());
+        obj.setPorc_imp((int) Resulta[2]);
+        obj.setStock((int) Resulta[0]);
+        obj.setImp_costo((double) Resulta[1]);
+
         if (buscarElemento(obj) == false) {
-            objRecepcion.getRecepcionDT().add(0, obj);
+            objCompra.getComprasDt().add(0, obj);
         }
         setObjArticulo(null);
         totalesFooter();
     }
 
-    public void eliminarArticuloGrilla(RecepcionDT obj) {
-        System.out.println("*********************** eliminarArticuloGrilla");
+    public void eliminarArticuloGrilla(ComprasDT obj) {
         if (buscarElemento(obj)) {
-            objRecepcion.getRecepcionDT().remove(obj);
+            objCompra.getComprasDt().remove(obj);
         }
 
     }
 
-    public boolean buscarElemento(RecepcionDT obj) {
+    public boolean buscarElemento(ComprasDT obj) {
         boolean valor = false;
-        for (RecepcionDT obj2 : objRecepcion.getRecepcionDT()) {
-            System.out.println(" " + obj.getCod_articulo() + " = " + obj2.getCod_articulo());
+        for (ComprasDT obj2 : objCompra.getComprasDt()) {
             if (obj.getCod_articulo() == obj2.getCod_articulo()) {
                 valor = true;
                 break;
@@ -461,15 +382,17 @@ public class RecepcionControlador {
         return valor;
     }
 
-    public void totalesGrilla(RecepcionDT obj) {
+    public void totalesGrilla(ComprasDT obj) {
         System.out.println("TotalGrilla");
-
-        for (RecepcionDT comprasDT : objRecepcion.getRecepcionDT()) {
+        System.out.println("Impuesto IVA " + obj.getPorc_imp());
+        for (ComprasDT comprasDT : objCompra.getComprasDt()) {
             if (obj.getCod_articulo() == comprasDT.getCod_articulo()) {
+                System.out.println("Objecto" + comprasDT.toString());
                 comprasDT.setImp_neto(comprasDT.getImp_costo() * comprasDT.getCantidad());
                 comprasDT.setImp_total(comprasDT.getImp_neto() + (comprasDT.getImp_neto() * (comprasDT.getPorc_imp() / 100)));
                 comprasDT.setImp_impuesto(comprasDT.getImp_neto() * (comprasDT.getPorc_imp() / 100));
                 System.out.println("Neto : " + comprasDT.getImp_neto());
+                System.out.println("Neto : " + comprasDT.getPorc_imp());
                 break;
             }
         }
@@ -484,9 +407,9 @@ public class RecepcionControlador {
         double neto = 0;
         double total = 0;
         double impuesto = 0;
-        for (RecepcionDT comprasDT : objRecepcion.getRecepcionDT()) {
+        for (ComprasDT comprasDT : objCompra.getComprasDt()) {
             stock = stock + comprasDT.getStock();
-            costo = costo + comprasDT.getImp_costo();
+            costo = costo + (comprasDT.getImp_costo());
             cantidad = cantidad + comprasDT.getCantidad();
             neto = neto + comprasDT.getImp_neto();
             total = total + comprasDT.getImp_total();
@@ -500,59 +423,45 @@ public class RecepcionControlador {
         totales[5] = formatter.format(costo * cantidad);
         totales[6] = formatter.format(impuesto);
 
-        objRecepcion.setImp_neto(costo);
-        objRecepcion.setImp_impuesto(impuesto);
-        objRecepcion.setImp_total(total);
+        objCompra.setImp_neto(costo);
+        objCompra.setImp_impuesto(impuesto);
+        objCompra.setImp_total(total);
 
     }
 
-    public void cargarOrdenCompra() {
-        System.out.println("Orden de compra : " + CompraSelect.toString());
-        objRecepcion.setCod_emp(CompraSelect.getCod_emp());
-        objRecepcion.setCod_provedor(CompraSelect.getCod_provedor());
-        objRecepcion.setCod_fpago(CompraSelect.getCod_fpago());
-        objRecepcion.setNro_doca(CompraSelect.getNro_docum());
-        objRecepcion.setCod_doca(CompraSelect.getCod_docum());
-        objRecepcion.setObservaciones(CompraSelect.getObservaciones());
-        objRecepcion.getRecepcionDT().clear();
-        //Articulos
-        JsonArray Jelementos3 = ObjIni.listObjectos("SELECT a.cod_articulo, stock, cantidad, imp_costo, impuesto, a.porc_imp, \n"
-                + "imp_impuesto, imp_neto, imp_total, linea,B.codigo,b.nom_articulo\n"
-                + "FROM public.td_compras A INNER JOIN m_articulos B ON a.cod_articulo=b.cod_articulo\n"
-                + "where trans=" + CompraSelect.getTrans());
-        for (JsonElement jsonElement : Jelementos3) {
-            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-                Map<String, Object> map = ObjIni.fromJson(jsonElement);
-                System.out.println("cod_tipodoc : " + map.get("cod_tipodoc"));
-                RecepcionDT obj = new RecepcionDT();
-
-                obj.setCod_articulo(new BigDecimal(map.get("cod_articulo").toString()).intValue());
-                obj.setStock(0);
-                obj.setCantidad(new BigDecimal(map.get("cantidad").toString()).intValue());
-                obj.setImp_costo(new BigDecimal(map.get("imp_costo").toString()).intValue());
-                obj.setImpuesto(map.get("impuesto").toString());
-                obj.setPorc_imp(new BigDecimal(map.get("porc_imp").toString()).intValue());
-                obj.setImp_impuesto(new BigDecimal(map.get("imp_impuesto").toString()).intValue());
-                obj.setImp_neto(new BigDecimal(map.get("imp_neto").toString()).intValue());
-                obj.setImp_total(new BigDecimal(map.get("imp_total").toString()).intValue());
-                obj.setLinea(new BigDecimal(map.get("linea").toString()).intValue());
-                obj.setCodigo(map.get("codigo").toString());
-                obj.setNom_articulo(map.get("nom_articulo").toString());
-
-                obj.setCodigonew(obj.getCodigo());
-
-                objRecepcion.getRecepcionDT().add(obj);
-            }
-        }
-        totalesFooter();
+    public void resetTotales() {
+        //Totales
+        totales[0] = 0;
+        totales[1] = 0;
+        totales[2] = 0;
+        totales[3] = 0;
+        totales[4] = 0;
+        totales[5] = 0;
+        totales[6] = 0;
     }
 
-    public RecepcionService getRecepcion_service() {
-        return recepcion_service;
+    public void busquedaDatos() {
+        System.out.println("Valor : " + valorBusqueda);
+        listArticulos.clear();
+        ListCompra = Compra_service.ListaBusqueda(valorBusqueda);
     }
 
-    public void setRecepcion_service(RecepcionService recepcion_service) {
-        this.recepcion_service = recepcion_service;
+    public void limpiarDatos() {
+        ListCompra.clear();
+        ListCompra = Compra_service.Lista();
+        this.valorBusqueda = "";
+    }
+
+    public void datosBean() {
+        System.out.println("Datos Bean signo " + objCompra.getCod_deposito());
+    }
+
+    public ComprasService getCompra_service() {
+        return Compra_service;
+    }
+
+    public void setCompra_service(ComprasService Compra_service) {
+        this.Compra_service = Compra_service;
     }
 
     public Inicializacion getObjIni() {
@@ -579,31 +488,23 @@ public class RecepcionControlador {
         this.SelService = SelService;
     }
 
-    public Recepcion getObjRecepcion() {
-        if (objRecepcion == null) {
-            objRecepcion = new Recepcion();
+    public Compras getObjCompra() {
+        if (objCompra == null) {
+            objCompra = new Compras();
         }
-        return objRecepcion;
+        return objCompra;
     }
 
-    public void setObjRecepcion(Recepcion objRecepcion) {
-        this.objRecepcion = objRecepcion;
+    public void setObjCompra(Compras objCompra) {
+        this.objCompra = objCompra;
     }
 
-    public List<Recepcion> getListRecepcion() {
-        return ListRecepcion;
+    public List<Compras> getListCompra() {
+        return ListCompra;
     }
 
-    public void setListRecepcion(List<Recepcion> ListRecepcion) {
-        this.ListRecepcion = ListRecepcion;
-    }
-
-    public NumberFormat getFormatter() {
-        return formatter;
-    }
-
-    public void setFormatter(NumberFormat formatter) {
-        this.formatter = formatter;
+    public void setListCompra(List<Compras> ListCompra) {
+        this.ListCompra = ListCompra;
     }
 
     public List<Empresa> getListEmpresas() {
@@ -614,28 +515,12 @@ public class RecepcionControlador {
         this.listEmpresas = listEmpresas;
     }
 
-    public List<Proveedores> getListProveedor() {
-        return listProveedor;
-    }
-
-    public void setListProveedor(List<Proveedores> listProveedor) {
-        this.listProveedor = listProveedor;
-    }
-
     public List<Articulos> getListArticulos() {
         return listArticulos;
     }
 
     public void setListArticulos(List<Articulos> listArticulos) {
         this.listArticulos = listArticulos;
-    }
-
-    public List<Pagos> getListPagos() {
-        return ListPagos;
-    }
-
-    public void setListPagos(List<Pagos> ListPagos) {
-        this.ListPagos = ListPagos;
     }
 
     public Articulos getObjArticulo() {
@@ -655,14 +540,6 @@ public class RecepcionControlador {
 
     public void setAcciones(Object[] acciones) {
         this.acciones = acciones;
-    }
-
-    public Object[] getTotales() {
-        return totales;
-    }
-
-    public void setTotales(Object[] totales) {
-        this.totales = totales;
     }
 
     public boolean isAceptar() {
@@ -721,31 +598,44 @@ public class RecepcionControlador {
         this.evento = evento;
     }
 
-    public List<Compras> getListOcompras() {
-        return listOcompras;
+    public List<Proveedores> getListProveedor() {
+        return listProveedor;
     }
 
-    public void setListOcompras(List<Compras> listOcompras) {
-        this.listOcompras = listOcompras;
+    public void setListProveedor(List<Proveedores> listProveedor) {
+        this.listProveedor = listProveedor;
     }
 
-    public Compras getCompraSelect() {
-        if (CompraSelect == null) {
-            CompraSelect = new Compras();
-        }
-        return CompraSelect;
+    public Object[] getTotales() {
+        return totales;
     }
 
-    public void setCompraSelect(Compras CompraSelect) {
-        this.CompraSelect = CompraSelect;
+    public void setTotales(Object[] totales) {
+        this.totales = totales;
     }
 
-    public List<Depositos> getListDepositos() {
-        return listDepositos;
+    public List<Pagos> getListPagos() {
+        return ListPagos;
     }
 
-    public void setListDepositos(List<Depositos> listDepositos) {
-        this.listDepositos = listDepositos;
+    public void setListPagos(List<Pagos> ListPagos) {
+        this.ListPagos = ListPagos;
+    }
+
+    public NumberFormat getFormatter() {
+        return formatter;
+    }
+
+    public void setFormatter(NumberFormat formatter) {
+        this.formatter = formatter;
+    }
+
+    public String getValorBusqueda() {
+        return valorBusqueda;
+    }
+
+    public void setValorBusqueda(String valorBusqueda) {
+        this.valorBusqueda = valorBusqueda;
     }
 
     public List<Impuestos> getListImpuestos() {
@@ -754,6 +644,14 @@ public class RecepcionControlador {
 
     public void setListImpuestos(List<Impuestos> listImpuestos) {
         this.listImpuestos = listImpuestos;
+    }
+
+    public List<Depositos> getListDepositos() {
+        return listDepositos;
+    }
+
+    public void setListDepositos(List<Depositos> listDepositos) {
+        this.listDepositos = listDepositos;
     }
 
 }
