@@ -1,0 +1,333 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+                template="/templet/template.xhtml">
+
+    <ui:define name="title">Dashboard</ui:define>
+
+    <ui:define name="head">
+        <script type="text/javascript">
+            //<![CDATA[
+            function skinChart() {
+                this.cfg.shadow = false;
+                this.cfg.title = '';
+                this.cfg.seriesColors = ['#FFC107', '#03A9F4'];
+                this.cfg.grid = {
+                    background: '#ffffff',
+                    borderColor: '#ffffff',
+                    gridLineColor: '#EEEEEE',
+                    shadow: false
+                };
+                this.cfg.axesDefaults = {
+                    rendererOptions: {
+                        textColor: '#212121'
+                    }
+                };
+                this.cfg.seriesDefaults = {
+                    shadow: false,
+                    lineWidth: 1,
+                    markerOptions: {
+                        shadow: false,
+                        size: 7,
+                        style: 'circle'
+                    }
+                }
+            }
+
+            //]]>  
+        </script>
+        <style type="text/css">
+            .main-content {
+                padding: 0;
+            }
+        </style>
+        <style type="text/css">
+            .knob-container {
+                display: inline-block;
+                padding: 10px;
+            }
+        </style>
+        <script type="text/javascript">
+            function handleLoginRequest(xhr, status, args) {
+                PF('telefonos').hide();
+                PF('Email').hide();
+            }
+        </script>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card card-w-title">
+                    <p:panel id="panelProv" header="Orden de Compra" toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+                        <h:form id="formPagoD">
+                            <p:dialog header="" widgetVar="ocompra"  modal="true" width="600">
+
+                                <p:dataTable var="compra" value="#{recepcionControlador.listOcompras}"
+                                             selectionMode="single" selection="#{recepcionControlador.compraSelect}" rowKey="#{compra.nro_docum}">
+                                    <f:facet name="header">
+                                        Facturas Pendientes
+                                    </f:facet>
+                                    <p:column headerText="Fecha" style="width: 20%">
+                                        <h:outputText value="#{compra.fec_doc}" />
+                                    </p:column>
+
+                                    <p:column headerText="Proveedor" style="width: 20%">
+                                        <h:outputText value="#{compra.razon_social}" />
+                                    </p:column>
+
+                                    <p:column headerText="Orden de Compra" style="width: 20%">
+                                        <h:outputText value="#{compra.nro_docum}" />
+                                    </p:column>
+                                </p:dataTable> 
+
+                                <f:facet name="footer">
+                                    <p:commandButton value="Aceptar" oncomplete="cierreCuentas(xhr, status, args)" 
+                                                     action="#{recepcionControlador.cargarOrdenCompra()}" 
+                                                     ajax="true" update=":formrecep :formrecepD"/>
+                                </f:facet> 
+
+                            </p:dialog>
+                        </h:form>
+                        <h:form id="formPago" onkeypress="if (event.keyCode == 13)
+                                    event.returnValue = false;">
+                            <p:growl id="growl" showDetail="true" life="5000" />  
+
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3">
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-add"
+                                                         action="#{pagosProveedorControlador.prepareNuevo() }" 
+                                                         ajax="true" update=":formPago :formlistComp"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{pagosProveedorControlador.nuevo}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-create"
+                                                         action="#{pagosProveedorControlador.prepareEdit() }" 
+                                                         ajax="true" update=":formPago :formlistComp"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{pagosProveedorControlador.editar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-clear"
+                                                         action="#{pagosProveedorControlador.prepareEliminar()}" 
+                                                         ajax="true" update=":formPago :formlistComp"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{pagosProveedorControlador.eliminar}"></p:commandButton>
+                                    </div>
+                                </div>
+                            </div>
+                            <p:tabView id="TabOC" >
+                                <p:tab title="General">
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-12 ui-md-3">
+                                                <h:outputText value="Empresa :"></h:outputText>
+                                            </div>                                              
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:selectOneMenu value="#{pagosProveedorControlador.objPagos.cod_emp}" disabled="#{pagosProveedorControlador.aceptar}">
+                                                    <f:selectItems value="#{pagosProveedorControlador.listEmpresas}" var="emp" 
+                                                                   itemValue="#{emp.cod_emp}" itemLabel="#{emp.nom_emp}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-3">
+                                                <h:outputText value="Proveedor :"></h:outputText>
+                                            </div>                                              
+                                            <div class="ui-g-10 ui-md-9">                                                
+                                                <p:selectOneMenu value="#{pagosProveedorControlador.objPagos.cod_provedor}" disabled="#{pagosProveedorControlador.aceptar}">                                                    
+                                                    <f:selectItem itemLabel="Seleccione Proveedor" itemValue="0"></f:selectItem>
+                                                    <f:selectItems value="#{pagosProveedorControlador.listProveedor}" 
+                                                                   var="prov" itemValue="#{prov.cod_provedor}" 
+                                                                   itemLabel="#{prov.razon_social}"></f:selectItems> 
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Importe :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:inputText  value="#{pagosProveedorControlador.objPagos.importe}" disabled="true" style="color:  black"></p:inputText>
+                                            </div>       
+
+
+                                        </div>
+                                        <div class="ui-g-12 ui-md-6">
+                                            <div class="ui-g-2 ui-md-4">
+                                                <h:outputText value="Fecha :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-8">
+                                                <p:calendar id="button" value="#{pagosProveedorControlador.objPagos.d_fec_doc}" showOn="button" disabled="#{pagosProveedorControlador.aceptar}"
+                                                            locale="de" navigator="true" pattern="dd/MM/yyyy" />
+                                            </div>
+                                            <div class="ui-g-2 ui-md-4">
+                                                <h:outputText value="Observacion :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-8">
+                                                <p:inputText  value="#{pagosProveedorControlador.objPagos.observacion}" disabled="true" style="color:  black"></p:inputText>
+                                            </div>                                           
+
+                                        </div>
+
+                                    </div>
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-10">
+                                            <div class="ui-g-10 ui-md-2">                                                
+                                                <p:commandButton value="Facturas" 
+                                                                 disabled="#{pagosProveedorControlador.aceptar}"
+                                                                 onclick="PF('ocompra').show();"> </p:commandButton>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-10"></div>
+                                        </div>
+                                        <div class="ui-g-12 ui-md-5"></div>
+                                    </div> 
+
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-12">
+
+
+                                        </div>
+                                    </div>
+
+
+                                    <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-4"></div>
+                                        <div class="ui-g-12 ui-md-4"></div>
+                                        <div class="ui-g-12 ui-md-4">
+                                            <div class="ui-g-2 ui-md-5">
+                                                <h:outputText id="OCNeto" value="SUB TOTAL :" style="font-weight: bold"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-7">
+                                                <h:outputText id="OCNetos" value="#{pagosProveedorControlador.totales[3]}" style="font-weight: bold"> </h:outputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-5">
+                                                <h:outputText id="OCImp" value="IMPUESTO :" style="font-weight: bold"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-7">
+                                                <h:outputText id="OCImps" value="#{pagosProveedorControlador.totales[6]}" style="font-weight: bold" > </h:outputText>
+                                            </div>
+                                            <div class="ui-g-2 ui-md-5">
+                                                <h:outputText id="OCtot" value="TOTAL :" style="font-weight: bold"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-7">
+                                                <h:outputText id="OCtots" value="#{pagosProveedorControlador.totales[4]}" style="font-weight: bold"> </h:outputText>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </p:tab>
+                                <p:tab title="Log">
+                                    <p:dataTable var="log" value="#{pagosProveedorControlador.objPagos.logs}">
+                                        <p:column headerText="Proceso" style="width: 20%">
+                                            <h:outputText value="#{log.proceso}" />
+                                        </p:column>
+
+                                        <p:column headerText="Usuario" style="width: 20%">
+                                            <h:outputText value="#{log.usuario}" />
+                                        </p:column>
+                                        <p:column headerText="Operacion" style="width: 20%">
+                                            <h:outputText value="#{log.operacion}" />
+                                        </p:column>
+                                        <p:column headerText="Fecha" style="width: 20%">
+                                            <h:outputText value="#{log.fecha}" />
+                                        </p:column>
+
+
+                                    </p:dataTable>  
+                                </p:tab>
+                            </p:tabView>
+
+
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-3"> </div>
+                                <div class="ui-g-12 ui-md-4"></div>
+                                <div class="ui-g-12 ui-md-5">
+                                    <div class="ui-g-0 ui-md-4"></div>
+
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Aceptar"  action="#{pagosProveedorControlador.transaccion()}" ajax="true" update=":formPago :formlistComp"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{pagosProveedorControlador.aceptar}"> </p:commandButton>
+                                    </div>
+                                    <div class="ui-g-5 ui-md-4">
+                                        <p:commandButton value="Cancelar" action="#{pagosProveedorControlador.cancelarEventos()}" ajax="true" update=":formPago :formlistComp"
+                                                         style="background-color: #939393" > </p:commandButton>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:form>
+                    </p:panel>     
+                    <br/>
+                    <p:panel id="PanelDoc2" toggleable="true" toggleSpeed="500" widgetVar="panel" style="margin-bottom:20px">   
+                        <h:form id="formlistComp">
+                            <div class="ui-g ui-fluid form-group">
+                                <div class="ui-g-12 ui-md-12">
+                                    <div class="ui-g-12 ui-md-12">
+                                        <div class="ui-g-12 ui-md-1">
+                                            Busqueda :
+                                        </div>
+                                        <div class="ui-g-12 ui-md-5">
+                                            <p:inputText value="#{pagosProveedorControlador.valorBusqueda}" title="NIT Proveedor ò Codigo de OC">
+                                            </p:inputText>
+                                        </div>
+                                        <div class="ui-g-12 ui-md-2">
+                                            <p:commandButton icon="ui-icon-search"
+                                                             action="#{pagosProveedorControlador.busquedaDatos()}" 
+                                                             ajax="true" update=":formlistComp"
+                                                             style="background-color: #939393"></p:commandButton>
+
+                                            <p:commandButton  icon="ui-icon-clear"
+                                                              action="#{pagosProveedorControlador.limpiarDatos()}" 
+                                                              ajax="true" update=":formlistComp"
+                                                              style="background-color: #939393"></p:commandButton>
+
+                                        </div>
+
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12">
+
+                                        <p:dataTable var="pagos" value="#{pagosProveedorControlador.listaPagos}" 
+                                                     rows="10"
+                                                     paginator="true"
+                                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                                     rowsPerPageTemplate="5,10,15">
+                                            <f:facet name="header">
+                                                Lista de Pagos Proveedor
+                                            </f:facet>
+                                            <p:column headerText="Orden Compra" style="width: 10%">
+                                                <h:outputText value="#{pagos.cod_provedor}" />
+                                            </p:column>
+
+                                            <p:column headerText="Fecha" style="width: 10%">
+                                                <h:outputText value="#{pagos.fec_doc}" />
+                                            </p:column>
+
+                                            <p:column headerText="Descripcion" style="width: 20%">
+                                                <center>
+                                                    <p:commandButton icon="ui-icon-create"   style="background-color: #939393" 
+                                                                     action="#{pagosProveedorControlador.prepareCrud(pagos, 1)}" ajax="true" update=":formPago"> </p:commandButton>
+                                                    <p:commandButton icon="ui-icon-clear" style="background-color: #939393" 
+                                                                     action="#{pagosProveedorControlador.prepareCrud(pagos, 2)}"  ajax="true" update=":formPago"> </p:commandButton>
+                                                    <p:commandButton icon="ui-icon-remove-red-eye" style="background-color: #939393" 
+                                                                     action="#{pagosProveedorControlador.prepareCrud(pagos, 3)}"  ajax="true" update=":formPago"> </p:commandButton>
+                                                </center>
+                                            </p:column>
+
+
+                                        </p:dataTable>  
+
+                                    </div>
+                                </div>
+                            </div>
+                        </h:form>
+                    </p:panel>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+
+

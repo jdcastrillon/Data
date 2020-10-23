@@ -1,10 +1,9 @@
 package Controlador;
 
 import Modelo.Bodega.Articulos;
-import Modelo.Bodega.Depositos;
 import Modelo.Compras.*;
 import Modelo.Empresa;
-import Servicios.ComprasService;
+import Servicios.PagosProveedorService;
 import Servicios.Sistema.Inicializacion;
 import Servicios.Sistema.Seleccion;
 import Servicios.Sistema.Validaciones;
@@ -31,10 +30,10 @@ import javax.inject.Inject;
  */
 @ManagedBean
 @ViewScoped
-public class ComprasDirectControlador {
+public class PagosProveedorControlador {
 
     @Inject
-    private ComprasService Compra_service;
+    private PagosProveedorService pagos_Service;
 
     @Inject
     private Inicializacion ObjIni;
@@ -45,15 +44,14 @@ public class ComprasDirectControlador {
     @Inject
     private Seleccion SelService;
 
-    private Compras objCompra;
-    private List<Compras> ListCompra = new ArrayList();
+    private PagosProv objPagos;
+    private List<PagosProv> ListaPagos = new ArrayList();
     NumberFormat formatter = NumberFormat.getCurrencyInstance();
-    private List<Depositos> listDepositos = new ArrayList();
-    private List<Empresa> listEmpresas = new ArrayList();
-    private List<Impuestos> listImpuestos = new ArrayList();
+        
+    private List<Empresa> listEmpresas = new ArrayList();    
     private List<Proveedores> listProveedor = new ArrayList();
     private List<Articulos> listArticulos = new ArrayList();
-    private List<Pagos> ListPagos = new ArrayList();
+       
 
     private Articulos objArticulo;
 
@@ -71,26 +69,24 @@ public class ComprasDirectControlador {
     @PostConstruct
     public void init() {
         try {
-            getObjCompra();
+            getObjPagos();
             getObjArticulo();
             lista(1);
             this.evento = "inicio";
             controlEventos(evento);
-            resetTotales();
         } catch (Exception ex) {
             Logger.getLogger(SessionControlador.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    public ComprasDirectControlador() {
+    public PagosProveedorControlador() {
     }
 
     public void lista(int condicion) {
         //1: Carga Inicial
         //2: Carga Despues de Transaccion
-        ListCompra.clear();
-        listDepositos.clear();
-        ListCompra = Compra_service.Lista();
+        ListaPagos.clear();
+        ListaPagos = pagos_Service.Lista();
 
         if (condicion == 1) {
             listEmpresas.clear();
@@ -109,7 +105,7 @@ public class ComprasDirectControlador {
             }
 
             //Proveedores
-            JsonArray Jelementos2 = ObjIni.listObjectos("select cod_provedor,cod_documento,razon_social from m_proveedores");
+            JsonArray Jelementos2 = ObjIni.listObjectos("select cod_provedor,cod_documento,razon_social from m_proveedores limit 1");
 
             for (JsonElement jsonElement : Jelementos2) {
                 if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
@@ -121,18 +117,15 @@ public class ComprasDirectControlador {
                     listProveedor.add(obj);
                 }
             }
-
         }
     }
 
     public void prepareNuevo() {
-        setObjCompra(null);
-        getObjCompra();
+        setObjPagos(null);
+        getObjPagos();
         listEmpresas.clear();
         listArticulos.clear();
         listProveedor.clear();
-        listImpuestos.clear();
-        listDepositos.clear();
 
         //Empresas
         JsonArray Jelementos = ObjIni.listObjectos("select cod_emp,nom_emp from m_empresa");
@@ -159,38 +152,12 @@ public class ComprasDirectControlador {
             }
         }
 
-        //Impuestos
-        JsonArray Jelementos3 = ObjIni.listObjectos("select cod_impuesto,porc_imp from m_impuestos where cod_impuesto='IVA' and cod_emp='" + listEmpresas.get(0).getCod_emp() + "'");
-
-        for (JsonElement jsonElement : Jelementos3) {
-            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-                Impuestos obj = new Impuestos();
-                Map<String, Object> map = ObjIni.fromJson(jsonElement);
-                obj.setCod_impuesto(map.get("cod_impuesto").toString());
-                obj.setPorc_imp(new BigDecimal(map.get("porc_imp").toString()).intValue());
-                listImpuestos.add(obj);
-            }
-        }
-        //Depositos
-        JsonArray Jelementos5 = ObjIni.listObjectos("select cod_deposito,nom_deposito from m_depositos where cod_emp='" + listEmpresas.get(0).getCod_emp() + "' and activo='S'");
-        for (JsonElement jsonElement : Jelementos5) {
-            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-                Depositos obj = new Depositos();
-                Map<String, Object> map = ObjIni.fromJson(jsonElement);
-                obj.setCod_deposito(map.get("cod_deposito").toString());
-                obj.setNom_deposito(map.get("nom_deposito").toString());
-                listDepositos.add(obj);
-            }
-        }
-
+       
         //Variables
         System.out.println("Size Empresa : " + listEmpresas.size());
-        objCompra.setCod_emp(listEmpresas.get(0).getCod_emp());
-        objCompra.setPorcentaje(listImpuestos.get(0).getPorc_imp());
-        objCompra.setNro_docum(0);
-//        objCompra.setCod_provedor(listProveedor.get(0).getCod_provedor());
-        objCompra.setD_fec_doc(new Date());
-        resetTotales();
+        objPagos.setCod_emp(listEmpresas.get(0).getCod_emp());
+//        objPagos.setCod_provedor(listProveedor.get(0).getCod_provedor());
+        objPagos.setD_fec_doc(new Date());
 
         this.evento = "Nuevo";
         controlEventos(evento);
@@ -207,9 +174,9 @@ public class ComprasDirectControlador {
     }
 
     public void prepareBuscar() {
-        ListCompra.clear();
+        ListaPagos.clear();
         this.evento = "Buscar";
-        setObjCompra(null);
+        setObjPagos(null);
         controlEventos(evento);
     }
 
@@ -218,11 +185,11 @@ public class ComprasDirectControlador {
         controlEventos(evento);
     }
 
-    public void prepareCrud(Compras objecto, int condicion) {
-        setObjCompra(null);
+    public void prepareCrud(PagosProv objecto, int condicion) {
+        setObjPagos(null);
         Object Resulta[] = new Object[2];
-        Resulta = Compra_service.recuperarInfo(objecto);
-        setObjCompra((Compras) Resulta[0]);
+        Resulta = pagos_Service.recuperarInfo(objecto);
+        setObjPagos((PagosProv) Resulta[0]);
         lista(2);
         //Condiciones
         switch (condicion) {
@@ -248,8 +215,7 @@ public class ComprasDirectControlador {
         }
         this.evento = "inicio";
         controlEventos(evento);
-        setObjCompra(null);
-        resetTotales();
+        setObjPagos(null);
     }
 
     public void transaccion() {
@@ -258,26 +224,26 @@ public class ComprasDirectControlador {
         if (validaciones()) {
             switch (this.evento) {
                 case "Nuevo":
-                    Resulta = Compra_service.Transaccion(objCompra, "Nuevo", "Compra");
+                    Resulta = pagos_Service.Transaccion(objPagos, "Nuevo");
                     mns = "O.C Realizada exitosamente";
                     break;
                 case "Eliminar":
-                    Resulta = Compra_service.Transaccion(objCompra, "Borrar", "Compra");
+                    Resulta = pagos_Service.Transaccion(objPagos, "Borrar");
                     mns = "O.C Eliminada exitosamente";
                     break;
                 case "Editar":
-                    Resulta = Compra_service.Transaccion(objCompra, "Editar", "Compra");
+                    Resulta = pagos_Service.Transaccion(objPagos, "Editar");
                     mns = "O.C Editado exitosamente";
                     break;
             }
             if (Resulta[0].equals("OK")) {
                 if (evento.equalsIgnoreCase("Buscar")) {
-                    ListCompra.clear();
-                    ListCompra = (List<Compras>) Resulta[1];
+                    ListaPagos.clear();
+                    ListaPagos = (List<PagosProv>) Resulta[1];
                 } else {
                     FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", mns));
                     lista(2);
-                    setObjCompra(null);
+                    setObjPagos(null);
                     this.evento = "inicio";
                     controlEventos(evento);
                 }
@@ -299,18 +265,15 @@ public class ComprasDirectControlador {
     }
 
     public boolean validaciones() {
-        getObjCompra();
+        getObjPagos();
         String mns = "";
 
         if (this.nuevo == false) {
             //Validaciones
-            if (objCompra.getCod_provedor() == 0) {
+            if (objPagos.getCod_provedor() == 0) {
                 mns = "Debe Selecionar un Proveedor";
             }
-            if (objCompra.getFactura().length() == 0) {
-                mns = "Debe Digitar la Factura";
-            }
-//            if (ObjVal.ValPrimaryKey("select count(*) from m_tipodocumentos where cod_tipodoc='" + objCompra.getCod_tipodoc() + "'")) {
+//            if (ObjVal.ValPrimaryKey("select count(*) from m_tipodocumentos where cod_tipodoc='" + objPagos.getCod_tipodoc() + "'")) {
 //                mns = "El codigo del documento ya existe";
 //            }
         }
@@ -322,23 +285,6 @@ public class ComprasDirectControlador {
         return mns.length() <= 0;
     }
 
-    public void cargarPagos() {
-        System.out.println("Cargando cargarDepositos " + objCompra.getCod_provedor());
-        ListPagos.clear();
-        //Pagos
-        JsonArray Jelementos3 = ObjIni.listObjectos("SELECT A.cod_pago, descripcion FROM public.m_pagos A INNER JOIN \n"
-                + "m_proveedores B on A.cod_pago=B.cod_fpago\n"
-                + "where A.activo='S' and B.cod_provedor=" + objCompra.getCod_provedor());
-        for (JsonElement jsonElement : Jelementos3) {
-            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-                Map<String, Object> map = ObjIni.fromJson(jsonElement);
-                System.out.println("cod_tipodoc : " + map.get("cod_tipodoc"));
-                Pagos obj = new Pagos(new BigDecimal(map.get("cod_pago").toString()).intValue(),
-                        map.get("descripcion").toString());
-                ListPagos.add(obj);
-            }
-        }
-    }
 
     public List<Articulos> articulos(String query) {
         getObjArticulo();
@@ -350,119 +296,60 @@ public class ComprasDirectControlador {
     }
 
     public void cargaArticulo() {
-        System.out.println("Carga Estado : " + objArticulo.toString());
-        Object Resulta[] = new Object[3];
-        ComprasDT obj = new ComprasDT(objArticulo.getCod_articulo(), objArticulo.getCodigo(), objArticulo.getNom_articulo());
-        Resulta = ObjIni.Compras_Art(objCompra.getCod_emp(), objArticulo.getCod_articulo(), "S", objCompra.getCod_deposito(), objCompra.getCod_provedor());
-        obj.setPorc_imp((int) Resulta[2]);
-        obj.setStock((int) Resulta[0]);
-        obj.setImp_costo((double) Resulta[1]);
-
-        if (buscarElemento(obj) == false) {
-            objCompra.getComprasDt().add(0, obj);
-        }
-        setObjArticulo(null);
-        totalesFooter();
+//        System.out.println("Carga Estado : " + objArticulo.toString());
+//        Object Resulta[] = new Object[3];
+//        PagosProvDT obj = new PagosProvDT(objArticulo.getCod_articulo(), objArticulo.getCodigo(), objArticulo.getNom_articulo());
+//        Resulta = ObjIni.PagosProv_Art(objPagos.getCod_emp(), objArticulo.getCod_articulo(), "S", objPagos.getCod_deposito(), objPagos.getCod_provedor());
+//        obj.setPorc_imp((int) Resulta[2]);
+//        obj.setStock((int) Resulta[0]);
+//        obj.setImp_costo((double) Resulta[1]);
+//
+//        if (buscarElemento(obj) == false) {
+//            objPagos.getPagosProvDt().add(0, obj);
+//        }
+//        setObjArticulo(null);
     }
 
-    public void eliminarArticuloGrilla(ComprasDT obj) {
-        if (buscarElemento(obj)) {
-            objCompra.getComprasDt().remove(obj);
-        }
+    public void eliminarArticuloGrilla(PagosProvDT obj) {
+//        if (buscarElemento(obj)) {
+//            objPagos.getPagosProvDt().remove(obj);
+//        }
 
     }
 
-    public boolean buscarElemento(ComprasDT obj) {
+    public boolean buscarElemento(PagosProvDT obj) {
         boolean valor = false;
-        for (ComprasDT obj2 : objCompra.getComprasDt()) {
-            if (obj.getCod_articulo() == obj2.getCod_articulo()) {
-                valor = true;
-                break;
-            }
-        }
+//        for (PagosProvDT obj2 : objPagos.getPagosProvDt()) {
+//            if (obj.getCod_articulo() == obj2.getCod_articulo()) {
+//                valor = true;
+//                break;
+//            }
+//        }
         return valor;
-    }
-
-    public void totalesGrilla(ComprasDT obj) {
-        System.out.println("TotalGrilla");
-        System.out.println("Impuesto IVA " + obj.getPorc_imp());
-        for (ComprasDT comprasDT : objCompra.getComprasDt()) {
-            if (obj.getCod_articulo() == comprasDT.getCod_articulo()) {
-                System.out.println("Objecto" + comprasDT.toString());
-                comprasDT.setImp_neto(comprasDT.getImp_costo() * comprasDT.getCantidad());
-                comprasDT.setImp_total(comprasDT.getImp_neto() + (comprasDT.getImp_neto() * (comprasDT.getPorc_imp() / 100)));
-                comprasDT.setImp_impuesto(comprasDT.getImp_neto() * (comprasDT.getPorc_imp() / 100));
-                System.out.println("Neto : " + comprasDT.getImp_neto());
-                System.out.println("Neto : " + comprasDT.getPorc_imp());
-                break;
-            }
-        }
-        totalesFooter();
-    }
-
-    public void totalesFooter() {
-        System.out.println("******************** TOTALES FOOTER *****************************");
-        int stock = 0;
-        double costo = 0;
-        int cantidad = 0;
-        double neto = 0;
-        double total = 0;
-        double impuesto = 0;
-        for (ComprasDT comprasDT : objCompra.getComprasDt()) {
-            stock = stock + comprasDT.getStock();
-            costo = costo + (comprasDT.getImp_costo());
-            cantidad = cantidad + comprasDT.getCantidad();
-            neto = neto + comprasDT.getImp_neto();
-            total = total + comprasDT.getImp_total();
-            impuesto = impuesto + comprasDT.getImp_impuesto();
-        }
-        totales[0] = stock;
-        totales[1] = formatter.format(costo);
-        totales[2] = cantidad;
-        totales[3] = formatter.format(neto);
-        totales[4] = formatter.format(total);
-        totales[5] = formatter.format(costo * cantidad);
-        totales[6] = formatter.format(impuesto);
-
-        objCompra.setImp_neto(costo);
-        objCompra.setImp_impuesto(impuesto);
-        objCompra.setImp_total(total);
-
-    }
-
-    public void resetTotales() {
-        //Totales
-        totales[0] = 0;
-        totales[1] = 0;
-        totales[2] = 0;
-        totales[3] = 0;
-        totales[4] = 0;
-        totales[5] = 0;
-        totales[6] = 0;
     }
 
     public void busquedaDatos() {
         System.out.println("Valor : " + valorBusqueda);
         listArticulos.clear();
-        ListCompra = Compra_service.ListaBusqueda(valorBusqueda);
+        ListaPagos = pagos_Service.ListaBusqueda(valorBusqueda);
     }
 
     public void limpiarDatos() {
-        ListCompra.clear();
-        ListCompra = Compra_service.Lista();
+        ListaPagos.clear();
+        ListaPagos = pagos_Service.Lista();
         this.valorBusqueda = "";
     }
 
     public void datosBean() {
-        System.out.println("Datos Bean signo " + objCompra.getCod_deposito());
+        System.out.println("Datos Bean signo " );
     }
 
-    public ComprasService getCompra_service() {
-        return Compra_service;
+    public PagosProveedorService getPagos_Service() {
+        return pagos_Service;
     }
 
-    public void setCompra_service(ComprasService Compra_service) {
-        this.Compra_service = Compra_service;
+    public void setPagos_Service(PagosProveedorService pagos_Service) {
+        this.pagos_Service = pagos_Service;
     }
 
     public Inicializacion getObjIni() {
@@ -489,23 +376,31 @@ public class ComprasDirectControlador {
         this.SelService = SelService;
     }
 
-    public Compras getObjCompra() {
-        if (objCompra == null) {
-            objCompra = new Compras();
+    public PagosProv getObjPagos() {
+        if(objPagos==null){
+            objPagos=new PagosProv();
         }
-        return objCompra;
+        return objPagos;
     }
 
-    public void setObjCompra(Compras objCompra) {
-        this.objCompra = objCompra;
+    public void setObjPagos(PagosProv objPagos) {
+        this.objPagos = objPagos;
     }
 
-    public List<Compras> getListCompra() {
-        return ListCompra;
+    public List<PagosProv> getListaPagos() {
+        return ListaPagos;
     }
 
-    public void setListCompra(List<Compras> ListCompra) {
-        this.ListCompra = ListCompra;
+    public void setListaPagos(List<PagosProv> ListaPagos) {
+        this.ListaPagos = ListaPagos;
+    }
+
+    public NumberFormat getFormatter() {
+        return formatter;
+    }
+
+    public void setFormatter(NumberFormat formatter) {
+        this.formatter = formatter;
     }
 
     public List<Empresa> getListEmpresas() {
@@ -514,6 +409,14 @@ public class ComprasDirectControlador {
 
     public void setListEmpresas(List<Empresa> listEmpresas) {
         this.listEmpresas = listEmpresas;
+    }
+
+    public List<Proveedores> getListProveedor() {
+        return listProveedor;
+    }
+
+    public void setListProveedor(List<Proveedores> listProveedor) {
+        this.listProveedor = listProveedor;
     }
 
     public List<Articulos> getListArticulos() {
@@ -525,9 +428,6 @@ public class ComprasDirectControlador {
     }
 
     public Articulos getObjArticulo() {
-        if (objArticulo == null) {
-            objArticulo = new Articulos();
-        }
         return objArticulo;
     }
 
@@ -541,6 +441,14 @@ public class ComprasDirectControlador {
 
     public void setAcciones(Object[] acciones) {
         this.acciones = acciones;
+    }
+
+    public Object[] getTotales() {
+        return totales;
+    }
+
+    public void setTotales(Object[] totales) {
+        this.totales = totales;
     }
 
     public boolean isAceptar() {
@@ -599,38 +507,6 @@ public class ComprasDirectControlador {
         this.evento = evento;
     }
 
-    public List<Proveedores> getListProveedor() {
-        return listProveedor;
-    }
-
-    public void setListProveedor(List<Proveedores> listProveedor) {
-        this.listProveedor = listProveedor;
-    }
-
-    public Object[] getTotales() {
-        return totales;
-    }
-
-    public void setTotales(Object[] totales) {
-        this.totales = totales;
-    }
-
-    public List<Pagos> getListPagos() {
-        return ListPagos;
-    }
-
-    public void setListPagos(List<Pagos> ListPagos) {
-        this.ListPagos = ListPagos;
-    }
-
-    public NumberFormat getFormatter() {
-        return formatter;
-    }
-
-    public void setFormatter(NumberFormat formatter) {
-        this.formatter = formatter;
-    }
-
     public String getValorBusqueda() {
         return valorBusqueda;
     }
@@ -639,20 +515,5 @@ public class ComprasDirectControlador {
         this.valorBusqueda = valorBusqueda;
     }
 
-    public List<Impuestos> getListImpuestos() {
-        return listImpuestos;
-    }
-
-    public void setListImpuestos(List<Impuestos> listImpuestos) {
-        this.listImpuestos = listImpuestos;
-    }
-
-    public List<Depositos> getListDepositos() {
-        return listDepositos;
-    }
-
-    public void setListDepositos(List<Depositos> listDepositos) {
-        this.listDepositos = listDepositos;
-    }
-
+  
 }

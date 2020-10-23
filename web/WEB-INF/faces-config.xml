@@ -149,7 +149,10 @@
             <from-outcome>/view/compras/compraDirecta</from-outcome>
             <to-view-id>/view/compras/compraDirecta.xhtml</to-view-id>
         </navigation-case>
-       
+        <navigation-case>
+            <from-outcome>/view/compras/pagosproveedor</from-outcome>
+            <to-view-id>/view/compras/pagosproveedor.xhtml</to-view-id>
+        </navigation-case>
         
         
         

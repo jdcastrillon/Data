@@ -32,6 +32,7 @@ public class Compras implements Serializable {
     private double imp_descuento;
     private double imp_total;
     private String cod_deposito;
+    private String factura;
 
     transient private Date D_fec_doc;
     transient private Date D_fec_entrega;
@@ -210,7 +211,14 @@ public class Compras implements Serializable {
     public void setCod_deposito(String cod_deposito) {
         this.cod_deposito = cod_deposito;
     }
-        
+
+    public String getFactura() {
+        return factura;
+    }
+
+    public void setFactura(String factura) {
+        this.factura = factura;
+    }
 
     @Override
     public String toString() {

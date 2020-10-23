@@ -149,10 +149,10 @@
                                                             locale="de" navigator="true" pattern="dd/MM/yyyy" />
                                             </div>
                                             <div class="ui-g-2 ui-md-4">
-                                                <h:outputText value="Orden Compra :"></h:outputText>
+                                                <h:outputText value="Factura :"></h:outputText>
                                             </div>
                                             <div class="ui-g-10 ui-md-8">
-                                                <p:inputText  value="#{comprasDirectControlador.objCompra.nro_docum}" disabled="true" style="color:  black"></p:inputText>
+                                                <p:inputText  value="#{comprasDirectControlador.objCompra.factura}" disabled="#{comprasDirectControlador.aceptar}"></p:inputText>
                                             </div>
                                             <div class="ui-g-2 ui-md-4">
                                                 <h:outputText value="Observacion :"></h:outputText>
