@@ -22,10 +22,12 @@ public class RecepcionDT {
     private double imp_neto;
     private double imp_total;
     private int linea;
+    private String cambia_codigo;
+    private String codigonew;
+    private int cod_articulo2;
+    private String nom_articulo;
 
     transient private String codigo;
-    transient private String codigonew;
-    transient private String nom_articulo;
 
     public RecepcionDT() {
     }
@@ -146,6 +148,27 @@ public class RecepcionDT {
 
     public void setCodigonew(String codigonew) {
         this.codigonew = codigonew;
+    }
+
+    public String getCambia_codigo() {
+        return cambia_codigo;
+    }
+
+    public void setCambia_codigo(String cambia_codigo) {
+        this.cambia_codigo = cambia_codigo;
+    }
+
+    public int getCod_articulo2() {
+        return cod_articulo2;
+    }
+
+    public void setCod_articulo2(int cod_articulo2) {
+        this.cod_articulo2 = cod_articulo2;
+    }
+
+    @Override
+    public String toString() {
+        return "RecepcionDT{" + "trans=" + trans + ", cod_articulo=" + cod_articulo + ", stock=" + stock + ", cantidad=" + cantidad + ", imp_costo=" + imp_costo + ", impuesto=" + impuesto + ", porc_imp=" + porc_imp + ", imp_impuesto=" + imp_impuesto + ", imp_neto=" + imp_neto + ", imp_total=" + imp_total + ", linea=" + linea + ", cambia_codigo=" + cambia_codigo + ", codigonew=" + codigonew + ", codigo=" + codigo + ", nom_articulo=" + nom_articulo + '}';
     }
 
 }

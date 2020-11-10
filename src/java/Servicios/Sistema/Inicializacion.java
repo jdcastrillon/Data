@@ -7,6 +7,7 @@ package Servicios.Sistema;
 
 import Dao.ObjectoDao;
 import Dao.ObjectoImp;
+import Modelo.Compras.ArticuloDatos;
 import ModeloService.ConsultaMult;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -120,6 +121,32 @@ public class Inicializacion {
         return codigoSecuencia.intValue();
     }
 
+    public List<ArticuloDatos> StockDisponibleMultiple(String cod_emp, String cod_articulo, String Bodega) {
+        String Consulta = "";
+
+        Consulta = "select cod_articulo,codigo,COALESCE((select cantidad from s_stkdepositos where cod_emp='"+cod_emp+"' and cod_estado='Disponible' and cod_tit='"+Bodega+"' and \n"
+                + "cod_Articulo=A.cod_articulo),0) stock from m_articulos A where A.codigo in ("+cod_articulo+")";
+
+        String respuesta = objIni.QueryObj(Consulta);
+        System.out.println("Respuesta de Secuencia " + respuesta);
+        List<ArticuloDatos> datos = new ArrayList();
+        if (!respuesta.equalsIgnoreCase("[\"No hay Datos\"]")) {
+            System.out.println("Entro a no hay datos");
+
+            JsonArray Jelementos = parser.parse(respuesta).getAsJsonArray();
+            for (JsonElement jsonElement : Jelementos) {
+                Map<String, Object> map = gson.fromJson(jsonElement.getAsString(), new TypeToken<Map<String, Object>>() {
+                }.getType());
+                ArticuloDatos dato = new ArticuloDatos();
+                dato.setCod_articulo(new BigDecimal(map.get("cod_articulo").toString()).intValue());
+                dato.setStock(new BigDecimal(map.get("cantidad").toString()).intValue());
+                dato.setCodigo(map.get("codigo").toString());
+                datos.add(dato);
+            }
+        }
+        return datos;
+    }
+
     public Object[] Compras_Art(String cod_emp, int cod_articulo, String AplicaBodega, String Bodega, int proveedor) {
         Object Resulta[] = new Object[3];
         String Consulta = "select stock,costo,impuesto from art_compras('" + cod_emp + "'," + cod_articulo + ",'" + AplicaBodega + "','" + Bodega + "'," + proveedor + ")";
@@ -143,6 +170,31 @@ public class Inicializacion {
             Resulta[2] = 0;
         }
         return Resulta;
+    }
+
+    public int codigo_articulo_nuevo(String codigo) {
+        //Si el codigo ya existe se devuelve el codigo del articulo (cod_Articulo)
+        //Si el codigo no existe se retorna el nuevo codigo del articulo
+        int cod_ArticuloN = 0;
+        String respuesta = objIni.QueryObj("select cod_articulo from m_articulos where codigo='" + codigo + "'");
+        System.out.println("Respuesta de Secuencia " + respuesta);
+        BigDecimal codigoSecuencia = null;
+        JsonArray Jelementos = parser.parse(respuesta).getAsJsonArray();
+        for (JsonElement jsonElement : Jelementos) {
+            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
+                //retorna codigo de articulo
+                Map<String, Object> map = gson.fromJson(jsonElement.getAsString(), new TypeToken<Map<String, Object>>() {
+                }.getType());
+                System.out.println("cod_articulo : " + map.get("cod_articulo"));
+                cod_ArticuloN = new BigDecimal(map.get("cod_articulo").toString()).intValue();
+            } else {
+                //Se crea nuevo codigo de articulo
+                System.out.println("Numerador");
+                cod_ArticuloN = numerador("articulo");
+            }
+        }
+
+        return cod_ArticuloN;
     }
 
     public Object[] eventos(String accion) {

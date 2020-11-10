@@ -4,7 +4,6 @@ import Modelo.Bodega.Articulos;
 import Modelo.Compras.Compras;
 import Modelo.Compras.RecepcionDT;
 import Modelo.Compras.Pagos;
-import Modelo.Compras.Proveedores;
 import Modelo.Compras.Recepcion;
 import Modelo.Bodega.Depositos;
 import Modelo.Compras.Impuestos;
@@ -15,7 +14,6 @@ import Servicios.Sistema.Seleccion;
 import Servicios.Sistema.Validaciones;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -56,7 +54,6 @@ public class RecepcionControlador {
     NumberFormat formatter = NumberFormat.getCurrencyInstance();
 
     private List<Empresa> listEmpresas = new ArrayList();
-    private List<Proveedores> listProveedor = new ArrayList();
     private List<Articulos> listArticulos = new ArrayList();
     private List<Depositos> listDepositos = new ArrayList();
     private List<Pagos> ListPagos = new ArrayList();
@@ -118,19 +115,6 @@ public class RecepcionControlador {
                 }
             }
 
-            //Proveedores
-            JsonArray Jelementos2 = ObjIni.listObjectos("select cod_provedor,cod_documento,razon_social from m_proveedores");
-            for (JsonElement jsonElement : Jelementos2) {
-                if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-                    Proveedores obj = new Proveedores();
-                    Map<String, Object> map = ObjIni.fromJson(jsonElement);
-                    obj.setCod_provedor(new BigDecimal(map.get("cod_provedor").toString()).intValue());
-                    obj.setCod_documento(map.get("cod_documento").toString());
-                    obj.setRazon_social(map.get("razon_social").toString());
-                    listProveedor.add(obj);
-                }
-            }
-
             //Pagos
             JsonArray Jelementos3 = ObjIni.listObjectos("SELECT cod_pago, descripcion FROM public.m_pagos where activo='S'");
             for (JsonElement jsonElement : Jelementos3) {
@@ -180,19 +164,6 @@ public class RecepcionControlador {
             }
         }
 
-        //Proveedores
-        JsonArray Jelementos2 = ObjIni.listObjectos("select cod_provedor,cod_documento,razon_social from m_proveedores");
-        for (JsonElement jsonElement : Jelementos2) {
-            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-                Proveedores obj = new Proveedores();
-                Map<String, Object> map = ObjIni.fromJson(jsonElement);
-                obj.setCod_provedor(new BigDecimal(map.get("cod_provedor").toString()).intValue());
-                obj.setCod_documento(map.get("cod_documento").toString());
-                obj.setRazon_social(map.get("razon_social").toString());
-                listProveedor.add(obj);
-            }
-        }
-
         //Pagos
         JsonArray Jelementos3 = ObjIni.listObjectos("SELECT cod_pago, descripcion FROM public.m_pagos where activo='S'");
         for (JsonElement jsonElement : Jelementos3) {
@@ -211,7 +182,7 @@ public class RecepcionControlador {
                 + " imp_total, observaciones, B.razon_social\n"
                 + " FROM public.t_compras A INNER JOIN m_proveedores B ON\n"
                 + "A.cod_provedor=B.cod_provedor "
-                + "WHERE nro_docum not in (select nro_doca from t_recepcion where nro_doca=A.nro_docum)");
+                + "WHERE nro_docum not in (select nro_doca from t_recepcion where nro_doca=A.nro_docum) and nro_docum>0 ");
         for (JsonElement jsonElement : Jelementos4) {
             if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
                 Map<String, Object> map = ObjIni.fromJson(jsonElement);
@@ -263,8 +234,8 @@ public class RecepcionControlador {
         //Variables
         System.out.println("Size Empresa : " + listEmpresas.size());
         objRecepcion.setCod_emp(listEmpresas.get(0).getCod_emp());
-        objRecepcion.setCod_provedor(listProveedor.get(0).getCod_provedor());
         objRecepcion.setD_fec_doc(new Date());
+        objRecepcion.setCod_deposito("0");
         resetTotales();
 
         this.evento = "Nuevo";
@@ -332,49 +303,26 @@ public class RecepcionControlador {
         if (validaciones()) {
             switch (this.evento) {
                 case "Nuevo":
+                    articulosNuevos();
                     Resulta = recepcion_service.Transaccion(objRecepcion, "Nuevo");
-                    mns = "Deposito Creado exitosamente";
+                    mns = "Recepcion Exitosa";
                     break;
                 case "Eliminar":
                     Resulta = recepcion_service.Transaccion(objRecepcion, "Borrar");
-                    mns = "Deposito Eliminado exitosamente";
+                    mns = "Recepcion Eliminada";
                     break;
                 case "Editar":
+                    articulosNuevos();
                     Resulta = recepcion_service.Transaccion(objRecepcion, "Editar");
-                    mns = "Deposito Editado exitosamente";
+                    mns = "Recepcion Editada";
                     break;
-                case "Reporte": {
-                    try {
-                        Resulta = SelService.PDFDescargar2("reporte");
-                    } catch (IOException ex) {
-                        System.out.println("Error reporte");
-                        Logger.getLogger(RecepcionControlador.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-                mns = "Reporte";
-                break;
-//                case "Buscar":
-//                    Resulta = recepcion_service.buscarDoc(objRecepcion);
-//                    break;//                case "Buscar":
-//                    Resulta = recepcion_service.buscarDoc(objRecepcion);
-//                    break;//                case "Buscar":
-//                    Resulta = recepcion_service.buscarDoc(objRecepcion);
-//                    break;//                case "Buscar":
-//                    Resulta = recepcion_service.buscarDoc(objRecepcion);
-//                    break;
-
             }
             if (Resulta[0].equals("OK")) {
-                if (evento.equalsIgnoreCase("Buscar")) {
-                    ListRecepcion.clear();
-                    ListRecepcion = (List<Recepcion>) Resulta[1];
-                } else {
-                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", mns));
-                    lista(2);
-                    setObjRecepcion(null);
-                    this.evento = "inicio";
-                    controlEventos(evento);
-                }
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", mns));
+                lista(2);
+                setObjRecepcion(null);
+                this.evento = "inicio";
+                controlEventos(evento);
             } else {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Info", (String) Resulta[1]));
             }
@@ -396,11 +344,15 @@ public class RecepcionControlador {
         getObjRecepcion();
         String mns = "";
 
-        if (this.nuevo == false) {
-            //Validaciones
-//            if (ObjVal.ValPrimaryKey("select count(*) from m_tipodocumentos where cod_tipodoc='" + objRecepcion.getCod_tipodoc() + "'")) {
-//                mns = "El codigo del documento ya existe";
-//            }
+        if (objRecepcion.getCod_provedor() == 0) {
+            mns = "Debe Selecionar un Proveedor";
+        }
+        if (objRecepcion.getFactura().equalsIgnoreCase("0")) {
+            mns = "Debe Digitar la Factura";
+        }
+        
+        if (objRecepcion.getCod_deposito().equalsIgnoreCase("0")) {
+            mns = "Debe Selecionar una Bodega";
         }
 
         System.out.println("mns : " + mns);
@@ -408,6 +360,40 @@ public class RecepcionControlador {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Info", mns));
         }
         return mns.length() <= 0;
+    }
+
+    public void articulosNuevos() {
+        for (RecepcionDT comprasDT : objRecepcion.getRecepcionDT()) {
+            comprasDT.setCambia_codigo("N");
+            if (!comprasDT.getCodigo().equalsIgnoreCase(comprasDT.getCodigonew())) {
+                comprasDT.setCambia_codigo("S");
+                comprasDT.setCod_articulo2(ObjIni.codigo_articulo_nuevo(comprasDT.getCodigonew()));
+            }
+        }
+    }
+
+    public void nombre_articulo(int cod_articulo, String codigo) {
+        String nombre = "";
+        boolean existeCodigo = false;
+        JsonArray Jelementos = ObjIni.listObjectos("select nom_articulo from m_articulos where codigo='" + codigo + "'");
+        for (JsonElement jsonElement : Jelementos) {
+            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
+                Map<String, Object> map = ObjIni.fromJson(jsonElement);
+                nombre = (map.get("nom_articulo").toString());
+                existeCodigo = true;
+            }
+        }
+        System.out.println("Codigo : " + cod_articulo);
+        System.out.println("Nom_articulo : " + nombre);
+        if (existeCodigo) {
+            for (RecepcionDT recepcionDT : objRecepcion.getRecepcionDT()) {
+                System.out.println(recepcionDT.getCod_articulo() + "=" + cod_articulo);
+                if (recepcionDT.getCod_articulo() == cod_articulo) {
+                    recepcionDT.setNom_articulo(nombre);
+                    System.out.println("Actualizo ");
+                }
+            }
+        }
     }
 
     public void resetTotales() {
@@ -433,7 +419,8 @@ public class RecepcionControlador {
     public void cargaArticulo() {
         System.out.println("Carga Estado : " + objArticulo.toString());
         RecepcionDT obj = new RecepcionDT(objArticulo.getCod_articulo(), objArticulo.getCodigo(), objArticulo.getNom_articulo());
-        obj.setStock(ObjIni.StockDisponible(objRecepcion.getCod_emp(), objArticulo.getCod_articulo(), "N", ""));
+        obj.setCodigonew(objArticulo.getCodigo());
+//        obj.setStock(ObjIni.StockDisponible(objRecepcion.getCod_emp(), objArticulo.getCod_articulo(), "N", ""));
         if (buscarElemento(obj) == false) {
             objRecepcion.getRecepcionDT().add(0, obj);
         }
@@ -510,6 +497,7 @@ public class RecepcionControlador {
         System.out.println("Orden de compra : " + CompraSelect.toString());
         objRecepcion.setCod_emp(CompraSelect.getCod_emp());
         objRecepcion.setCod_provedor(CompraSelect.getCod_provedor());
+        objRecepcion.setNom_proveedor(CompraSelect.getRazon_social());
         objRecepcion.setCod_fpago(CompraSelect.getCod_fpago());
         objRecepcion.setNro_doca(CompraSelect.getNro_docum());
         objRecepcion.setCod_doca(CompraSelect.getCod_docum());
@@ -545,6 +533,10 @@ public class RecepcionControlador {
             }
         }
         totalesFooter();
+    }
+
+    public void datosBean() {
+        System.out.println("Datos Bean signo " + objRecepcion.getFactura());
     }
 
     public RecepcionService getRecepcion_service() {
@@ -612,14 +604,6 @@ public class RecepcionControlador {
 
     public void setListEmpresas(List<Empresa> listEmpresas) {
         this.listEmpresas = listEmpresas;
-    }
-
-    public List<Proveedores> getListProveedor() {
-        return listProveedor;
-    }
-
-    public void setListProveedor(List<Proveedores> listProveedor) {
-        this.listProveedor = listProveedor;
     }
 
     public List<Articulos> getListArticulos() {

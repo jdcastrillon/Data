@@ -24,9 +24,13 @@ public class ComprasDT implements Serializable {
     private double imp_neto;
     private double imp_total;
     private int linea;
+    private String cambia_codigo;
+    private String codigonew;
+    private int cod_articulo2;
+    private String nom_articulo;
 
     transient private String codigo;
-    transient private String nom_articulo;
+
 
     public ComprasDT() {
     }
@@ -36,6 +40,9 @@ public class ComprasDT implements Serializable {
         this.codigo = codigo;
         this.nom_articulo = nom_articulo;
     }
+
+    
+    
 
     public int getTrans() {
         return trans;
@@ -139,6 +146,30 @@ public class ComprasDT implements Serializable {
 
     public void setCodigo(String codigo) {
         this.codigo = codigo;
+    }
+
+    public String getCambia_codigo() {
+        return cambia_codigo;
+    }
+
+    public void setCambia_codigo(String cambia_codigo) {
+        this.cambia_codigo = cambia_codigo;
+    }
+
+    public String getCodigonew() {
+        return codigonew;
+    }
+
+    public void setCodigonew(String codigonew) {
+        this.codigonew = codigonew;
+    }
+
+    public int getCod_articulo2() {
+        return cod_articulo2;
+    }
+
+    public void setCod_articulo2(int cod_articulo2) {
+        this.cod_articulo2 = cod_articulo2;
     }
 
     @Override

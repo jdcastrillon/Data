@@ -19,7 +19,7 @@ public class PagosProv implements Serializable {
 
     private int trans;
     private String cod_emp;
-    private int cod_provedor;
+    private int cod_proveedor;
     private String cod_docum;
     private String fec_doc;
     private String observacion;
@@ -28,6 +28,8 @@ public class PagosProv implements Serializable {
     private int cod_log;
 
     transient private Date D_fec_doc;
+    transient private String nit_proveedor;
+    transient private String nom_proveedor;
     transient List<Log_Transaccion> logs = new ArrayList();
     transient List<PagosProvDT> Facturas = new ArrayList();
 
@@ -48,14 +50,6 @@ public class PagosProv implements Serializable {
 
     public void setCod_emp(String cod_emp) {
         this.cod_emp = cod_emp;
-    }
-
-    public int getCod_provedor() {
-        return cod_provedor;
-    }
-
-    public void setCod_provedor(int cod_provedor) {
-        this.cod_provedor = cod_provedor;
     }
 
     public String getCod_docum() {
@@ -128,6 +122,35 @@ public class PagosProv implements Serializable {
 
     public void setFacturas(List<PagosProvDT> Facturas) {
         this.Facturas = Facturas;
+    }
+
+    public int getCod_proveedor() {
+        return cod_proveedor;
+    }
+
+    public void setCod_proveedor(int cod_proveedor) {
+        this.cod_proveedor = cod_proveedor;
+    }
+
+    public String getNom_proveedor() {
+        return nom_proveedor;
+    }
+
+    public void setNom_proveedor(String nom_proveedor) {
+        this.nom_proveedor = nom_proveedor;
+    }
+
+    public String getNit_proveedor() {
+        return nit_proveedor;
+    }
+
+    public void setNit_proveedor(String nit_proveedor) {
+        this.nit_proveedor = nit_proveedor;
+    }
+
+    @Override
+    public String toString() {
+        return "PagosProv{" + "trans=" + trans + ", cod_emp=" + cod_emp + ", cod_provedor=" + cod_proveedor + ", cod_docum=" + cod_docum + ", fec_doc=" + fec_doc + ", observacion=" + observacion + ", importe=" + importe + ", signo=" + signo + ", cod_log=" + cod_log + ", D_fec_doc=" + D_fec_doc + ", logs=" + logs + ", Facturas=" + Facturas + '}';
     }
 
 }

@@ -73,7 +73,6 @@ public class RecepcionService implements Serializable {
             //Registro Transaccion
             obj.setCod_log(logproceso.intValue());
             obj.setCod_docum("Recepcion");
-//            obj.setNro_docum(obj.getNro_doca());
             obj.setFec_doc("@fecha" + obj.getD_fec_doc().getTime());
             obj.setFec_entrega(obj.getFec_doc());
 
@@ -87,6 +86,7 @@ public class RecepcionService implements Serializable {
 
             int linea = 1;
             for (RecepcionDT comprasDT : obj.getRecepcionDT()) {
+                System.out.println(":::  " + comprasDT.toString());
                 comprasDT.setTrans(obj.getTrans());
                 comprasDT.setLinea(linea);
 
@@ -127,7 +127,7 @@ public class RecepcionService implements Serializable {
     }
 
     public List<Recepcion> Lista() {
-        String respuesta = dao.QueryObj("SELECT trans, cod_emp, cod_provedor, cod_docum, nro_docum, cod_doca,nro_doca \n"
+        String respuesta = dao.QueryObj("SELECT trans, cod_emp, cod_provedor, cod_docum, factura, cod_doca,nro_doca \n"
                 + ", cod_fpago, fec_doc, fec_entrega, imp_neto, imp_impuesto, \n"
                 + "imp_descuento, imp_total, observaciones, cod_deposito, cod_log \n"
                 + "FROM public.t_recepcion");
@@ -145,7 +145,7 @@ public class RecepcionService implements Serializable {
                     obj.setCod_emp(map.get("cod_emp").toString());
                     obj.setCod_provedor(new BigDecimal(map.get("cod_provedor").toString()).intValue());
                     obj.setCod_docum(map.get("cod_docum").toString());
-                    obj.setNro_docum(new BigDecimal(map.get("nro_docum").toString()).intValue());
+                    obj.setFactura(map.get("factura").toString());
                     obj.setCod_doca(map.get("cod_doca").toString());
                     obj.setNro_doca(new BigDecimal(map.get("nro_doca").toString()).intValue());
                     obj.setCod_fpago(new BigDecimal(map.get("cod_fpago").toString()).intValue());

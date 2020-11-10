@@ -47,16 +47,14 @@ public class PagosProveedorControlador {
     private PagosProv objPagos;
     private List<PagosProv> ListaPagos = new ArrayList();
     NumberFormat formatter = NumberFormat.getCurrencyInstance();
-        
-    private List<Empresa> listEmpresas = new ArrayList();    
+
+    private List<Empresa> listEmpresas = new ArrayList();
     private List<Proveedores> listProveedor = new ArrayList();
     private List<Articulos> listArticulos = new ArrayList();
-       
 
     private Articulos objArticulo;
 
     Object acciones[] = new Object[6];
-    Object totales[] = new Object[8];
     private boolean aceptar;
     private boolean editar;
     private boolean eliminar;
@@ -152,7 +150,6 @@ public class PagosProveedorControlador {
             }
         }
 
-       
         //Variables
         System.out.println("Size Empresa : " + listEmpresas.size());
         objPagos.setCod_emp(listEmpresas.get(0).getCod_emp());
@@ -220,33 +217,32 @@ public class PagosProveedorControlador {
 
     public void transaccion() {
         Object Resulta[] = new Object[1];
+//        System.out.println("objPagos : "+objPagos.toString());
+//        for (PagosProvDT factura : objPagos.getFacturas()) {
+//            System.out.println("- " + factura.toString());
+//        }
         String mns = "";
         if (validaciones()) {
             switch (this.evento) {
                 case "Nuevo":
                     Resulta = pagos_Service.Transaccion(objPagos, "Nuevo");
-                    mns = "O.C Realizada exitosamente";
+                    mns = "Pagos Realizados Exitosamente";
                     break;
                 case "Eliminar":
                     Resulta = pagos_Service.Transaccion(objPagos, "Borrar");
-                    mns = "O.C Eliminada exitosamente";
+                    mns = "Pagos Eliminados";
                     break;
                 case "Editar":
                     Resulta = pagos_Service.Transaccion(objPagos, "Editar");
-                    mns = "O.C Editado exitosamente";
+                    mns = "Pagos Editados";
                     break;
             }
             if (Resulta[0].equals("OK")) {
-                if (evento.equalsIgnoreCase("Buscar")) {
-                    ListaPagos.clear();
-                    ListaPagos = (List<PagosProv>) Resulta[1];
-                } else {
-                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", mns));
-                    lista(2);
-                    setObjPagos(null);
-                    this.evento = "inicio";
-                    controlEventos(evento);
-                }
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", mns));
+                lista(2);
+                setObjPagos(null);
+                this.evento = "inicio";
+                controlEventos(evento);
             } else {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Info", (String) Resulta[1]));
             }
@@ -270,7 +266,7 @@ public class PagosProveedorControlador {
 
         if (this.nuevo == false) {
             //Validaciones
-            if (objPagos.getCod_provedor() == 0) {
+            if (objPagos.getCod_proveedor()==0) {
                 mns = "Debe Selecionar un Proveedor";
             }
 //            if (ObjVal.ValPrimaryKey("select count(*) from m_tipodocumentos where cod_tipodoc='" + objPagos.getCod_tipodoc() + "'")) {
@@ -285,48 +281,15 @@ public class PagosProveedorControlador {
         return mns.length() <= 0;
     }
 
-
-    public List<Articulos> articulos(String query) {
-        getObjArticulo();
-        System.out.println("------------ Bean articulos------------");
-        System.out.println("Articulo : " + objArticulo.toString());
-
-        listArticulos = SelService.cargaArticulo(query, 2);
-        return listArticulos;
+    public void totalesGrilla(PagosProvDT obj) {
+        System.out.println("TotalGrilla");
+        double importe = 0;
+        for (PagosProvDT facturas : objPagos.getFacturas()) {
+            importe = +facturas.getImp_pago();
+        }
+        objPagos.setImporte(importe);
     }
 
-    public void cargaArticulo() {
-//        System.out.println("Carga Estado : " + objArticulo.toString());
-//        Object Resulta[] = new Object[3];
-//        PagosProvDT obj = new PagosProvDT(objArticulo.getCod_articulo(), objArticulo.getCodigo(), objArticulo.getNom_articulo());
-//        Resulta = ObjIni.PagosProv_Art(objPagos.getCod_emp(), objArticulo.getCod_articulo(), "S", objPagos.getCod_deposito(), objPagos.getCod_provedor());
-//        obj.setPorc_imp((int) Resulta[2]);
-//        obj.setStock((int) Resulta[0]);
-//        obj.setImp_costo((double) Resulta[1]);
-//
-//        if (buscarElemento(obj) == false) {
-//            objPagos.getPagosProvDt().add(0, obj);
-//        }
-//        setObjArticulo(null);
-    }
-
-    public void eliminarArticuloGrilla(PagosProvDT obj) {
-//        if (buscarElemento(obj)) {
-//            objPagos.getPagosProvDt().remove(obj);
-//        }
-
-    }
-
-    public boolean buscarElemento(PagosProvDT obj) {
-        boolean valor = false;
-//        for (PagosProvDT obj2 : objPagos.getPagosProvDt()) {
-//            if (obj.getCod_articulo() == obj2.getCod_articulo()) {
-//                valor = true;
-//                break;
-//            }
-//        }
-        return valor;
-    }
 
     public void busquedaDatos() {
         System.out.println("Valor : " + valorBusqueda);
@@ -341,7 +304,29 @@ public class PagosProveedorControlador {
     }
 
     public void datosBean() {
-        System.out.println("Datos Bean signo " );
+        System.out.println("Datos Bean signo ");
+    }
+
+    public void facturasPendientes() {
+        System.out.println("Facturas");
+        //Facturas Pendientes
+        objPagos.getFacturas().clear();
+        JsonArray Jelementos = ObjIni.listObjectos("select B.fec_doc,A.factura,a.imp_deuda from s_cartera A inner join t_compras B on A.factura=B.factura "
+                + "where A.cod_emp='" + objPagos.getCod_emp() + "' and cod_tit=" + objPagos.getCod_proveedor());
+        for (JsonElement jsonElement : Jelementos) {
+            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
+                PagosProvDT factura = new PagosProvDT();
+                Map<String, Object> map = ObjIni.fromJson(jsonElement);
+                factura.setFec_doc(map.get("fec_doc").toString());
+                factura.setFactura(map.get("factura").toString());
+                factura.setImp_saldo(new BigDecimal(map.get("imp_deuda").toString()).intValue());
+                objPagos.getFacturas().add(factura);
+            }
+        }
+    }
+
+    public void cargarFactura() {
+
     }
 
     public PagosProveedorService getPagos_Service() {
@@ -377,8 +362,8 @@ public class PagosProveedorControlador {
     }
 
     public PagosProv getObjPagos() {
-        if(objPagos==null){
-            objPagos=new PagosProv();
+        if (objPagos == null) {
+            objPagos = new PagosProv();
         }
         return objPagos;
     }
@@ -441,14 +426,6 @@ public class PagosProveedorControlador {
 
     public void setAcciones(Object[] acciones) {
         this.acciones = acciones;
-    }
-
-    public Object[] getTotales() {
-        return totales;
-    }
-
-    public void setTotales(Object[] totales) {
-        this.totales = totales;
     }
 
     public boolean isAceptar() {
@@ -515,5 +492,4 @@ public class PagosProveedorControlador {
         this.valorBusqueda = valorBusqueda;
     }
 
-  
 }

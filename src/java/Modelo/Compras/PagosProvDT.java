@@ -20,6 +20,9 @@ public class PagosProvDT implements Serializable {
     private int signo;
     private int linea;
 
+    transient private String fec_doc;
+    transient private boolean pagar;
+
     public PagosProvDT() {
     }
 
@@ -70,7 +73,26 @@ public class PagosProvDT implements Serializable {
     public void setLinea(int linea) {
         this.linea = linea;
     }
-    
-    
+
+    public String getFec_doc() {
+        return fec_doc;
+    }
+
+    public void setFec_doc(String fec_doc) {
+        this.fec_doc = fec_doc;
+    }
+
+    public boolean isPagar() {
+        return pagar;
+    }
+
+    public void setPagar(boolean pagar) {
+        this.pagar = pagar;
+    }
+
+    @Override
+    public String toString() {
+        return "PagosProvDT{" + "trans=" + trans + ", factura=" + factura + ", imp_saldo=" + imp_saldo + ", imp_pago=" + imp_pago + ", signo=" + signo + ", linea=" + linea + ", fec_doc=" + fec_doc + ", pagar=" + pagar + '}';
+    }
 
 }

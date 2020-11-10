@@ -41,7 +41,7 @@ public class Validaciones {
         }
         return valorCount > 0; //Si es mayor a cero devuelve true
     }
-    
+
     //ValConsulta  : Si trae datos true
     public boolean Valconsulta(String consulta) {
         String respuesta = ObjVal.QueryObj(consulta);
@@ -50,9 +50,27 @@ public class Validaciones {
         int valorCount = 0;
         for (JsonElement jsonElement : Jelementos) {
             if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-                Map<String, Object> map = gson.fromJson(jsonElement.getAsString(), new TypeToken<Map<String, Object>>() {
-                }.getType());
-                valorCount = new BigDecimal(map.get("count").toString()).intValue();
+//                Map<String, Object> map = gson.fromJson(jsonElement.getAsString(), new TypeToken<Map<String, Object>>() {
+//                }.getType());
+//                valorCount = new BigDecimal(map.get("count").toString()).intValue();
+                valorCount = 1;
+            }
+        }
+        return valorCount > 0; //Si es mayor a cero devuelve true
+    }
+
+    //ValConsulta  : Si trae datos true
+    public boolean Valtabla(String tabla,String Condicion) {
+        String respuesta = ObjVal.QueryObj("select * from "+tabla+"where "+Condicion+" limit 1");
+        JsonParser parser = new JsonParser();
+        JsonArray Jelementos = parser.parse(respuesta).getAsJsonArray();
+        int valorCount = 0;
+        for (JsonElement jsonElement : Jelementos) {
+            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
+//                Map<String, Object> map = gson.fromJson(jsonElement.getAsString(), new TypeToken<Map<String, Object>>() {
+//                }.getType());
+//                valorCount = new BigDecimal(map.get("count").toString()).intValue();
+                valorCount = 1;
             }
         }
         return valorCount > 0; //Si es mayor a cero devuelve true

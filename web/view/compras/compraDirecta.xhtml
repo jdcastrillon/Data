@@ -42,13 +42,31 @@
         <style type="text/css">
             .main-content {
                 padding: 0;
-            }
-        </style>
-        <style type="text/css">
+            } 
             .knob-container {
                 display: inline-block;
                 padding: 10px;
             }
+
+            .ui-fileupload{                
+                padding-top: -5px !important;
+                height: 72px !important;
+                /*border: solid;*/
+            }
+
+            .ui-fileupload-content{
+                display: none !important;
+            }
+
+            .ui-fileupload-buttonbar{
+                background-color: #fdfdfd !important;
+                border: solid #e8e8e8 !important;
+            }
+
+            .ui-fileupload-choose {
+                background-color: #939393 !important;
+            }
+
         </style>
         <script type="text/javascript">
             function handleLoginRequest(xhr, status, args) {
@@ -62,7 +80,7 @@
         <div class="ui-g">
             <div class="ui-g-12">
                 <div class="card card-w-title">
-                    <p:panel id="panelProv" header="Orden de Compra" toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
+                    <p:panel id="panelProv" header="Compra Directa" toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
                         <h:form id="formocompra" onkeypress="if (event.keyCode == 13)
                                     event.returnValue = false;">
                             <p:growl id="growl" showDetail="true" life="5000" />  
@@ -137,6 +155,12 @@
                                                     <f:selectItems value="#{comprasDirectControlador.listDepositos}" var="depo" itemValue="#{depo.cod_deposito}" itemLabel="#{depo.nom_deposito}"></f:selectItems> 
                                                 </p:selectOneMenu>
                                             </div>
+                                            <div class="ui-g-2 ui-md-3">
+                                                <h:outputText value="Observacion :"></h:outputText>
+                                            </div>
+                                            <div class="ui-g-10 ui-md-9">
+                                                <p:inputTextarea value="#{comprasDirectControlador.objCompra.observaciones}" disabled="#{comprasDirectControlador.aceptar}"></p:inputTextarea>
+                                            </div>
 
 
                                         </div>
@@ -155,10 +179,24 @@
                                                 <p:inputText  value="#{comprasDirectControlador.objCompra.factura}" disabled="#{comprasDirectControlador.aceptar}"></p:inputText>
                                             </div>
                                             <div class="ui-g-2 ui-md-4">
-                                                <h:outputText value="Observacion :"></h:outputText>
+                                                <h:outputText style="cursor: pointer;" id="content" value="Seleccione Archivo :"></h:outputText>  
+                                            </div>
+
+                                            <div class="ui-g-10 ui-md-8">
+                                                <p:fileUpload id="upload" disabled="#{comprasDirectControlador.aceptar}" 
+                                                              fileUploadListener="#{comprasDirectControlador.handleFileUpload}"
+                                                              mode="advanced" update="growl2 listArti" auto="true" sizeLimit="10000000"
+                                                              allowTypes="/(\.|\/)(xls|xlsx)$/" label="Seleccione"
+                                                              />
+                                                <p:growl id="growl2" showDetail="true" life="5000" />  
+                                            </div>   
+                                            <div class="ui-g-2 ui-md-4">
+                                                <h:outputText value="Calcular Inventario :"></h:outputText>
                                             </div>
                                             <div class="ui-g-10 ui-md-8">
-                                                <p:inputTextarea value="#{comprasDirectControlador.objCompra.observaciones}" disabled="#{comprasDirectControlador.aceptar}"></p:inputTextarea>
+                                                <p:selectBooleanCheckbox disabled="#{comprasDirectControlador.aceptar}" >
+                                                    <p:ajax update="listArti" listener="#{comprasDirectControlador.calcularStock()}" />
+                                                </p:selectBooleanCheckbox>
                                             </div>
 
                                         </div>
@@ -188,38 +226,43 @@
 
                                     <div class="ui-g ui-fluid form-group">
                                         <div class="ui-g-12 ui-md-12">
-                                            <p:dataTable id="listArti" var="articulos" value="#{comprasDirectControlador.objCompra.comprasDt}">
+                                            <p:dataTable id="listArti" var="articulos" 
+                                                         value="#{comprasDirectControlador.objCompra.comprasDt}"  scrollable="true"
+                                                         scrollWidth="95%">
 
                                                 <p:columnGroup type="header">
                                                     <p:row>
-                                                        <p:column colspan="3" headerText="Articulo" />
-                                                        <p:column colspan="6" headerText="Importes" />
+                                                        <p:column colspan="5" headerText="Articulo"  />
+                                                        <p:column colspan="7" headerText="Importes"/>
                                                     </p:row>
-                                                    <p:row>
-                                                        <p:column headerText="Codigo" />
-                                                        <p:column headerText="Nombre" />
-                                                        <p:column headerText="Inventario" />
-                                                        <p:column headerText="Cantidad" />
-                                                        <p:column headerText="Costo" />
-                                                        <p:column headerText="IVA" />
-                                                        <p:column headerText="Neto" />
-                                                        <p:column headerText="Total" />
-                                                        <p:column headerText="-" />
+                                                    <p:row>                                                        
+                                                        <p:column colspan="1" headerText="Codigo" style="width: 10%"/>
+                                                        <p:column colspan="2" headerText="Codigo Nuevo"  style="width: 20%" />
+                                                        <p:column colspan="2" headerText="Nombre" />
+                                                        <p:column colspan="1" headerText="Inventario" />
+                                                        <p:column colspan="1" headerText="Cant." />
+                                                        <p:column colspan="2" headerText="Costo" />
+                                                        <p:column colspan="1" headerText="IVA" />
+                                                        <p:column colspan="1" headerText="Neto" />
+                                                        <p:column colspan="1" headerText="-" />
                                                     </p:row>
                                                 </p:columnGroup>
-                                                <p:column style="width: 10%">
+                                                <p:column colspan="1" >
                                                     <h:outputText value="#{articulos.codigo}" />
                                                 </p:column>
-
-                                                <p:column style="width: 15%">
-                                                    <h:outputText value="#{articulos.nom_articulo}" />
+                                                <p:column colspan="2">
+                                                    <p:inputText value="#{articulos.codigonew}" ></p:inputText>
                                                 </p:column>
-                                                <p:column headerText="Inventario" style="width: 5%">
+
+                                                <p:column colspan="2">
+                                                    <p:inputText value="#{articulos.nom_articulo}" />
+                                                </p:column>
+                                                <p:column colspan="1" >
                                                     <center>  <h:outputText value="#{articulos.stock}" /></center>
                                                 </p:column>
 
-                                                <p:column id="Cant" headerText="Cantidad" style="width: 15%" >
-                                                    <center> <p:inputText value="#{articulos.cantidad}" style="width: 95px" 
+                                                <p:column id="Cant" colspan="1">
+                                                    <center> <p:inputText value="#{articulos.cantidad}" 
                                                                           disabled="#{comprasDirectControlador.aceptar}"  >   
                                                             <p:ajax listener="#{comprasDirectControlador.totalesGrilla(articulos)}" 
                                                                     update="
@@ -229,8 +272,8 @@
                                                     </center>
                                                 </p:column>
 
-                                                <p:column id="Costo" headerText="Costo" style="width: 15%" >
-                                                    <center> <p:inputText id="InputCosto"  value="#{articulos.imp_costo}"  style="width: 95px" 
+                                                <p:column id="Costo" colspan="2">
+                                                    <center> <p:inputText id="InputCosto"  value="#{articulos.imp_costo}" 
                                                                           disabled="#{comprasDirectControlador.aceptar}">
                                                             <p:ajax listener="#{comprasDirectControlador.totalesGrilla(articulos)}" 
                                                                     update="formocompra:TabOC:OCNetos , formocompra:TabOC:OCImps ,
@@ -239,7 +282,7 @@
                                                     </center>
                                                 </p:column>
 
-                                                <p:column id="IVA" headerText="IVA" style="width: 5%" >
+                                                <p:column id="IVA" colspan="1" >
                                                     <center> 
                                                         <p:selectOneMenu value="#{articulos.porc_imp}" >
                                                             <p:ajax event="change" listener="#{comprasDirectControlador.totalesGrilla(articulos)}" 
@@ -251,18 +294,13 @@
                                                     </center>
                                                 </p:column>
 
-                                                <p:column  headerText="Neto" style="width: 15%" >
+                                                <p:column  headerText="Neto" colspan="1" >
                                                     <center> <p:outputLabel id="Neto" value="#{articulos.imp_neto}">
                                                             <f:convertNumber type="currency" currencySymbol="$"></f:convertNumber></p:outputLabel> </center>
                                                 </p:column>
 
-                                                <p:column headerText="Total" style="width: 15%" >
-                                                    <center> <p:outputLabel id="Total" value="#{articulos.imp_total}">
-                                                            <f:convertNumber type="currency" currencySymbol="$"></f:convertNumber></p:outputLabel> </center>
 
-                                                </p:column>
-
-                                                <p:column headerText="Operaciones" style="width: 10%">
+                                                <p:column headerText="Operaciones" colspan="1">
                                                     <center>
                                                         <p:commandButton icon="ui-icon-clear" style="background-color: red" 
                                                                          action="#{comprasDirectControlador.eliminarArticuloGrilla(articulos)}"
@@ -302,7 +340,7 @@
                                         </div>
                                     </div>
 
-                                </p:tab>
+                                </p:tab>                               
                                 <p:tab title="Log">
                                     <p:dataTable var="log" value="#{comprasDirectControlador.objCompra.logs}">
                                         <p:column headerText="Proceso" style="width: 20%">

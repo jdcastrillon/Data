@@ -10,10 +10,14 @@ import Servicios.Sistema.Seleccion;
 import Servicios.Sistema.Validaciones;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -24,6 +28,12 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.primefaces.event.FileUploadEvent;
+import org.primefaces.model.UploadedFile;
 
 /**
  *
@@ -54,6 +64,7 @@ public class ComprasDirectControlador {
     private List<Proveedores> listProveedor = new ArrayList();
     private List<Articulos> listArticulos = new ArrayList();
     private List<Pagos> ListPagos = new ArrayList();
+    private UploadedFile uploadedFile;
 
     private Articulos objArticulo;
 
@@ -65,6 +76,7 @@ public class ComprasDirectControlador {
     private boolean nuevo;
     private boolean buscar;
     private boolean reporte;
+    private boolean inventario;
     private String evento;
     private String valorBusqueda;
 
@@ -188,7 +200,7 @@ public class ComprasDirectControlador {
         objCompra.setCod_emp(listEmpresas.get(0).getCod_emp());
         objCompra.setPorcentaje(listImpuestos.get(0).getPorc_imp());
         objCompra.setNro_docum(0);
-//        objCompra.setCod_provedor(listProveedor.get(0).getCod_provedor());
+        setInventario(true);
         objCompra.setD_fec_doc(new Date());
         resetTotales();
 
@@ -295,6 +307,7 @@ public class ComprasDirectControlador {
         this.nuevo = (boolean) acciones[3];
         this.buscar = (boolean) acciones[4];
         this.reporte = (boolean) acciones[5];
+        setInventario(false);
 
     }
 
@@ -320,6 +333,100 @@ public class ComprasDirectControlador {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Info", mns));
         }
         return mns.length() <= 0;
+    }
+
+    public void handleFileUpload(FileUploadEvent event) throws IOException, SQLException {
+        FacesMessage msg = new FacesMessage("Aviso", event.getFile().getFileName() + " se cargo correctamente..!");
+        FacesContext.getCurrentInstance().addMessage(null, msg);
+        uploadedFile = event.getFile();
+        cargarArchivo();
+    }
+
+    public void cargarArchivo() throws IOException {
+        if (uploadedFile != null) {
+            objCompra.getComprasDt().clear();
+            XSSFWorkbook workbook;
+            // Get the workbook instance for XLS file
+            InputStream input = uploadedFile.getInputstream();
+            workbook = new XSSFWorkbook(input);
+
+            // Get first sheet from the workbook
+            System.out.println("numero de hojas =" + workbook.getNumberOfSheets());
+            ArrayList<String> lista = new ArrayList();
+            for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
+                XSSFSheet sheet = workbook.getSheetAt(i);
+                // Iterate through each rows from first sheet
+                Iterator<Row> rowIterator = sheet.rowIterator();
+                while (rowIterator.hasNext()) {
+                    Row row = rowIterator.next();
+                    System.out.println("Row : " + row.getRowNum());
+                    if (row.getRowNum() > 0) {
+                        StringBuilder sb = new StringBuilder();
+                        // For each row, iterate through each columns
+                        Iterator<Cell> cellIterator = row.cellIterator();
+                        while (cellIterator.hasNext()) {
+                            Cell cell = cellIterator.next();
+//                            System.out.println("Tipo :" + cell.getCellType());
+                            switch (cell.getCellType()) {
+                                case Cell.CELL_TYPE_BOOLEAN:
+                                    System.out.print(cell.getBooleanCellValue());
+                                    break;
+                                case Cell.CELL_TYPE_NUMERIC:
+//                                System.out.print(Integer.toString((int) cell.getNumericCellValue()));
+                                    sb.append(Integer.toString((int) cell.getNumericCellValue())).append(",");
+                                    break;
+                                case Cell.CELL_TYPE_STRING:
+//                                System.out.print(cell.getStringCellValue());
+                                    sb.append(cell.getStringCellValue().trim()).append(",");
+                                    break;
+                            }
+                        }
+                        if (!sb.toString().equals("")) {
+                            lista.add(sb.toString().substring(0, sb.toString().length() - 1));
+                        }
+                    }
+
+                }
+            }
+            lista.forEach((next) -> {
+                System.out.println("next " + next);
+                String datos[] = next.split(",");
+                System.out.println("Datos : " + datos[0]);
+                ComprasDT obj = new ComprasDT();
+                obj.setCodigo(datos[0]);
+                obj.setCodigonew(datos[1]);
+                obj.setNom_articulo(datos[2]);
+                obj.setCantidad(Integer.parseInt(datos[3]));
+                obj.setImp_costo(Double.parseDouble(datos[4]));
+                obj.setPorc_imp(Float.parseFloat(datos[5]));
+
+                if (buscarElementoxCodigo(obj) == false) {
+                    objCompra.getComprasDt().add(obj);
+                }
+            });
+
+            totalesFooter();
+            setInventario(false);
+            calcularStock();
+        } else {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Aviso", "Debes seleccionar primero un archivo..!"));
+        }
+
+    }
+
+    public void calcularStock() {
+        System.out.println("*************** " + "calcularStock");
+        String cadenaArticulos = "";
+        cadenaArticulos = objCompra.getComprasDt().stream().map((comprasDT) -> "'"+comprasDT.getCodigo()+ "',").reduce(cadenaArticulos, String::concat);
+        String substring = cadenaArticulos.substring(0, cadenaArticulos.length() - 1);
+        List<ArticuloDatos> datos = new ArrayList();
+        datos = ObjIni.StockDisponibleMultiple(objCompra.getCod_emp(), substring, objCompra.getCod_deposito());
+
+        for (ArticuloDatos dato : datos) {
+            objCompra.getComprasDt().stream().filter((comprasDT) -> (dato.getCod_articulo() == comprasDT.getCod_articulo())).forEachOrdered((comprasDT) -> {
+                comprasDT.setStock(dato.getStock());
+            });
+        }
     }
 
     public void cargarPagos() {
@@ -354,6 +461,7 @@ public class ComprasDirectControlador {
         Object Resulta[] = new Object[3];
         ComprasDT obj = new ComprasDT(objArticulo.getCod_articulo(), objArticulo.getCodigo(), objArticulo.getNom_articulo());
         Resulta = ObjIni.Compras_Art(objCompra.getCod_emp(), objArticulo.getCod_articulo(), "S", objCompra.getCod_deposito(), objCompra.getCod_provedor());
+        obj.setCodigonew(obj.getCodigo());
         obj.setPorc_imp((int) Resulta[2]);
         obj.setStock((int) Resulta[0]);
         obj.setImp_costo((double) Resulta[1]);
@@ -376,6 +484,18 @@ public class ComprasDirectControlador {
         boolean valor = false;
         for (ComprasDT obj2 : objCompra.getComprasDt()) {
             if (obj.getCod_articulo() == obj2.getCod_articulo()) {
+                valor = true;
+                break;
+            }
+        }
+        return valor;
+    }
+
+    public boolean buscarElementoxCodigo(ComprasDT obj) {
+        System.out.println("->>  " + obj.toString());
+        boolean valor = false;
+        for (ComprasDT obj2 : objCompra.getComprasDt()) {
+            if (obj.getCodigo().equalsIgnoreCase(obj2.getCodigo())) {
                 valor = true;
                 break;
             }
@@ -653,6 +773,22 @@ public class ComprasDirectControlador {
 
     public void setListDepositos(List<Depositos> listDepositos) {
         this.listDepositos = listDepositos;
+    }
+
+    public UploadedFile getUploadedFile() {
+        return uploadedFile;
+    }
+
+    public void setUploadedFile(UploadedFile uploadedFile) {
+        this.uploadedFile = uploadedFile;
+    }
+
+    public boolean isInventario() {
+        return inventario;
+    }
+
+    public void setInventario(boolean inventario) {
+        this.inventario = inventario;
     }
 
 }

@@ -129,7 +129,7 @@ public class ComprasService implements Serializable {
     public List<Compras> Lista() {
         String respuesta = dao.QueryObj("SELECT trans, cod_emp, cod_provedor, cod_docum, nro_docum, cod_fpago, \n"
                 + "  fec_doc, fec_entrega, observaciones, cod_log\n"
-                + "  FROM public.t_compras");
+                + "  FROM public.t_compras where  nro_docum>0 ");
         JsonArray Jelementos = parser.parse(respuesta).getAsJsonArray();
         List<Compras> listCompras = new ArrayList();
         for (JsonElement jsonElement : Jelementos) {

@@ -16,7 +16,7 @@ public class Recepcion {
     private String cod_emp;
     private int cod_provedor;
     private String cod_docum;
-    private int nro_docum;
+    private String factura;
     private String cod_doca;
     private int nro_doca;
     private int cod_fpago;
@@ -32,6 +32,7 @@ public class Recepcion {
 
     transient private Date D_fec_doc;
     transient private Date D_fec_entrega;
+    transient private String nom_proveedor;
     transient List<RecepcionDT> recepcionDT = new ArrayList();
     transient List<Log_Transaccion> logs = new ArrayList();
 
@@ -70,13 +71,14 @@ public class Recepcion {
         this.cod_docum = cod_docum;
     }
 
-    public int getNro_docum() {
-        return nro_docum;
+    public String getFactura() {
+        return factura;
     }
 
-    public void setNro_docum(int nro_docum) {
-        this.nro_docum = nro_docum;
+    public void setFactura(String factura) {
+        this.factura = factura;
     }
+   
 
     public String getCod_doca() {
         return cod_doca;
@@ -204,6 +206,14 @@ public class Recepcion {
 
     public void setLogs(List<Log_Transaccion> logs) {
         this.logs = logs;
+    }
+
+    public String getNom_proveedor() {
+        return nom_proveedor;
+    }
+
+    public void setNom_proveedor(String nom_proveedor) {
+        this.nom_proveedor = nom_proveedor;
     }
 
 }

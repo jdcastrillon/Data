@@ -51,9 +51,8 @@
             }
         </style>
         <script type="text/javascript">
-            function handleLoginRequest(xhr, status, args) {
-                PF('telefonos').hide();
-                PF('Email').hide();
+            function cierreCuentas(xhr, status, args) {
+                PF('dialogfac').hide();
             }
         </script>
     </ui:define>
@@ -62,36 +61,8 @@
         <div class="ui-g">
             <div class="ui-g-12">
                 <div class="card card-w-title">
-                    <p:panel id="panelProv" header="Orden de Compra" toggleable="true" toggleSpeed="500" widgetVar="paneldoc" style="margin-bottom:20px">   
-                        <h:form id="formPagoD">
-                            <p:dialog header="" widgetVar="ocompra"  modal="true" width="600">
+                    <p:panel id="panelProv" header="Pagos Proveedores" toggleable="true" toggleSpeed="500" widgetVar="DialogFac" style="margin-bottom:20px">   
 
-                                <p:dataTable var="compra" value="#{recepcionControlador.listOcompras}"
-                                             selectionMode="single" selection="#{recepcionControlador.compraSelect}" rowKey="#{compra.nro_docum}">
-                                    <f:facet name="header">
-                                        Facturas Pendientes
-                                    </f:facet>
-                                    <p:column headerText="Fecha" style="width: 20%">
-                                        <h:outputText value="#{compra.fec_doc}" />
-                                    </p:column>
-
-                                    <p:column headerText="Proveedor" style="width: 20%">
-                                        <h:outputText value="#{compra.razon_social}" />
-                                    </p:column>
-
-                                    <p:column headerText="Orden de Compra" style="width: 20%">
-                                        <h:outputText value="#{compra.nro_docum}" />
-                                    </p:column>
-                                </p:dataTable> 
-
-                                <f:facet name="footer">
-                                    <p:commandButton value="Aceptar" oncomplete="cierreCuentas(xhr, status, args)" 
-                                                     action="#{recepcionControlador.cargarOrdenCompra()}" 
-                                                     ajax="true" update=":formrecep :formrecepD"/>
-                                </f:facet> 
-
-                            </p:dialog>
-                        </h:form>
                         <h:form id="formPago" onkeypress="if (event.keyCode == 13)
                                     event.returnValue = false;">
                             <p:growl id="growl" showDetail="true" life="5000" />  
@@ -138,7 +109,9 @@
                                                 <h:outputText value="Proveedor :"></h:outputText>
                                             </div>                                              
                                             <div class="ui-g-10 ui-md-9">                                                
-                                                <p:selectOneMenu value="#{pagosProveedorControlador.objPagos.cod_provedor}" disabled="#{pagosProveedorControlador.aceptar}">                                                    
+                                                <p:selectOneMenu value="#{pagosProveedorControlador.objPagos.cod_proveedor}" disabled="#{pagosProveedorControlador.aceptar}">                                                    
+                                                    <p:ajax event="change" listener="#{pagosProveedorControlador.facturasPendientes()}"
+                                                            update="Lfacturas"></p:ajax>
                                                     <f:selectItem itemLabel="Seleccione Proveedor" itemValue="0"></f:selectItem>
                                                     <f:selectItems value="#{pagosProveedorControlador.listProveedor}" 
                                                                    var="prov" itemValue="#{prov.cod_provedor}" 
@@ -146,13 +119,11 @@
                                                 </p:selectOneMenu>
                                             </div>
                                             <div class="ui-g-2 ui-md-3">
-                                                <h:outputText value="Importe :"></h:outputText>
+                                                <h:outputText value="Observacion :"></h:outputText>
                                             </div>
                                             <div class="ui-g-10 ui-md-9">
-                                                <p:inputText  value="#{pagosProveedorControlador.objPagos.importe}" disabled="true" style="color:  black"></p:inputText>
-                                            </div>       
-
-
+                                                <p:inputTextarea  value="#{pagosProveedorControlador.objPagos.observacion}" disabled="#{pagosProveedorControlador.aceptar}" style="color:  black"></p:inputTextarea>
+                                            </div>      
                                         </div>
                                         <div class="ui-g-12 ui-md-6">
                                             <div class="ui-g-2 ui-md-4">
@@ -162,58 +133,50 @@
                                                 <p:calendar id="button" value="#{pagosProveedorControlador.objPagos.d_fec_doc}" showOn="button" disabled="#{pagosProveedorControlador.aceptar}"
                                                             locale="de" navigator="true" pattern="dd/MM/yyyy" />
                                             </div>
-                                            <div class="ui-g-2 ui-md-4">
-                                                <h:outputText value="Observacion :"></h:outputText>
-                                            </div>
-                                            <div class="ui-g-10 ui-md-8">
-                                                <p:inputText  value="#{pagosProveedorControlador.objPagos.observacion}" disabled="true" style="color:  black"></p:inputText>
-                                            </div>                                           
+
 
                                         </div>
 
                                     </div>
-                                    <div class="ui-g ui-fluid form-group">
-                                        <div class="ui-g-12 ui-md-10">
-                                            <div class="ui-g-10 ui-md-2">                                                
-                                                <p:commandButton value="Facturas" 
-                                                                 disabled="#{pagosProveedorControlador.aceptar}"
-                                                                 onclick="PF('ocompra').show();"> </p:commandButton>
-                                            </div>
-                                            <div class="ui-g-10 ui-md-10"></div>
-                                        </div>
-                                        <div class="ui-g-12 ui-md-5"></div>
-                                    </div> 
 
                                     <div class="ui-g ui-fluid form-group">
                                         <div class="ui-g-12 ui-md-12">
+                                            <p:dataTable id="Lfacturas" var="facturas" value="#{pagosProveedorControlador.objPagos.facturas}">
 
+                                                <p:column headerText="#" style="width: 5%">
+                                                    <p:selectBooleanCheckbox value="#{facturas.pagar}" itemLabel="Basic"/>
+                                                </p:column>
+                                                <p:column headerText="Fecha" style="width: 20%">
+                                                    <h:outputText value="#{facturas.fec_doc}" />
+                                                </p:column>
+                                                <p:column headerText="Factura" style="width: 20%">
+                                                    <h:outputText value="#{facturas.factura}" />
+                                                </p:column>
+                                                <p:column headerText="Saldo" style="width: 20%">
+                                                    <h:outputText value="#{facturas.imp_saldo}" />
+                                                </p:column>
+                                                <p:column headerText="Pago" style="width: 20%">
+                                                    <h:inputText value="#{facturas.imp_pago}" >
+                                                        <p:ajax listener="#{pagosProveedorControlador.totalesGrilla(facturas)}" 
+                                                                update="formPago:TabOC:OCNetos"></p:ajax>
+                                                    </h:inputText>                                                    
+                                                </p:column>
+                                            </p:dataTable>
 
                                         </div>
                                     </div>
 
 
                                     <div class="ui-g ui-fluid form-group">
+                                        <div class="ui-g-12 ui-md-5"></div>
                                         <div class="ui-g-12 ui-md-4"></div>
-                                        <div class="ui-g-12 ui-md-4"></div>
-                                        <div class="ui-g-12 ui-md-4">
+                                        <div class="ui-g-12 ui-md-3">
                                             <div class="ui-g-2 ui-md-5">
-                                                <h:outputText id="OCNeto" value="SUB TOTAL :" style="font-weight: bold"></h:outputText>
+                                                <h:outputText id="OCNeto" value="TOTAL :" style="font-weight: bold"></h:outputText>
                                             </div>
                                             <div class="ui-g-10 ui-md-7">
-                                                <h:outputText id="OCNetos" value="#{pagosProveedorControlador.totales[3]}" style="font-weight: bold"> </h:outputText>
-                                            </div>
-                                            <div class="ui-g-2 ui-md-5">
-                                                <h:outputText id="OCImp" value="IMPUESTO :" style="font-weight: bold"></h:outputText>
-                                            </div>
-                                            <div class="ui-g-10 ui-md-7">
-                                                <h:outputText id="OCImps" value="#{pagosProveedorControlador.totales[6]}" style="font-weight: bold" > </h:outputText>
-                                            </div>
-                                            <div class="ui-g-2 ui-md-5">
-                                                <h:outputText id="OCtot" value="TOTAL :" style="font-weight: bold"></h:outputText>
-                                            </div>
-                                            <div class="ui-g-10 ui-md-7">
-                                                <h:outputText id="OCtots" value="#{pagosProveedorControlador.totales[4]}" style="font-weight: bold"> </h:outputText>
-                                            </div>
+                                                <h:outputText id="OCNetos" value="#{pagosProveedorControlador.objPagos.importe}" style="font-weight: bold"> </h:outputText>
+                                            </div>                                            
                                         </div>
                                     </div>
 
@@ -296,15 +259,23 @@
                                             <f:facet name="header">
                                                 Lista de Pagos Proveedor
                                             </f:facet>
-                                            <p:column headerText="Orden Compra" style="width: 10%">
-                                                <h:outputText value="#{pagos.cod_provedor}" />
+
+                                            <p:column headerText="Nit" style="width: 10%">
+                                                <h:outputText value="#{pagos.nit_proveedor}" />
+                                            </p:column>
+                                            <p:column headerText="Proveedor" style="width: 40%">
+                                                <h:outputText value="#{pagos.nom_proveedor}" />
                                             </p:column>
 
                                             <p:column headerText="Fecha" style="width: 10%">
                                                 <h:outputText value="#{pagos.fec_doc}" />
                                             </p:column>
 
-                                            <p:column headerText="Descripcion" style="width: 20%">
+                                            <p:column headerText="Pago" style="width: 10%">
+                                                <h:outputText value="#{pagos.importe}" />
+                                            </p:column>
+
+                                            <p:column headerText="Descripcion" style="width: 10%">
                                                 <center>
                                                     <p:commandButton icon="ui-icon-create"   style="background-color: #939393" 
                                                                      action="#{pagosProveedorControlador.prepareCrud(pagos, 1)}" ajax="true" update=":formPago"> </p:commandButton>

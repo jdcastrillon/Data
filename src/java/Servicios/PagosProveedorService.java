@@ -23,10 +23,14 @@ import com.google.gson.reflect.TypeToken;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.inject.Named;
 import javax.enterprise.context.ApplicationScoped;
 import javax.faces.context.FacesContext;
@@ -64,18 +68,17 @@ public class PagosProveedorService implements Serializable {
                 logproceso = Service.service.logProceso("logs");
                 obj.setTrans(Service.service.logProceso("trans").intValue());
             }
-            transacciones.add(Service.service.log("AjustStock", login.getUsuario(), accion, logproceso.intValue(), login.getBase()));
+            transacciones.add(Service.service.log("PagosProve", login.getUsuario(), accion, logproceso.intValue(), login.getBase()));
 
             //Registro Transaccion
             obj.setCod_log(logproceso.intValue());
             obj.setCod_docum("Pagos");
-//            obj.setNro_docum(Service.service.logProceso("stockajuste").intValue());
             obj.setFec_doc("@fecha" + obj.getD_fec_doc().getTime());
 //            obj.setSigno(obj.getSigno() == 0 ? 1 : -1);
 
             objsql o1 = new objsql();
             o1.setAccion(accion);
-            o1.setTabla("t_pagosProv");
+            o1.setTabla("t_pagosprov");
             o1.setBase(login.getBase());
             o1.setDatos(gson.toJson(obj));
 
@@ -88,7 +91,7 @@ public class PagosProveedorService implements Serializable {
                 facturas.setLinea(linea);
                 objsql o2 = new objsql();
                 o2.setAccion(accion);
-                o2.setTabla("td_pagosProv");
+                o2.setTabla("td_pagosprov");
                 o2.setBase(login.getBase());
                 o2.setDatos(gson.toJson(facturas));
 
@@ -103,7 +106,7 @@ public class PagosProveedorService implements Serializable {
             param.setAccion(accion);
             objsql o3 = new objsql();
             o3.setAccion("Impacto");
-            o3.setTabla("imp_PagosProv");
+            o3.setTabla("imp_pagos");
             o3.setBase(login.getBase());
             o3.setDatos(gson.toJson(param));
 
@@ -126,38 +129,40 @@ public class PagosProveedorService implements Serializable {
     }
 
     public List<PagosProv> Lista() {
-        String respuesta = dao.QueryObj("select trans,cod_emp,fec_doc,nro_docum,cod_estado,cod_deposito,cod_propietario,cod_motivo,observacion,signo,cod_log from t_ajuststock A order by 1 desc");
+        String respuesta = dao.QueryObj("SELECT trans, cod_emp, A.cod_proveedor, cod_docum, fec_doc, observacion, \n"
+                + "importe, signo, A.cod_log , B.razon_social,B.cod_documento\n"
+                + "FROM public.t_pagosprov A inner join m_proveedores B on A.cod_proveedor=B.cod_provedor");
         JsonArray Jelementos = parser.parse(respuesta).getAsJsonArray();
         List<PagosProv> listPagosProv = new ArrayList();
-//        for (JsonElement jsonElement : Jelementos) {
-//            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
-//                try {
-//                    PagosProv obj = new PagosProv();
-//                    Map<String, Object> map = gson.fromJson(jsonElement.getAsString(), new TypeToken<Map<String, Object>>() {
-//                    }.getType());
-//                    System.out.println("cod_tipodoc : " + map.get("cod_tipodoc"));
-//                    obj.setTrans(new BigDecimal(map.get("trans").toString()).intValue());
-//                    obj.setCod_emp(map.get("cod_emp").toString());
-//                    obj.setFec_doc(map.get("fec_doc").toString());
-//                    obj.setNro_docum(new BigDecimal(map.get("nro_docum").toString()).intValue());
-//                    obj.setCod_estado(map.get("cod_estado").toString());
-//                    obj.setCod_deposito(map.get("cod_deposito").toString());
-//                    obj.setCod_propietario(map.get("cod_propietario").toString());
-//                    obj.setCod_motivo(new BigDecimal(map.get("cod_motivo").toString()).intValue());
-//                    obj.setObservacion(map.get("observacion").toString());
-//                    obj.setSigno(new BigDecimal(map.get("signo").toString()).intValue());
-//                    obj.setCod_log(new BigDecimal(map.get("cod_log").toString()).intValue());
-//
-//                    System.out.println("FEcha : " + obj.getFec_doc());
-//                    Date date1 = new SimpleDateFormat("yyyy-MM-dd").parse(obj.getFec_doc());
-//                    obj.setFecha(date1);
-//
-//                    listPagosProv.add(obj);
-//                } catch (ParseException ex) {
-//                    Logger.getLogger(PagosProveedorService.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-//            }
-//        }
+        for (JsonElement jsonElement : Jelementos) {
+            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
+                try {
+                    PagosProv obj = new PagosProv();
+                    Map<String, Object> map = gson.fromJson(jsonElement.getAsString(), new TypeToken<Map<String, Object>>() {
+                    }.getType());
+                    
+                    obj.setTrans(new BigDecimal(map.get("trans").toString()).intValue());
+                    obj.setCod_emp(map.get("cod_emp").toString());
+                    obj.setCod_proveedor(new BigDecimal(map.get("cod_proveedor").toString()).intValue());
+                    obj.setCod_docum(map.get("cod_docum").toString());
+                    obj.setFec_doc(map.get("fec_doc").toString());
+                    obj.setObservacion(map.get("observacion").toString());
+                    obj.setImporte(new BigDecimal(map.get("importe").toString()).intValue());
+                    obj.setSigno(new BigDecimal(map.get("signo").toString()).intValue());
+                    obj.setCod_log(new BigDecimal(map.get("cod_log").toString()).intValue());
+                    obj.setNom_proveedor(map.get("razon_social").toString());
+                    obj.setNit_proveedor(map.get("cod_documento").toString());
+                    
+                    
+                    Date date1 = new SimpleDateFormat("yyyy-MM-dd").parse(obj.getFec_doc());
+                    obj.setD_fec_doc(date1);
+
+                    listPagosProv.add(obj);
+                } catch (ParseException ex) {
+                    Logger.getLogger(PagosProveedorService.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
         return listPagosProv;
     }
 
@@ -251,7 +256,6 @@ public class PagosProveedorService implements Serializable {
 //                obj.getDetalleArt().add(obj2);
 //            }
 //        }
-
         Resulta[0] = obj;
 
         return Resulta;

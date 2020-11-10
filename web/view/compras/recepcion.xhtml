@@ -105,16 +105,16 @@
                                             <div class="ui-g-12 ui-md-3">
                                                 <h:outputText value="Proveedor :"></h:outputText>
                                             </div>                                              
-                                            <div class="ui-g-10 ui-md-9">                                                
-                                                <p:selectOneMenu value="#{recepcionControlador.objRecepcion.cod_provedor}" disabled="#{recepcionControlador.aceptar}">
-                                                    <f:selectItems value="#{recepcionControlador.listProveedor}" var="prov" itemValue="#{prov.cod_provedor}" itemLabel="#{prov.razon_social}"></f:selectItems> 
-                                                </p:selectOneMenu>
+                                            <div class="ui-g-10 ui-md-9">   
+                                                <p:inputText  value="#{recepcionControlador.objRecepcion.nom_proveedor}" disabled="true" style="color:  black"></p:inputText>
+
                                             </div>
                                             <div class="ui-g-12 ui-md-3">
                                                 <h:outputText value="Pago :"></h:outputText>
                                             </div>                                              
                                             <div class="ui-g-10 ui-md-9">                                                
                                                 <p:selectOneMenu value="#{recepcionControlador.objRecepcion.cod_fpago}" disabled="#{recepcionControlador.aceptar}">
+                                                    <f:ajax event="change" listener="#{recepcionControlador.datosBean()}"></f:ajax>
                                                     <f:selectItems value="#{recepcionControlador.listPagos}" var="pago" itemValue="#{pago.cod_pago}" itemLabel="#{pago.descripcion}"></f:selectItems> 
                                                 </p:selectOneMenu>
                                             </div>
@@ -123,6 +123,8 @@
                                             </div>                                              
                                             <div class="ui-g-10 ui-md-9">                                                
                                                 <p:selectOneMenu value="#{recepcionControlador.objRecepcion.cod_deposito}" disabled="#{recepcionControlador.aceptar}">
+                                                    <f:ajax event="change" listener="#{recepcionControlador.datosBean()}"></f:ajax>
+                                                    <f:selectItem itemLabel="Seleccione" itemValue="0"></f:selectItem>
                                                     <f:selectItems value="#{recepcionControlador.listDepositos}" var="depo" itemValue="#{depo.cod_deposito}" itemLabel="#{depo.nom_deposito}"></f:selectItems> 
                                                 </p:selectOneMenu>
                                             </div>
@@ -153,7 +155,11 @@
                                                 <h:outputText value="Factura :"></h:outputText>
                                             </div>
                                             <div class="ui-g-10 ui-md-8">
-                                                <p:inputText  value="#{recepcionControlador.objRecepcion.nro_docum}" disabled="#{recepcionControlador.aceptar}" style="color:  black"></p:inputText>
+                                                <p:inputText  value="#{recepcionControlador.objRecepcion.factura}" 
+                                                              disabled="#{recepcionControlador.aceptar}" style="color:  black" requiredMessage="Debe Ingresar Una Factura"
+                                                              required="true">
+                                                    <p:ajax listener="#{recepcionControlador.datosBean()}"></p:ajax>
+                                                </p:inputText>
                                             </div>
 
                                             <div class="ui-g-2 ui-md-4">
@@ -212,29 +218,34 @@
                                                 </p:column>
 
                                                 <p:column style="width: 10%">
-                                                    <h:inputText value="#{articulos.codigonew}" style="width: 95px" disabled="#{recepcionControlador.aceptar}"></h:inputText>
+                                                    <h:inputText value="#{articulos.codigonew}" style="width: 95px" disabled="#{recepcionControlador.aceptar}">
+                                                        <f:ajax listener="#{recepcionControlador.nombre_articulo(articulos.cod_articulo, articulos.codigonew)}"
+                                                                render="nom_art">
+                                                        </f:ajax>
+                                                    </h:inputText>
                                                 </p:column>
 
-                                                <p:column style="width: 15%">
-                                                    <h:outputText value="#{articulos.nom_articulo}" />
+                                                <p:column style="width: 10%">
+                                                    <h:outputText  id="nom_art" value="#{articulos.nom_articulo}" >
+                                                    </h:outputText>
                                                 </p:column>
 
-                                                <p:column id="Cant" headerText="Cantidad" style="width: 15%" >
+                                                <p:column id="Cant" headerText="Cantidad" style="width: 7%" >
                                                     <center> <h:inputText value="#{articulos.cantidad}" style="width: 95px" disabled="#{recepcionControlador.aceptar}">                                                            
-                                                            <p:ajax listener="#{recepcionControlador.totalesGrilla(articulos)}" 
-                                                                    update="formrecep:RecepTap:OCNetos
+                                                            <f:ajax listener="#{recepcionControlador.totalesGrilla(articulos)}" 
+                                                                    render="formrecep:RecepTap:OCNetos
                                                                     , formrecep:RecepTap:OCImps , 
-                                                                    formrecep:RecepTap:OCtots, Neto"></p:ajax>  
+                                                                    formrecep:RecepTap:OCtots, Neto"></f:ajax>  
                                                         </h:inputText>
                                                     </center>
                                                 </p:column>
 
-                                                <p:column id="Costo" headerText="Costo" style="width: 15%" >
+                                                <p:column id="Costo" headerText="Costo" style="width: 10%" >
                                                     <center> <h:inputText value="#{articulos.imp_costo}"  style="width: 95px" disabled="#{recepcionControlador.aceptar}">
-                                                            <p:ajax listener="#{recepcionControlador.totalesGrilla(articulos)}" 
-                                                                    update="formrecep:RecepTap:OCNetos
+                                                            <f:ajax listener="#{recepcionControlador.totalesGrilla(articulos)}" 
+                                                                    render="formrecep:RecepTap:OCNetos
                                                                     , formrecep:RecepTap:OCImps , 
-                                                                    formrecep:RecepTap:OCtots, Neto"></p:ajax> 
+                                                                    formrecep:RecepTap:OCtots, Neto"></f:ajax> 
                                                         </h:inputText>
                                                     </center>
                                                 </p:column>
@@ -242,32 +253,33 @@
                                                 <p:column id="IVA" headerText="IVA" style="width: 5%" >
                                                     <center> 
                                                         <p:selectOneMenu value="#{articulos.porc_imp}" >
-                                                            <p:ajax event="change" listener="#{recepcionControlador.totalesGrilla(articulos)}" 
-                                                                    update="formrecep:RecepTap:OCNetos
+                                                            <f:ajax event="change" listener="#{recepcionControlador.totalesGrilla(articulos)}" 
+                                                                    render="formrecep:RecepTap:OCNetos
                                                                     , formrecep:RecepTap:OCImps , 
-                                                                    formrecep:RecepTap:OCtots, Neto"></p:ajax>
+                                                                    formrecep:RecepTap:OCtots, Neto"></f:ajax>
                                                             <f:selectItems value="#{recepcionControlador.listImpuestos}" var="imp" 
                                                                            itemValue="#{imp.porc_imp}" itemLabel="#{imp.porc_imp}"></f:selectItems> 
                                                         </p:selectOneMenu>
                                                     </center>
                                                 </p:column>
 
-                                                <p:column  headerText="Neto" style="width: 15%" >
+                                                <p:column  headerText="Neto" style="width: 10%" >
                                                     <center> <p:outputLabel id="Neto" value="#{articulos.imp_neto}">
                                                             <f:convertNumber type="currency" currencySymbol="$"></f:convertNumber></p:outputLabel> </center>
                                                 </p:column>
 
-                                                <p:column headerText="Total" style="width: 15%" >
+                                                <p:column headerText="Total" style="width: 10%" >
                                                     <center> <p:outputLabel id="Total" value="#{articulos.imp_total}">
                                                             <f:convertNumber type="currency" currencySymbol="$"></f:convertNumber></p:outputLabel> </center>
 
                                                 </p:column>
 
-                                                <p:column id="ReceOperacion" headerText="Operaciones" style="width: 10%">
+                                                <p:column id="ReceOperacion" headerText="Operaciones" style="width: 5%">
                                                     <center>
-                                                        <p:commandButton icon="ui-icon-clear" style="background-color: red" ajax="true" 
+                                                        <p:commandButton icon="ui-icon-clear" style="background-color: red"  
                                                                          action="#{recepcionControlador.eliminarArticuloGrilla(articulos)}">
-
+                                                            <f:ajax listener="#{recepcionControlador.datosBean()}"
+                                                                    render="listArtRecep"></f:ajax>
 
                                                         </p:commandButton>
                                                     </center>
@@ -359,7 +371,7 @@
                                     <h:outputText value="#{ocompra.trans}" />
                                 </p:column>
                                 <p:column headerText="Orden Compra" style="width: 10%">
-                                    <h:outputText value="#{ocompra.nro_docum}" />
+                                    <h:outputText value="#{ocompra.factura}" />
                                 </p:column>
 
                                 <p:column headerText="Fecha" style="width: 10%">
