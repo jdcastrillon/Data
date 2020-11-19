@@ -88,7 +88,7 @@ public class ComprasControlador {
         //1: Carga Inicial
         //2: Carga Despues de Transaccion
         ListCompra.clear();
-        ListCompra = Compra_service.Lista();
+        ListCompra = Compra_service.Lista("OC");
 
         if (condicion == 1) {
             listEmpresas.clear();
@@ -246,15 +246,15 @@ public class ComprasControlador {
         if (validaciones()) {
             switch (this.evento) {
                 case "Nuevo":
-                    Resulta = Compra_service.Transaccion(objCompra, "Nuevo","OC");
+                    Resulta = Compra_service.Transaccion(objCompra, "Nuevo", "OC");
                     mns = "O.C Realizada exitosamente";
                     break;
                 case "Eliminar":
-                    Resulta = Compra_service.Transaccion(objCompra, "Borrar","OC");
+                    Resulta = Compra_service.Transaccion(objCompra, "Borrar", "OC");
                     mns = "O.C Eliminada exitosamente";
                     break;
                 case "Editar":
-                    Resulta = Compra_service.Transaccion(objCompra, "Editar","OC");
+                    Resulta = Compra_service.Transaccion(objCompra, "Editar", "OC");
                     mns = "O.C Editado exitosamente";
                     break;
             }
@@ -306,6 +306,7 @@ public class ComprasControlador {
         }
         return mns.length() <= 0;
     }
+
 
     public void cargarPagos() {
         System.out.println("Cargando cargarDepositos " + objCompra.getCod_provedor());
@@ -434,7 +435,7 @@ public class ComprasControlador {
 
     public void limpiarDatos() {
         ListCompra.clear();
-        ListCompra = Compra_service.Lista();
+        ListCompra = Compra_service.Lista("OC");
         this.valorBusqueda = "";
     }
 

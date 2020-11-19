@@ -66,6 +66,11 @@
             .ui-fileupload-choose {
                 background-color: #939393 !important;
             }
+            .old {
+                background-color: #fca752 !important;
+                background-image: none !important;
+                color: #000000 !important;
+            }
 
         </style>
         <script type="text/javascript">
@@ -107,6 +112,14 @@
                                                          ajax="true" update=":formocompra :formlistComp"
                                                          style="background-color: #939393" 
                                                          disabled="#{comprasDirectControlador.eliminar}"></p:commandButton>
+                                    </div>
+                                    <div class="ui-g-2 ui-md-2">
+                                        <p:commandButton icon="ui-icon-insert-drive-file"
+                                                         action="#{comprasDirectControlador.prepareReporte()}" 
+                                                         ajax="true" update=":formocompra :formlistComp :formocompraT:print"
+                                                         style="background-color: #939393" 
+                                                         disabled="#{comprasDirectControlador.reporte}"
+                                                         oncomplete="trigger()"></p:commandButton>
                                     </div>
                                 </div>
                             </div>
@@ -176,28 +189,23 @@
                                                 <h:outputText value="Factura :"></h:outputText>
                                             </div>
                                             <div class="ui-g-10 ui-md-8">
-                                                <p:inputText  value="#{comprasDirectControlador.objCompra.factura}" disabled="#{comprasDirectControlador.aceptar}"></p:inputText>
+                                                <p:inputText  value="#{comprasDirectControlador.objCompra.factura}" disabled="#{comprasDirectControlador.aceptar}">
+                                                    <p:ajax listener="#{comprasDirectControlador.datosBean()}"></p:ajax>
+                                                </p:inputText>
                                             </div>
                                             <div class="ui-g-2 ui-md-4">
-                                                <h:outputText style="cursor: pointer;" id="content" value="Seleccione Archivo :"></h:outputText>  
+                                                <h:outputText style="cursor: pointer;" id="content" value="Importacion Excel :"></h:outputText>  
                                             </div>
 
                                             <div class="ui-g-10 ui-md-8">
                                                 <p:fileUpload id="upload" disabled="#{comprasDirectControlador.aceptar}" 
                                                               fileUploadListener="#{comprasDirectControlador.handleFileUpload}"
-                                                              mode="advanced" update="growl2 listArti" auto="true" sizeLimit="10000000"
+                                                              mode="advanced" update="growl2 listArti formocompra:TabOC:OCNetos , formocompra:TabOC:OCImps ,
+                                                              formocompra:TabOC:OCtots" auto="true" sizeLimit="10000000"
                                                               allowTypes="/(\.|\/)(xls|xlsx)$/" label="Seleccione"
                                                               />
                                                 <p:growl id="growl2" showDetail="true" life="5000" />  
-                                            </div>   
-                                            <div class="ui-g-2 ui-md-4">
-                                                <h:outputText value="Calcular Inventario :"></h:outputText>
-                                            </div>
-                                            <div class="ui-g-10 ui-md-8">
-                                                <p:selectBooleanCheckbox disabled="#{comprasDirectControlador.aceptar}" >
-                                                    <p:ajax update="listArti" listener="#{comprasDirectControlador.calcularStock()}" />
-                                                </p:selectBooleanCheckbox>
-                                            </div>
+                                            </div>                                               
 
                                         </div>
 
@@ -210,7 +218,7 @@
                                             <div class="ui-g-10 ui-md-8">                                                
                                                 <p:autoComplete id="articulo" value="#{comprasDirectControlador.objArticulo}" 
                                                                 completeMethod="#{comprasDirectControlador.articulos}" 
-                                                                var="articulo" itemLabel="#{articulo.nom_articulo}" 
+                                                                var="articulo" itemLabel="#{articulo.nom_articulo2}" 
                                                                 itemValue="#{articulo}" forceSelection="true"
                                                                 converter="converarticulos"
                                                                 dropdown="true" title="Codigo Articulo ó Nombre Articulo"
@@ -228,7 +236,8 @@
                                         <div class="ui-g-12 ui-md-12">
                                             <p:dataTable id="listArti" var="articulos" 
                                                          value="#{comprasDirectControlador.objCompra.comprasDt}"  scrollable="true"
-                                                         scrollWidth="95%">
+                                                         scrollWidth="95%"
+                                                         rowStyleClass="#{articulos.nuevoCodigo eq 'S' ? 'old' : null}">
 
                                                 <p:columnGroup type="header">
                                                     <p:row>
@@ -251,11 +260,14 @@
                                                     <h:outputText value="#{articulos.codigo}" />
                                                 </p:column>
                                                 <p:column colspan="2">
-                                                    <p:inputText value="#{articulos.codigonew}" ></p:inputText>
+                                                    <p:inputText value="#{articulos.codigonew}" >
+                                                        <f:ajax listener="#{comprasDirectControlador.nombre_articulo(articulos.cod_articulo, articulos.codigonew)}"
+                                                                render="nom_art"></f:ajax>
+                                                    </p:inputText>
                                                 </p:column>
 
-                                                <p:column colspan="2">
-                                                    <p:inputText value="#{articulos.nom_articulo}" />
+                                                <p:column colspan="2" >
+                                                    <p:inputText  id="nom_art" value="#{articulos.nom_articulo}" />
                                                 </p:column>
                                                 <p:column colspan="1" >
                                                     <center>  <h:outputText value="#{articulos.stock}" /></center>
@@ -361,8 +373,8 @@
                                     </p:dataTable>  
                                 </p:tab>
                             </p:tabView>
-
-
+                        </h:form>
+                        <h:form id="formocompraT">
                             <div class="ui-g ui-fluid form-group">
                                 <div class="ui-g-12 ui-md-3"> </div>
                                 <div class="ui-g-12 ui-md-4"></div>
@@ -370,9 +382,23 @@
                                     <div class="ui-g-0 ui-md-4"></div>
 
                                     <div class="ui-g-5 ui-md-4">
-                                        <p:commandButton value="Aceptar"  action="#{comprasDirectControlador.transaccion()}" ajax="true" update=":formocompra :formlistComp"
+                                        <p:commandButton value="Aceptar"  actionListener="#{comprasDirectControlador.transaccion()}" 
+                                                         ajax="true" update=":formocompra :formlistComp :formocompraT:print"
                                                          style="background-color: #939393" 
-                                                         disabled="#{comprasDirectControlador.aceptar}"> </p:commandButton>
+                                                         oncomplete="trigger()">
+                                        </p:commandButton>
+
+
+
+                                        <p:commandLink style="display:none"    
+                                                       id="print" 
+                                                       styleClass="print"   
+                                                       ajax="#{(comprasDirectControlador.executeReport) ? 'false' : 'true'}" process="@this"
+                                                       partialSubmit="false"
+                                                       value="Generar Reporte"
+                                                       action="#{comprasDirectControlador.prepareReporte(comprasDirectControlador.executeReport)}"	
+                                                       target="#{(comprasDirectControlador.executeReport) ? '_blank' : '_self'}"
+                                                       />          
                                     </div>
                                     <div class="ui-g-5 ui-md-4">
                                         <p:commandButton value="Cancelar" action="#{comprasDirectControlador.cancelarEventos()}" ajax="true" update=":formocompra :formlistComp"
@@ -419,8 +445,8 @@
                                             <f:facet name="header">
                                                 Lista de Ordenes de Compra
                                             </f:facet>
-                                            <p:column headerText="Orden Compra" style="width: 10%">
-                                                <h:outputText value="#{ocompra.nro_docum}" />
+                                            <p:column headerText="Factura" style="width: 10%">
+                                                <h:outputText value="#{ocompra.factura}" />
                                             </p:column>
 
                                             <p:column headerText="Fecha" style="width: 10%">

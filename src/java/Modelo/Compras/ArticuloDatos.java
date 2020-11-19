@@ -16,6 +16,7 @@ public class ArticuloDatos implements Serializable {
     private int cod_articulo;
     private String codigo;
     private int stock;
+    private String nombre;
 
     public ArticuloDatos() {
     }
@@ -47,6 +48,14 @@ public class ArticuloDatos implements Serializable {
 
     public void setCodigo(String codigo) {
         this.codigo = codigo;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
     
     

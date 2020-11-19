@@ -30,6 +30,7 @@ public class ComprasDT implements Serializable {
     private String nom_articulo;
 
     transient private String codigo;
+    transient private String nuevoCodigo;
 
 
     public ComprasDT() {
@@ -170,6 +171,14 @@ public class ComprasDT implements Serializable {
 
     public void setCod_articulo2(int cod_articulo2) {
         this.cod_articulo2 = cod_articulo2;
+    }
+
+    public String getNuevoCodigo() {
+        return nuevoCodigo;
+    }
+
+    public void setNuevoCodigo(String nuevoCodigo) {
+        this.nuevoCodigo = nuevoCodigo;
     }
 
     @Override

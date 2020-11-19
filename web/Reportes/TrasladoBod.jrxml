@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report1" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="68924993-d59d-4f6a-9454-2ca7370d1947">
 	<property name="ireport.zoom" value="1.5"/>
-	<property name="ireport.x" value="18"/>
+	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
 	<queryString language="json">
 		<![CDATA[]]>
@@ -21,72 +21,76 @@
 		<band splitType="Stretch"/>
 	</background>
 	<title>
-		<band height="162" splitType="Stretch">
+		<band height="197" splitType="Stretch">
 			<rectangle>
-				<reportElement x="15" y="48" width="523" height="108" forecolor="#CCCCCC" uuid="ffbae558-aa8b-40c3-bd5d-0868554f1f83"/>
+				<reportElement x="15" y="89" width="523" height="108" forecolor="#CCCCCC" uuid="ffbae558-aa8b-40c3-bd5d-0868554f1f83"/>
 			</rectangle>
 			<staticText>
-				<reportElement x="0" y="19" width="555" height="20" uuid="e8aa0a04-bdf3-4652-ade5-7e9a9a501677"/>
+				<reportElement x="136" y="31" width="275" height="20" uuid="e8aa0a04-bdf3-4652-ade5-7e9a9a501677"/>
 				<textElement textAlignment="Center">
 					<font size="12" isBold="true"/>
 				</textElement>
 				<text><![CDATA[TRASLADO BODEGA]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="28" y="65" width="77" height="20" uuid="727e3068-c478-4b34-ae03-30de0e1c70a7"/>
+				<reportElement x="28" y="102" width="77" height="20" uuid="727e3068-c478-4b34-ae03-30de0e1c70a7"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Empresa :]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="105" y="65" width="165" height="20" uuid="7360886c-3a8a-4d10-870d-c913ba6ef396"/>
+				<reportElement x="105" y="102" width="165" height="20" uuid="7360886c-3a8a-4d10-870d-c913ba6ef396"/>
 				<textFieldExpression><![CDATA[$F{nom_emp}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="28" y="85" width="77" height="20" uuid="48c6e43b-5dab-4290-a172-95c467ca836a"/>
+				<reportElement x="28" y="122" width="77" height="20" uuid="48c6e43b-5dab-4290-a172-95c467ca836a"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Bodega Origen:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="28" y="105" width="77" height="20" uuid="b0facb89-0bb1-4b9d-9610-aee3e39e8964"/>
+				<reportElement x="28" y="142" width="77" height="20" uuid="b0facb89-0bb1-4b9d-9610-aee3e39e8964"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Observacion :]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="105" y="85" width="165" height="20" uuid="9f6a13dc-5be6-44af-9ddd-67e818499833"/>
+				<reportElement x="105" y="122" width="165" height="20" uuid="9f6a13dc-5be6-44af-9ddd-67e818499833"/>
 				<textFieldExpression><![CDATA[$F{nom_deposito}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="105" y="105" width="427" height="40" uuid="7ae00488-061c-4bfe-8fc3-6c128f6ea21c"/>
+				<reportElement x="105" y="142" width="427" height="40" uuid="7ae00488-061c-4bfe-8fc3-6c128f6ea21c"/>
 				<textFieldExpression><![CDATA[$F{observacion}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="278" y="65" width="48" height="20" uuid="109c1a8b-10a8-4493-9d4f-99ee440139dd"/>
+				<reportElement x="278" y="102" width="48" height="20" uuid="109c1a8b-10a8-4493-9d4f-99ee440139dd"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Fecha :]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="373" y="65" width="159" height="20" uuid="8c60858a-a2db-42e0-95eb-a2f2393e6cba"/>
+				<reportElement x="373" y="102" width="159" height="20" uuid="8c60858a-a2db-42e0-95eb-a2f2393e6cba"/>
 				<textFieldExpression><![CDATA[$F{fec_doc}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="373" y="85" width="159" height="20" uuid="72e78328-37a8-4ca5-ad11-c4bd9bae8507"/>
+				<reportElement x="373" y="122" width="159" height="20" uuid="72e78328-37a8-4ca5-ad11-c4bd9bae8507"/>
 				<textFieldExpression><![CDATA[$F{nom_deposito2}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="278" y="85" width="95" height="20" uuid="c8e7b9e4-2169-4fbd-abff-a8f0e603f346"/>
+				<reportElement x="278" y="122" width="95" height="20" uuid="c8e7b9e4-2169-4fbd-abff-a8f0e603f346"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Bodega Destino:]]></text>
 			</staticText>
+			<image>
+				<reportElement x="21" y="2" width="115" height="66" uuid="e1a21133-1ec8-4613-ae3c-e44a33be9610"/>
+				<imageExpression><![CDATA["C:\\Users\\LENOVO\\Desktop\\empresa.png"]]></imageExpression>
+			</image>
 		</band>
 	</title>
 	<pageHeader>

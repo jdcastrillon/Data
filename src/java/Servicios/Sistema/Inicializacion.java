@@ -124,7 +124,7 @@ public class Inicializacion {
     public List<ArticuloDatos> StockDisponibleMultiple(String cod_emp, String cod_articulo, String Bodega) {
         String Consulta = "";
 
-        Consulta = "select cod_articulo,codigo,COALESCE((select cantidad from s_stkdepositos where cod_emp='"+cod_emp+"' and cod_estado='Disponible' and cod_tit='"+Bodega+"' and \n"
+        Consulta = "select cod_articulo,codigo,nom_articulo,COALESCE((select cantidad from s_stkdepositos where cod_emp='"+cod_emp+"' and cod_estado='Disponible' and cod_tit='"+Bodega+"' and \n"
                 + "cod_Articulo=A.cod_articulo),0) stock from m_articulos A where A.codigo in ("+cod_articulo+")";
 
         String respuesta = objIni.QueryObj(Consulta);
@@ -139,8 +139,9 @@ public class Inicializacion {
                 }.getType());
                 ArticuloDatos dato = new ArticuloDatos();
                 dato.setCod_articulo(new BigDecimal(map.get("cod_articulo").toString()).intValue());
-                dato.setStock(new BigDecimal(map.get("cantidad").toString()).intValue());
+                dato.setStock(new BigDecimal(map.get("stock").toString()).intValue());
                 dato.setCodigo(map.get("codigo").toString());
+                dato.setNombre(map.get("nom_articulo").toString());
                 datos.add(dato);
             }
         }
@@ -193,7 +194,7 @@ public class Inicializacion {
                 cod_ArticuloN = numerador("articulo");
             }
         }
-
+        System.out.println("Articulo 2 :"+cod_ArticuloN);
         return cod_ArticuloN;
     }
 

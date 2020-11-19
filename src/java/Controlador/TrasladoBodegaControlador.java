@@ -260,28 +260,8 @@ public class TrasladoBodegaControlador {
                     Resulta = TrasladoService.Transaccion(objTraldoBodega, "Editar");
                     mns = "Traslado Editado";
                     break;
-                case "Reporte": {
-                    try {
-                        Resulta = SelService.PDFDescargar2("Blank_A4_1");
-                    } catch (IOException ex) {
-                        System.out.println("Error reporte");
-                        Logger.getLogger(TrasladoBodegaControlador.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-                mns = "Reporte";
-                break;
-//                case "Buscar":
-//                    Resulta = TrasladoService.buscarDoc(objTraldoBodega);
-//                    break;//                case "Buscar":
-//                    Resulta = TrasladoService.buscarDoc(objTraldoBodega);
-//                    break;
-
             }
             if (Resulta[0].equals("OK")) {
-                if (evento.equalsIgnoreCase("Buscar")) {
-                    listTranslado.clear();
-                    listTranslado = (List<TrasladoBodega>) Resulta[1];
-                } else {
                     FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", mns));
                     lista(2);
                     setObjTraldoBodega(null);
@@ -293,7 +273,7 @@ public class TrasladoBodegaControlador {
                     }
                     this.evento = "inicio";
                     controlEventos(evento);
-                }
+                
             } else {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Info", (String) Resulta[1]));
             }

@@ -8,8 +8,11 @@ import Servicios.ComprasService;
 import Servicios.Sistema.Inicializacion;
 import Servicios.Sistema.Seleccion;
 import Servicios.Sistema.Validaciones;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -28,6 +31,11 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperRunManager;
+import net.sf.jasperreports.engine.data.JsonDataSource;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -76,9 +84,9 @@ public class ComprasDirectControlador {
     private boolean nuevo;
     private boolean buscar;
     private boolean reporte;
-    private boolean inventario;
     private String evento;
     private String valorBusqueda;
+    private boolean executeReport = false;
 
     @PostConstruct
     public void init() {
@@ -102,7 +110,7 @@ public class ComprasDirectControlador {
         //2: Carga Despues de Transaccion
         ListCompra.clear();
         listDepositos.clear();
-        ListCompra = Compra_service.Lista();
+        ListCompra = Compra_service.Lista("Compra");
 
         if (condicion == 1) {
             listEmpresas.clear();
@@ -199,8 +207,8 @@ public class ComprasDirectControlador {
         System.out.println("Size Empresa : " + listEmpresas.size());
         objCompra.setCod_emp(listEmpresas.get(0).getCod_emp());
         objCompra.setPorcentaje(listImpuestos.get(0).getPorc_imp());
+        objCompra.setCod_deposito(listDepositos.get(0).getCod_deposito());
         objCompra.setNro_docum(0);
-        setInventario(true);
         objCompra.setD_fec_doc(new Date());
         resetTotales();
 
@@ -236,6 +244,7 @@ public class ComprasDirectControlador {
         Resulta = Compra_service.recuperarInfo(objecto);
         setObjCompra((Compras) Resulta[0]);
         lista(2);
+        setExecuteReport(true);
         //Condiciones
         switch (condicion) {
             case 1:
@@ -267,9 +276,11 @@ public class ComprasDirectControlador {
     public void transaccion() {
         Object Resulta[] = new Object[1];
         String mns = "";
+        setExecuteReport(false);
         if (validaciones()) {
             switch (this.evento) {
                 case "Nuevo":
+                    articulosNuevos();
                     Resulta = Compra_service.Transaccion(objCompra, "Nuevo", "Compra");
                     mns = "O.C Realizada exitosamente";
                     break;
@@ -278,21 +289,24 @@ public class ComprasDirectControlador {
                     mns = "O.C Eliminada exitosamente";
                     break;
                 case "Editar":
+                    articulosNuevos();
                     Resulta = Compra_service.Transaccion(objCompra, "Editar", "Compra");
                     mns = "O.C Editado exitosamente";
                     break;
             }
             if (Resulta[0].equals("OK")) {
-                if (evento.equalsIgnoreCase("Buscar")) {
-                    ListCompra.clear();
-                    ListCompra = (List<Compras>) Resulta[1];
-                } else {
-                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", mns));
-                    lista(2);
-                    setObjCompra(null);
-                    this.evento = "inicio";
-                    controlEventos(evento);
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", mns));
+                lista(2);
+                setObjCompra(null);
+                getObjCompra();
+                if (evento.equalsIgnoreCase("Nuevo")) {
+                    objCompra.setTrans((int) Resulta[2]);
+                    System.out.println("Trans : " + objCompra.getTrans());
+                    setExecuteReport(true);
                 }
+                this.evento = "inicio";
+                controlEventos(evento);
+
             } else {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Info", (String) Resulta[1]));
             }
@@ -307,7 +321,6 @@ public class ComprasDirectControlador {
         this.nuevo = (boolean) acciones[3];
         this.buscar = (boolean) acciones[4];
         this.reporte = (boolean) acciones[5];
-        setInventario(false);
 
     }
 
@@ -333,6 +346,50 @@ public class ComprasDirectControlador {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Info", mns));
         }
         return mns.length() <= 0;
+    }
+
+    public void prepareReporte(boolean reporte) throws JRException, IOException {
+
+        System.out.println("reporte = " + reporte);
+        if (reporte) {
+            File jasper = new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Reportes/FactCompra.jasper"));
+//            String datos = "[{\"trans\":86,\"cod_emp\":\"Data\",\"nom_emp\":\"DataPyme\",\"fec_doc\":\"2020-05-15\",\"nro_docum\":109,\"cod_estado\":\"Stock\",\"cod_deposito\":\"1\",\"nom_deposito\":\"Bodega Principal\",\"observacion\":\"Sistema\",\"case\":\"Ingreso\",\"cod_articulo\":100,\"nom_articulo\":\"Invictus\",\"cantidad\":100}]";
+            String rawJsonData = SelService.ConsultaIreport("select C.nom_emp,C.nit,C.direccion,A.factura,A.fec_doc,D.cod_documento||'-'||D.razon_social proveedor,D.direccion,E.descripcion,\n"
+                    + "F.nom_deposito,B.codigonew,B.nom_articulo,B.cantidad,B.imp_costo,B.porc_imp,B.imp_impuesto art_impuesto ,B.imp_neto art_neto,B.imp_total art_total,\n"
+                    + "A.imp_neto,A.imp_impuesto,A.imp_total,A.observaciones from t_compras A inner join td_compras B on A.trans=B.trans\n"
+                    + "inner join m_empresa C on A.cod_emp=C.cod_emp\n"
+                    + "inner join m_proveedores D on A.cod_provedor=D.cod_provedor\n"
+                    + "inner join m_pagos E on A.cod_fpago=E.cod_pago\n"
+                    + "inner join m_depositos F on A.cod_deposito=F.cod_deposito\n"
+                    + "where A.trans="+objCompra.getTrans());
+            System.out.println("*************************");
+            System.out.println("" + rawJsonData);
+            System.out.println("" + rawJsonData.replace("\\", "").replace("\"[", "[").replace("]\"", "]"));
+
+//            Reporte_AjusteStock[] stock = gson.fromJson(rawJsonData.replace("\\", ""), Reporte_AjusteStock[].class);
+            //System.out.println(rawJsonData);
+            String json = new Gson().toJson(rawJsonData.replace("\\", "").replace("\"[", "[").replace("]\"", "]"));
+
+            ByteArrayInputStream jsonDataStream = new ByteArrayInputStream(rawJsonData.replace("\\", "").replace("\"[", "[").replace("]\"", "]").getBytes());
+//            System.out.println(json);
+            JsonDataSource ds = new JsonDataSource(jsonDataStream);
+
+            byte[] jp = JasperRunManager.runReportToPdf(jasper.getPath(), null, ds);
+            HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
+            response.setContentType("application/pdf");
+            response.setContentLength(jp.length);
+            try (ServletOutputStream outStream = response.getOutputStream()) {
+                outStream.write(jp, 0, jp.length);
+                outStream.flush();
+                outStream.close();
+            }
+            FacesContext.getCurrentInstance().responseComplete();
+        }
+        setExecuteReport(true);
+    }
+
+    public void reporte() {
+        this.executeReport = true;
     }
 
     public void handleFileUpload(FileUploadEvent event) throws IOException, SQLException {
@@ -399,14 +456,28 @@ public class ComprasDirectControlador {
                 obj.setCantidad(Integer.parseInt(datos[3]));
                 obj.setImp_costo(Double.parseDouble(datos[4]));
                 obj.setPorc_imp(Float.parseFloat(datos[5]));
+                obj.setNuevoCodigo("S");
+//                obj.setImp_neto(obj.getCantidad() * obj.getImp_costo());
 
                 if (buscarElementoxCodigo(obj) == false) {
                     objCompra.getComprasDt().add(obj);
                 }
             });
 
+            objCompra.getComprasDt().stream().map((comprasDT) -> {
+                System.out.println("Objecto" + comprasDT.toString());
+                return comprasDT;
+            }).map((comprasDT) -> {
+                comprasDT.setImp_neto(comprasDT.getImp_costo() * comprasDT.getCantidad());
+                return comprasDT;
+            }).map((comprasDT) -> {
+                comprasDT.setImp_total(comprasDT.getImp_neto() + (comprasDT.getImp_neto() * (comprasDT.getPorc_imp() / 100)));
+                return comprasDT;
+            }).forEachOrdered((comprasDT) -> {
+                comprasDT.setImp_impuesto(comprasDT.getImp_neto() * (comprasDT.getPorc_imp() / 100));
+            });
+
             totalesFooter();
-            setInventario(false);
             calcularStock();
         } else {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Aviso", "Debes seleccionar primero un archivo..!"));
@@ -417,15 +488,36 @@ public class ComprasDirectControlador {
     public void calcularStock() {
         System.out.println("*************** " + "calcularStock");
         String cadenaArticulos = "";
-        cadenaArticulos = objCompra.getComprasDt().stream().map((comprasDT) -> "'"+comprasDT.getCodigo()+ "',").reduce(cadenaArticulos, String::concat);
+        cadenaArticulos = objCompra.getComprasDt().stream().map((comprasDT) -> "'" + comprasDT.getCodigo() + "',").reduce(cadenaArticulos, String::concat);
         String substring = cadenaArticulos.substring(0, cadenaArticulos.length() - 1);
         List<ArticuloDatos> datos = new ArrayList();
         datos = ObjIni.StockDisponibleMultiple(objCompra.getCod_emp(), substring, objCompra.getCod_deposito());
-
+        System.out.println("Datos : " + datos.size());
         for (ArticuloDatos dato : datos) {
-            objCompra.getComprasDt().stream().filter((comprasDT) -> (dato.getCod_articulo() == comprasDT.getCod_articulo())).forEachOrdered((comprasDT) -> {
+            objCompra.getComprasDt().stream().filter((comprasDT) -> (dato.getCodigo().equalsIgnoreCase(comprasDT.getCodigo()))).forEachOrdered((comprasDT) -> {
                 comprasDT.setStock(dato.getStock());
+                comprasDT.setCod_articulo(dato.getCod_articulo());
+                comprasDT.setNuevoCodigo("N");
+                comprasDT.setNom_articulo(dato.getNombre());
+                System.out.println("---");
             });
+        }
+    }
+
+    public void articulosNuevos() {
+        System.out.println("Articulos Nuevos");
+        for (ComprasDT comprasDT : objCompra.getComprasDt()) {
+            comprasDT.setCambia_codigo("N");
+            if (!comprasDT.getCodigo().equalsIgnoreCase(comprasDT.getCodigonew())) {
+                comprasDT.setCambia_codigo("S");
+                comprasDT.setCod_articulo2(ObjIni.codigo_articulo_nuevo(comprasDT.getCodigonew()));
+            }
+            if (comprasDT.getNuevoCodigo().equalsIgnoreCase("S")) {
+                System.out.println("Articulo con nuevo codigo");
+                comprasDT.setCambia_codigo("S");
+                comprasDT.setCod_articulo2(ObjIni.codigo_articulo_nuevo(comprasDT.getCodigonew()));
+                comprasDT.setCod_articulo(comprasDT.getCod_articulo2());
+            }
         }
     }
 
@@ -433,9 +525,12 @@ public class ComprasDirectControlador {
         System.out.println("Cargando cargarDepositos " + objCompra.getCod_provedor());
         ListPagos.clear();
         //Pagos
-        JsonArray Jelementos3 = ObjIni.listObjectos("SELECT A.cod_pago, descripcion FROM public.m_pagos A INNER JOIN \n"
+        JsonArray Jelementos3 = ObjIni.listObjectos("select * from(SELECT A.cod_pago, descripcion ,1 linea FROM public.m_pagos A INNER JOIN \n"
                 + "m_proveedores B on A.cod_pago=B.cod_fpago\n"
-                + "where A.activo='S' and B.cod_provedor=" + objCompra.getCod_provedor());
+                + "where A.activo='S' and B.cod_provedor=" + objCompra.getCod_provedor() + " union\n"
+                + "SELECT A.cod_pago, descripcion , 2 linea FROM public.m_pagos A INNER JOIN \n"
+                + "m_proveedores B on A.cod_pago=B.cod_fpago\n"
+                + "where A.activo='S' and B.cod_provedor<>" + objCompra.getCod_provedor() + ")X order by 3");
         for (JsonElement jsonElement : Jelementos3) {
             if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
                 Map<String, Object> map = ObjIni.fromJson(jsonElement);
@@ -465,6 +560,7 @@ public class ComprasDirectControlador {
         obj.setPorc_imp((int) Resulta[2]);
         obj.setStock((int) Resulta[0]);
         obj.setImp_costo((double) Resulta[1]);
+        obj.setNuevoCodigo("N");
 
         if (buscarElemento(obj) == false) {
             objCompra.getComprasDt().add(0, obj);
@@ -529,25 +625,60 @@ public class ComprasDirectControlador {
         double total = 0;
         double impuesto = 0;
         for (ComprasDT comprasDT : objCompra.getComprasDt()) {
-            stock = stock + comprasDT.getStock();
+//            stock = stock + comprasDT.getStock();
             costo = costo + (comprasDT.getImp_costo());
             cantidad = cantidad + comprasDT.getCantidad();
             neto = neto + comprasDT.getImp_neto();
             total = total + comprasDT.getImp_total();
             impuesto = impuesto + comprasDT.getImp_impuesto();
         }
-        totales[0] = stock;
-        totales[1] = formatter.format(costo);
-        totales[2] = cantidad;
+//        totales[0] = stock;
+//        totales[1] = formatter.format(costo);
+//        totales[2] = cantidad;
         totales[3] = formatter.format(neto);
         totales[4] = formatter.format(total);
-        totales[5] = formatter.format(costo * cantidad);
+//        totales[5] = formatter.format(costo * cantidad);
         totales[6] = formatter.format(impuesto);
 
-        objCompra.setImp_neto(costo);
+        objCompra.setImp_neto(neto);
         objCompra.setImp_impuesto(impuesto);
         objCompra.setImp_total(total);
 
+    }
+
+    public void nombre_articulo(int cod_articulo, String codigo) {
+        String nombre = "";
+        boolean existeCodigo = false;
+        JsonArray Jelementos = ObjIni.listObjectos("select nom_articulo from m_articulos where codigo='" + codigo + "'");
+        for (JsonElement jsonElement : Jelementos) {
+            if (!jsonElement.getAsString().equalsIgnoreCase("No hay Datos")) {
+                Map<String, Object> map = ObjIni.fromJson(jsonElement);
+                nombre = (map.get("nom_articulo").toString());
+                existeCodigo = true;
+            }
+        }
+        System.out.println("Codigo : " + cod_articulo);
+        System.out.println("Nom_articulo : " + nombre);
+        if (existeCodigo) {
+            for (ComprasDT compraDT : objCompra.getComprasDt()) {
+                System.out.println(compraDT.getCod_articulo() + "=" + cod_articulo);
+                if (compraDT.getCod_articulo() == cod_articulo) {
+                    compraDT.setNom_articulo(nombre);
+                    System.out.println("Actualizo ");
+                    break;
+                }
+            }
+        } else {
+            System.out.println("Articulo Nuevo");
+            //Se marca la opcion de nuevo codigo , para pintar la fila
+            for (ComprasDT compraDT : objCompra.getComprasDt()) {
+                System.out.println(compraDT.getCod_articulo() + "=" + cod_articulo);
+                if (compraDT.getCod_articulo() == cod_articulo) {
+                    compraDT.setNuevoCodigo("S");
+                    break;
+                }
+            }
+        }
     }
 
     public void resetTotales() {
@@ -569,7 +700,7 @@ public class ComprasDirectControlador {
 
     public void limpiarDatos() {
         ListCompra.clear();
-        ListCompra = Compra_service.Lista();
+        ListCompra = Compra_service.Lista("Compra");
         this.valorBusqueda = "";
     }
 
@@ -783,12 +914,12 @@ public class ComprasDirectControlador {
         this.uploadedFile = uploadedFile;
     }
 
-    public boolean isInventario() {
-        return inventario;
+    public boolean isExecuteReport() {
+        return executeReport;
     }
 
-    public void setInventario(boolean inventario) {
-        this.inventario = inventario;
+    public void setExecuteReport(boolean executeReport) {
+        this.executeReport = executeReport;
     }
 
 }

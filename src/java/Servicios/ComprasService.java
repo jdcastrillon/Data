@@ -52,7 +52,7 @@ public class ComprasService implements Serializable {
 
     public Object[] Transaccion(Compras obj, String accion, String proceso) {
         System.out.println("Entro a Servicio " + obj.toString());
-        Object Resulta[] = new Object[2];
+        Object Resulta[] = new Object[3];
         try {
             List<objsql> transacciones = new ArrayList();
 
@@ -72,8 +72,8 @@ public class ComprasService implements Serializable {
             obj.setCod_docum("Compra");
             obj.setFec_doc("@fecha" + obj.getD_fec_doc().getTime());
             obj.setFec_entrega(obj.getFec_doc());
-            
-            if(proceso.equalsIgnoreCase("OC")){
+
+            if (proceso.equalsIgnoreCase("OC")) {
                 obj.setCod_deposito("0");
             }
 
@@ -118,18 +118,27 @@ public class ComprasService implements Serializable {
             System.out.println(":" + map.get("mns").toString());
             Resulta[0] = map.get("estado");
             Resulta[1] = map.get("mns").toString().indexOf("#imp") > 0 ? map.get("mns").toString().substring(12, 100) : map.get("mns");
+            Resulta[2] = obj.getTrans();
         } catch (JsonSyntaxException ex) {
             Resulta[0] = "Error";
             Resulta[1] = "Comuniquese con soporte";
+            Resulta[2] = 0;
         }
 
         return Resulta;
     }
 
-    public List<Compras> Lista() {
-        String respuesta = dao.QueryObj("SELECT trans, cod_emp, cod_provedor, cod_docum, nro_docum, cod_fpago, \n"
-                + "  fec_doc, fec_entrega, observaciones, cod_log\n"
-                + "  FROM public.t_compras where  nro_docum>0 ");
+    public List<Compras> Lista(String proceso) {
+        String respuesta = "";
+        if (proceso.equalsIgnoreCase("OC")) {
+            respuesta = dao.QueryObj("SELECT trans, cod_emp, cod_provedor, cod_docum, nro_docum, cod_fpago, \n"
+                    + "  fec_doc, fec_entrega, observaciones, cod_log,factura\n"
+                    + "  FROM public.t_compras where  nro_docum>0 ");
+        } else {
+            respuesta = dao.QueryObj("SELECT trans, cod_emp, cod_provedor, cod_docum, nro_docum, cod_fpago, \n"
+                    + "  fec_doc, fec_entrega, observaciones, cod_log,factura\n"
+                    + "  FROM public.t_compras where  nro_docum=0 ");
+        }
         JsonArray Jelementos = parser.parse(respuesta).getAsJsonArray();
         List<Compras> listCompras = new ArrayList();
         for (JsonElement jsonElement : Jelementos) {
@@ -150,6 +159,7 @@ public class ComprasService implements Serializable {
                     obj.setFec_entrega(map.get("fec_entrega").toString());
                     obj.setObservaciones(map.get("observaciones").toString());
                     obj.setCod_log(new BigDecimal(map.get("cod_log").toString()).intValue());
+                    obj.setFactura(map.get("factura").toString());
 
                     System.out.println("FEcha : " + obj.getFec_doc());
                     date1 = new SimpleDateFormat("yyyy-MM-dd").parse(obj.getFec_doc());

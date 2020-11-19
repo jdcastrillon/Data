@@ -116,7 +116,7 @@ public class Seleccion {
         String respuesta = "";
 
         if (condicion == 1) {
-            respuesta = objIni.QueryObj("select cod_articulo as cod_articulo2,codigo as codigo2,nom_Articulo as nom_articulo2"
+            respuesta = objIni.QueryObj("select cod_articulo as cod_articulo2 ,codigo as codigo2,nom_articulo as nom_articulo2,'x' as nom_articulo3"
                     + " from m_articulos where cod_articulo='" + query + "'");
         } else {
             respuesta = objIni.QueryObj("select * from articulos_buscar('" + query + "')");
@@ -134,6 +134,7 @@ public class Seleccion {
                 obj.setCod_articulo(new BigDecimal(map.get("cod_articulo2").toString()).intValue());
                 obj.setCodigo(map.get("codigo2").toString());
                 obj.setNom_articulo(map.get("nom_articulo2").toString());
+                obj.setNom_articulo2(map.get("nom_articulo3").toString());
                 listArticulos.add(obj);
             }
         }

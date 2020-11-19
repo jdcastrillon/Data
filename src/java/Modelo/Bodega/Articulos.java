@@ -41,6 +41,7 @@ public class Articulos implements Serializable {
     transient private String nom_unidad;
     transient private String nom_subcategoria;
     transient private String codigo2;
+    transient private String nom_articulo2;
 
     transient List<Log_Transaccion> logs = new ArrayList();
 
@@ -251,6 +252,14 @@ public class Articulos implements Serializable {
 
     public void setCodigo2(String codigo2) {
         this.codigo2 = codigo2;
+    }
+
+    public String getNom_articulo2() {
+        return nom_articulo2;
+    }
+
+    public void setNom_articulo2(String nom_articulo2) {
+        this.nom_articulo2 = nom_articulo2;
     }
 
     @Override
